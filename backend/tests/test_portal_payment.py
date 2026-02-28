@@ -107,6 +107,7 @@ def test_create_payment_intent_idempotent(client, db_session):
         invoice_id=invoice.id,
         share_link_id=link.id,
         stripe_intent_id="pi_existing_001",
+        client_secret="pi_existing_001_secret_xyz",
         amount_cents=11900,
         fee_cents=60,
         status="created",
@@ -118,7 +119,9 @@ def test_create_payment_intent_idempotent(client, db_session):
         res = client.post(f"/api/portal/{token}/create-payment-intent")
     mock_pi.assert_not_called()
     assert res.status_code == 200
-    assert res.json()["intent_id"] == "pi_existing_001"
+    data = res.json()
+    assert data["intent_id"] == "pi_existing_001"
+    assert data["client_secret"] == "pi_existing_001_secret_xyz"
 
 
 def test_create_payment_intent_fails_if_org_not_onboarded(client, db_session):

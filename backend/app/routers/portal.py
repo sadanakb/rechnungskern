@@ -236,7 +236,7 @@ async def create_payment_intent(
     if existing:
         return {
             "intent_id": existing.stripe_intent_id,
-            "client_secret": None,
+            "client_secret": existing.client_secret,
             "amount": existing.amount_cents,
             "currency": invoice.currency or "EUR",
         }
@@ -263,6 +263,7 @@ async def create_payment_intent(
         invoice_id=invoice.id,
         share_link_id=link.id,
         stripe_intent_id=result["intent_id"],
+        client_secret=result["client_secret"],
         amount_cents=amount_cents,
         fee_cents=fee_cents,
         status="created",

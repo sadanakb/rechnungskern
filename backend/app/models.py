@@ -505,6 +505,7 @@ class PortalPaymentIntent(Base):
     invoice_id = Column(Integer, ForeignKey("invoices.id"), nullable=False, index=True)
     share_link_id = Column(Integer, ForeignKey("invoice_share_links.id"), nullable=False, index=True)
     stripe_intent_id = Column(String(255), unique=True, nullable=False, index=True)
+    client_secret = Column(String(500), nullable=True)  # Stripe client_secret for payment confirmation
     amount_cents = Column(Integer, nullable=False)
     fee_cents = Column(Integer, nullable=False, default=0)
     status = Column(String(50), nullable=False, default='created')

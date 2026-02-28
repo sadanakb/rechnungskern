@@ -27,6 +27,7 @@ def upgrade() -> None:
         sa.Column('invoice_id', sa.Integer(), sa.ForeignKey('invoices.id'), nullable=False),
         sa.Column('share_link_id', sa.Integer(), sa.ForeignKey('invoice_share_links.id'), nullable=False),
         sa.Column('stripe_intent_id', sa.String(255), nullable=False),
+        sa.Column('client_secret', sa.String(500), nullable=True),
         sa.Column('amount_cents', sa.Integer(), nullable=False),
         sa.Column('fee_cents', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('status', sa.String(50), nullable=False, server_default='created'),
