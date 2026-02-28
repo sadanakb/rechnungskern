@@ -186,3 +186,215 @@ async def get_monthly_summary(
             pass
 
     return {"month": month_key, "summary": summary_text, "cached": False}
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    history: list[ChatMessage] = []
+
+
+SYSTEM_PROMPT = """Du bist ein hilfreicher Buchhaltungsassistent für das Rechnungstool RechnungsWerk.
+Du hilfst dem Nutzer bei Fragen zu seinen Rechnungen, Umsätzen und Buchhaltung.
+Antworte immer auf Deutsch, präzise und professionell.
+Du hast Zugang zu den Rechnungsdaten des Nutzers über die bereitgestellten Tools."""
+
+
+@router.post("/chat")
+async def chat(
+    body: ChatRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Streaming chat endpoint using SSE. Supports tool use for DB queries."""
+    import json as _json
+    from fastapi.responses import StreamingResponse
+
+    org_id = _resolve_org_id(current_user, db)
+
+    # Build tool definitions
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_invoice_stats",
+                "description": "Holt Rechnungsstatistiken: Anzahl, Summen, Status-Verteilung",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "period": {"type": "string", "enum": ["today", "week", "month", "year", "all"]},
+                    },
+                    "required": ["period"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_overdue_invoices",
+                "description": "Listet alle überfälligen Rechnungen auf",
+                "parameters": {"type": "object", "properties": {}},
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_top_customers",
+                "description": "Zeigt die Top-Kunden nach Umsatz",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "limit": {"type": "integer", "default": 5},
+                    },
+                },
+            },
+        },
+    ]
+
+    def execute_tool(tool_name: str, arguments: dict) -> str:
+        """Execute a tool call and return result as string."""
+        from datetime import date, timedelta
+
+        if tool_name == "get_invoice_stats":
+            period = arguments.get("period", "month")
+            query = db.query(Invoice).filter(Invoice.organization_id == org_id)
+            today = date.today()
+            if period == "today":
+                query = query.filter(Invoice.invoice_date == today)
+            elif period == "week":
+                query = query.filter(Invoice.invoice_date >= today - timedelta(days=7))
+            elif period == "month":
+                query = query.filter(
+                    func.strftime("%Y-%m", Invoice.invoice_date) == today.strftime("%Y-%m")
+                )
+            elif period == "year":
+                query = query.filter(
+                    func.strftime("%Y", Invoice.invoice_date) == str(today.year)
+                )
+            invoices = query.all()
+            total = sum(float(inv.gross_amount or 0) for inv in invoices)
+            paid = sum(1 for inv in invoices if inv.payment_status == "paid")
+            open_inv = sum(1 for inv in invoices if inv.payment_status in ("unpaid", "open", None))
+            overdue = sum(1 for inv in invoices if inv.payment_status == "overdue")
+            return f"Zeitraum '{period}': {len(invoices)} Rechnungen, Gesamtumsatz {total:.2f} EUR, {paid} bezahlt, {open_inv} offen, {overdue} überfällig"
+
+        elif tool_name == "get_overdue_invoices":
+            invoices = db.query(Invoice).filter(
+                Invoice.organization_id == org_id,
+                Invoice.payment_status == "overdue",
+            ).limit(10).all()
+            if not invoices:
+                return "Keine überfälligen Rechnungen."
+            lines = [f"- {inv.invoice_id} ({inv.buyer_name}): {float(inv.gross_amount or 0):.2f} EUR, fällig {inv.due_date}" for inv in invoices]
+            return "\n".join(lines)
+
+        elif tool_name == "get_top_customers":
+            limit = arguments.get("limit", 5)
+            invoices = db.query(Invoice).filter(Invoice.organization_id == org_id).all()
+            totals: dict = {}
+            for inv in invoices:
+                name = inv.buyer_name or "Unbekannt"
+                totals[name] = totals.get(name, 0) + float(inv.gross_amount or 0)
+            sorted_customers = sorted(totals.items(), key=lambda x: x[1], reverse=True)[:limit]
+            lines = [f"{i+1}. {name}: {total:.2f} EUR" for i, (name, total) in enumerate(sorted_customers)]
+            return "\n".join(lines) if lines else "Keine Kundendaten vorhanden."
+
+        return f"Unbekanntes Tool: {tool_name}"
+
+    async def stream_response():
+        """Generator for SSE streaming."""
+        from app.config import settings as app_settings
+
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        for msg in body.history[-10:]:  # Max 10 history messages
+            messages.append({"role": msg.role, "content": msg.content})
+        messages.append({"role": "user", "content": body.message})
+
+        try:
+            if app_settings.anthropic_api_key:
+                # Use Anthropic streaming with tool use
+                from anthropic import Anthropic
+                client = Anthropic(api_key=app_settings.anthropic_api_key)
+
+                anthropic_tools = [
+                    {
+                        "name": t["function"]["name"],
+                        "description": t["function"]["description"],
+                        "input_schema": t["function"]["parameters"],
+                    }
+                    for t in tools
+                ]
+
+                with client.messages.stream(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=1024,
+                    system=SYSTEM_PROMPT,
+                    messages=[{"role": m["role"], "content": m["content"]} for m in messages if m["role"] != "system"],
+                    tools=anthropic_tools,
+                ) as stream:
+                    tool_calls_made = []
+                    for event in stream:
+                        if hasattr(event, "type"):
+                            if event.type == "content_block_delta" and hasattr(event.delta, "text"):
+                                yield f"data: {_json.dumps({'token': event.delta.text})}\n\n"
+                            elif event.type == "content_block_start" and hasattr(event.content_block, "type") and event.content_block.type == "tool_use":
+                                tool_calls_made.append(event.content_block)
+
+                    # Execute tool calls if any
+                    for tool_call in tool_calls_made:
+                        tool_result = execute_tool(tool_call.name, tool_call.input)
+                        yield f"data: {_json.dumps({'tool_result': tool_result})}\n\n"
+
+            elif app_settings.openai_api_key:
+                # Use OpenAI streaming
+                from openai import OpenAI
+                client = OpenAI(api_key=app_settings.openai_api_key)
+
+                stream = client.chat.completions.create(
+                    model=app_settings.openai_model,
+                    messages=messages,
+                    tools=tools,
+                    stream=True,
+                    max_tokens=1024,
+                )
+
+                tool_name_buf = ""
+                tool_args_buf = ""
+                in_tool_call = False
+
+                for chunk in stream:
+                    delta = chunk.choices[0].delta if chunk.choices else None
+                    if not delta:
+                        continue
+                    if delta.content:
+                        yield f"data: {_json.dumps({'token': delta.content})}\n\n"
+                    if delta.tool_calls:
+                        in_tool_call = True
+                        for tc in delta.tool_calls:
+                            if tc.function.name:
+                                tool_name_buf += tc.function.name
+                            if tc.function.arguments:
+                                tool_args_buf += tc.function.arguments
+
+                if in_tool_call and tool_name_buf:
+                    try:
+                        args = _json.loads(tool_args_buf) if tool_args_buf else {}
+                    except Exception:
+                        args = {}
+                    tool_result = execute_tool(tool_name_buf, args)
+                    yield f"data: {_json.dumps({'tool_result': tool_result})}\n\n"
+            else:
+                yield f"data: {_json.dumps({'token': 'Kein KI-Provider konfiguriert. Bitte OPENAI_API_KEY oder ANTHROPIC_API_KEY setzen.'})}\n\n"
+
+        except Exception as e:
+            logger.error("Chat streaming error: %s", e)
+            yield f"data: {_json.dumps({'error': str(e)})}\n\n"
+
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(stream_response(), media_type="text/event-stream")
