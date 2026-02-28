@@ -413,6 +413,45 @@ def send_datev_export_email(
         return False
 
 
+def send_gdpr_delete_confirmation(to_email: str, token: str) -> bool:
+    """Send GDPR Art. 17 account deletion confirmation email."""
+    if not settings.brevo_api_key:
+        logger.warning("Brevo not configured, skipping GDPR delete email to %s", to_email)
+        return False
+
+    import sib_api_v3_sdk
+    api = _get_transactional_api()
+
+    confirm_url = f"https://app.rechnungswerk.de/gdpr/confirm-delete?token={token}"
+    html_content = (
+        "<html><body>"
+        "<h2>Account-Löschung bestätigen</h2>"
+        "<p>Du hast die Löschung deines RechnungsWerk-Accounts beantragt.</p>"
+        "<p>Klicke auf den folgenden Button, um dein Konto und alle Daten "
+        "<strong>unwiderruflich</strong> zu löschen:</p>"
+        f'<p><a href="{confirm_url}" style="background:#ef4444;color:white;padding:12px 24px;'
+        f'border-radius:6px;text-decoration:none;font-weight:bold;">Account jetzt löschen</a></p>'
+        "<p>Dieser Link ist 24 Stunden gültig. Falls du diese Anfrage nicht gestellt hast, "
+        "ignoriere diese E-Mail.</p>"
+        "<br><p>RechnungsWerk</p>"
+        "</body></html>"
+    )
+
+    email = sib_api_v3_sdk.SendSmtpEmail(
+        to=[{"email": to_email}],
+        sender=SENDER,
+        subject="Account-Löschung bestätigen — RechnungsWerk",
+        html_content=html_content,
+    )
+    try:
+        api.send_transac_email(email)
+        logger.info("GDPR delete confirmation sent to %s", to_email)
+        return True
+    except Exception as e:
+        logger.error("Failed to send GDPR delete email to %s: %s", to_email, e)
+        return False
+
+
 async def enqueue_email(arq_pool, task_type: str, **kwargs) -> bool:
     """Enqueue an email task via ARQ if pool is available, else send synchronously."""
     if arq_pool is not None:
