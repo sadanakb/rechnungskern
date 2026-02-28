@@ -29,6 +29,17 @@ interface Release {
 
 const releases: Release[] = [
   {
+    version: 'v1.2.0',
+    title: 'Phase 12: Kunden-Portal Online-Zahlung',
+    date: '28.02.2026',
+    items: [
+      { text: 'Kunden-Portal: Online-Zahlung per Kreditkarte, SEPA-Lastschrift, Sofort und iDEAL', tag: 'neu' },
+      { text: 'Stripe Connect Express: Verbinde dein Stripe-Konto in ~10 Minuten', tag: 'neu' },
+      { text: 'PayPal-Link im Portal: Kunden können direkt per PayPal zahlen', tag: 'neu' },
+      { text: 'Automatische Zahlung-Bestätigung via Stripe Webhook — kein manuelles Bestätigen mehr nötig', tag: 'neu' },
+    ],
+  },
+  {
     version: 'v1.1.0',
     title: 'Phase 11: Push Notifications + GDPR Controls',
     date: '28.02.2026',

@@ -142,7 +142,7 @@ export function SidebarNav() {
                   color: 'rgb(var(--primary))',
                 }}
               >
-                7.0.0
+                8.0.0
               </span>
             </div>
           )}
