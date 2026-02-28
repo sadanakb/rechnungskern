@@ -29,6 +29,20 @@ interface Release {
 
 const releases: Release[] = [
   {
+    version: 'v1.0.0',
+    title: 'DATEV-Export — Buchungsstapel v700',
+    date: '28.02.2026',
+    items: [
+      { text: 'DATEV EXTF v700 ZIP-Export mit Buchungsstapel.csv + Stammdaten.csv', tag: 'feature' },
+      { text: 'Nur kategorisierte Rechnungen (Phase 9 SKR03) werden exportiert', tag: 'feature' },
+      { text: 'Beraternummer + Mandantennummer in EXTF-Header eingebettet', tag: 'feature' },
+      { text: 'DATEV-Konfiguration in Einstellungen (Beraternummer, Mandantennummer, Steuerberater-E-Mail)', tag: 'feature' },
+      { text: '„An Steuerberater senden" Button mit E-Mail-Benachrichtigung', tag: 'feature' },
+      { text: 'Berichte: Monatsbereich-Picker ersetzt Quartal-Auswahl im DATEV-Export', tag: 'feature' },
+      { text: 'Alembic Migration Phase 10: datev_berater_nr, datev_mandant_nr, steuerberater_email Spalten', tag: 'infra' },
+    ],
+  },
+  {
     version: 'v0.9.0',
     title: 'Phase 9: KI-Suite + Echtzeit',
     date: '28.02.2026',
