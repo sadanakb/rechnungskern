@@ -188,7 +188,7 @@ def connect_status(
         }
     except Exception as e:
         logger.error("Stripe Connect status check error: %s", e)
-        return {"onboarded": org.stripe_connect_onboarded, "account_id": org.stripe_connect_account_id}
+        return {"onboarded": bool(org.stripe_connect_onboarded), "account_id": org.stripe_connect_account_id, "charges_enabled": bool(org.stripe_connect_onboarded)}
 
 
 # ---------------------------------------------------------------------------
@@ -355,8 +355,9 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                     invoice.paid_date = date.today()
                     invoice.payment_method = "stripe_portal"
                     invoice.payment_reference = intent_id
-                    db.commit()
-                    logger.info("Portal payment succeeded: invoice_id=%s intent=%s", invoice.id, intent_id)
+                db.commit()  # always commit ppi.status (and invoice if updated)
+                logger.info("Portal payment succeeded: ppi_id=%s intent=%s", ppi.id, intent_id)
+                if invoice and invoice.organization_id:
                     try:
                         from app import push_service
                         push_service.notify_org(
