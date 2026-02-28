@@ -4,35 +4,42 @@ Public portal router — no authentication required.
 Customer-facing endpoints accessed via share token.
 Rate limited to prevent abuse.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Invoice, InvoiceShareLink
+from app.models import Invoice, InvoiceShareLink, Organization, PortalPaymentIntent
 from app.rate_limiter import limiter
+from app import stripe_service
 
 router = APIRouter()
 
 
 def _get_invoice_by_token(token: str, db: Session) -> tuple:
-    """Resolve token to (invoice, share_link) or raise 404/410."""
+    """Resolve token to (invoice, share_link, org) or raise 404/410."""
     link = db.query(InvoiceShareLink).filter(InvoiceShareLink.token == token).first()
     if not link:
         raise HTTPException(status_code=404, detail="Link nicht gefunden")
 
-    if link.expires_at and link.expires_at < datetime.utcnow():
-        raise HTTPException(status_code=410, detail="Link ist abgelaufen")
+    expires = link.expires_at
+    if expires:
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=timezone.utc)
+        if expires < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Link ist abgelaufen")
 
     invoice = db.query(Invoice).filter(Invoice.id == link.invoice_id).first()
     if not invoice:
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
 
+    org = db.query(Organization).filter(Organization.id == invoice.organization_id).first()
+
     link.access_count += 1
     db.commit()
 
-    return invoice, link
+    return invoice, link, org
 
 
 @router.get("/{token}")
@@ -41,7 +48,7 @@ async def get_portal_invoice(
     token: str, request: Request, db: Session = Depends(get_db)
 ):
     """Return invoice data for portal display. Public endpoint — no auth required."""
-    invoice, link = _get_invoice_by_token(token, db)
+    invoice, link, org = _get_invoice_by_token(token, db)
 
     from app.ws import notify_org
     try:
@@ -73,6 +80,9 @@ async def get_portal_invoice(
         "iban": invoice.iban,
         "payment_account_name": invoice.payment_account_name,
         "expires_at": link.expires_at.isoformat() if link.expires_at else None,
+        # Phase 12: online payment options
+        "stripe_payment_enabled": bool(org and org.stripe_connect_onboarded),
+        "paypal_link": (org.paypal_link if org else None),
     }
 
 
@@ -84,7 +94,7 @@ async def confirm_payment(
     """Customer confirms they have made payment. Sets payment_status to 'paid'."""
     from datetime import date
 
-    invoice, _ = _get_invoice_by_token(token, db)
+    invoice, _link, _org = _get_invoice_by_token(token, db)
 
     if invoice.payment_status == "paid":
         return {"message": "Bereits als bezahlt markiert", "payment_status": "paid"}
@@ -116,7 +126,7 @@ async def download_pdf(
     """Serve ZUGFeRD PDF for download."""
     import os
 
-    invoice, _ = _get_invoice_by_token(token, db)
+    invoice, _link, _org = _get_invoice_by_token(token, db)
 
     if invoice.zugferd_pdf_path and os.path.exists(invoice.zugferd_pdf_path):
         return FileResponse(
@@ -168,7 +178,7 @@ async def download_xml(
     token: str, request: Request, db: Session = Depends(get_db)
 ):
     """Serve XRechnung XML for download."""
-    invoice, _ = _get_invoice_by_token(token, db)
+    invoice, _link, _org = _get_invoice_by_token(token, db)
 
     invoice_data = {
         "invoice_number": invoice.invoice_number or "",
@@ -202,3 +212,77 @@ async def download_xml(
             "Content-Disposition": f'attachment; filename="Rechnung_{invoice.invoice_number}.xml"'
         },
     )
+
+
+@router.post("/{token}/create-payment-intent")
+@limiter.limit("10/minute")
+async def create_payment_intent(
+    token: str, request: Request, db: Session = Depends(get_db)
+):
+    """Create a Stripe PaymentIntent for this invoice. Idempotent — returns existing if pending."""
+    invoice, link, org = _get_invoice_by_token(token, db)
+
+    if invoice.payment_status == "paid":
+        raise HTTPException(status_code=409, detail="Rechnung bereits bezahlt")
+
+    if not org or not org.stripe_connect_onboarded or not org.stripe_connect_account_id:
+        raise HTTPException(status_code=409, detail="Online-Zahlung nicht aktiviert")
+
+    # Idempotency: return existing "created" intent without calling Stripe again
+    existing = db.query(PortalPaymentIntent).filter(
+        PortalPaymentIntent.invoice_id == invoice.id,
+        PortalPaymentIntent.status == "created",
+    ).first()
+    if existing:
+        return {
+            "intent_id": existing.stripe_intent_id,
+            "client_secret": None,
+            "amount": existing.amount_cents,
+            "currency": invoice.currency or "EUR",
+        }
+
+    amount_cents = round(float(invoice.gross_amount or 0) * 100)
+    fee_cents = round(amount_cents * 0.005)
+
+    try:
+        result = stripe_service.create_portal_payment_intent(
+            amount_cents=amount_cents,
+            currency=invoice.currency or "EUR",
+            connected_account_id=org.stripe_connect_account_id,
+            fee_cents=fee_cents,
+            metadata={
+                "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number or "",
+                "share_link_id": str(link.id),
+            },
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Stripe-Fehler: {e}")
+
+    ppi = PortalPaymentIntent(
+        invoice_id=invoice.id,
+        share_link_id=link.id,
+        stripe_intent_id=result["intent_id"],
+        amount_cents=amount_cents,
+        fee_cents=fee_cents,
+        status="created",
+    )
+    db.add(ppi)
+    db.commit()
+
+    return {
+        "intent_id": result["intent_id"],
+        "client_secret": result["client_secret"],
+        "amount": amount_cents,
+        "currency": invoice.currency or "EUR",
+    }
+
+
+@router.get("/{token}/payment-status")
+@limiter.limit("30/minute")
+async def get_payment_status(
+    token: str, request: Request, db: Session = Depends(get_db)
+):
+    """Return current payment status for polling after Stripe redirect."""
+    invoice, _link, _org = _get_invoice_by_token(token, db)
+    return {"payment_status": invoice.payment_status or "unpaid"}
