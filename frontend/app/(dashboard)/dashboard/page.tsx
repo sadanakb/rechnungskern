@@ -27,7 +27,7 @@ import {
   CloudUpload,
   Cpu,
 } from 'lucide-react'
-import { getHealth, listInvoices, getDashboardStats, type HealthData, type Invoice, type DashboardStats } from '@/lib/api'
+import { getHealth, listInvoices, getDashboardStats, getAiMonthlySummary, type HealthData, type Invoice, type DashboardStats } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
@@ -181,6 +181,9 @@ export default function Dashboard() {
   const [uploadDragging, setUploadDragging] = useState(false)
   const [uploadDropped, setUploadDropped] = useState<File | null>(null)
 
+  const [aiSummary, setAiSummary] = useState<string | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+
   // Fetch health
   const fetchHealth = useCallback(async () => {
     setHealthLoading(true)
@@ -215,6 +218,14 @@ export default function Dashboard() {
     fetchHealth()
     fetchInvoices()
   }, [fetchHealth, fetchInvoices])
+
+  useEffect(() => {
+    setSummaryLoading(true)
+    getAiMonthlySummary()
+      .then(r => setAiSummary(r.summary))
+      .catch(() => setAiSummary(null))
+      .finally(() => setSummaryLoading(false))
+  }, [])
 
   // Dropzone: forward to OCR page with file stored in sessionStorage
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -434,6 +445,35 @@ export default function Dashboard() {
           )
         })}
       </motion.div>
+
+      {/* ===== AI Monthly Summary ===== */}
+      {(aiSummary || summaryLoading) && (
+        <div
+          className="mx-4 mb-4 p-4 rounded-xl"
+          style={{
+            backgroundColor: 'rgb(var(--card))',
+            border: '1px solid rgb(var(--border))',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              style={{ color: 'rgb(var(--primary))' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <span className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>
+              KI-Zusammenfassung
+            </span>
+          </div>
+          {summaryLoading ? (
+            <div className="h-4 rounded animate-pulse" style={{ backgroundColor: 'rgb(var(--muted))' }} />
+          ) : (
+            <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              {aiSummary}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ===== Main Content Grid ===== */}
       <motion.div

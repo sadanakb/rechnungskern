@@ -1446,3 +1446,13 @@ export async function streamChatMessage(
   }
   onDone()
 }
+
+export async function getAiMonthlySummary(month?: string): Promise<{
+  month: string
+  summary: string
+  cached: boolean
+}> {
+  const url = month ? `/api/ai/monthly-summary?month=${month}` : '/api/ai/monthly-summary'
+  const res = await api.get(url)
+  return res.data
+}
