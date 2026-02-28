@@ -124,6 +124,31 @@ def sample_invoice_dict(sample_invoice_data) -> dict:
 
 
 @pytest.fixture()
+def test_invoice(db_session) -> Invoice:
+    """A minimal Invoice row persisted in the test DB for task tests."""
+    import uuid
+
+    inv = Invoice(
+        invoice_id=f"INV-20260228-{uuid.uuid4().hex[:8]}",
+        invoice_number="RE-TEST-001",
+        invoice_date=date(2026, 2, 28),
+        seller_name="Test GmbH",
+        gross_amount=1190.0,
+        net_amount=1000.0,
+        tax_amount=190.0,
+        tax_rate=19.0,
+        line_items=[{"description": "Testleistung", "quantity": 1, "unit_price": 1000.0, "net_amount": 1000.0}],
+        source_type="manual",
+        validation_status="pending",
+        organization_id=1,
+    )
+    db_session.add(inv)
+    db_session.commit()
+    db_session.refresh(inv)
+    return inv
+
+
+@pytest.fixture()
 def saved_invoice(db_session, sample_invoice_dict) -> Invoice:
     """An Invoice row already persisted in the test DB."""
     import uuid

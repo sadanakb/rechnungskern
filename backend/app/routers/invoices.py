@@ -234,6 +234,7 @@ async def upload_pdf_for_ocr(
 @router.post("/invoices", response_model=InvoiceResponse)
 async def create_invoice(
     invoice: InvoiceCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: Optional[dict] = Depends(get_current_user_optional),
 ):
@@ -294,6 +295,18 @@ async def create_invoice(
     db.add(db_invoice)
     db.commit()
     db.refresh(db_invoice)
+
+    # Async AI categorization (non-blocking)
+    arq_pool = getattr(request.app.state, "arq_pool", None)
+    if arq_pool:
+        try:
+            await arq_pool.enqueue_job(
+                "categorize_invoice_task",
+                db_invoice.invoice_id,
+                org_id,
+            )
+        except Exception as e:
+            logger.debug("Could not enqueue categorization task: %s", e)
 
     # Publish webhook event if the invoice belongs to an organization
     if org_id:

@@ -17,7 +17,7 @@ from app.config import settings
 from app.middleware.security import SecurityHeadersMiddleware
 from app.database import init_db
 from app.auth import ACTIVE_API_KEY
-from app.routers import health, invoices, suppliers, external_api, recurring, email, auth as auth_router, billing, mahnwesen, onboarding, newsletter, gobd, users, teams, webhooks, api_keys, audit, templates, notifications, contacts, invoice_sequences, import_invoices, contact as contact_router, portal as portal_router
+from app.routers import health, invoices, suppliers, external_api, recurring, email, auth as auth_router, billing, mahnwesen, onboarding, newsletter, gobd, users, teams, webhooks, api_keys, audit, templates, notifications, contacts, invoice_sequences, import_invoices, contact as contact_router, portal as portal_router, ai as ai_router
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +105,49 @@ app.include_router(invoice_sequences.router)
 app.include_router(import_invoices.router)
 app.include_router(contact_router.router)
 app.include_router(portal_router.router, prefix="/api/portal", tags=["portal"])
+app.include_router(ai_router.router, prefix="/api/ai", tags=["ai"])
+
+
+# WebSocket endpoint (Phase 9 — real-time events)
+from fastapi import WebSocket, WebSocketDisconnect
+from app.ws import manager as ws_manager
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket, token: str = ""):
+    """Real-time WebSocket endpoint. Auth via ?token=<jwt>."""
+    from app.auth_jwt import decode_token
+    from app.database import SessionLocal
+    from app.models import OrganizationMember
+
+    # Validate JWT token
+    try:
+        payload = decode_token(token)
+        user_id = int(payload.get("sub", 0))
+    except Exception:
+        await websocket.close(code=1008)  # Policy Violation
+        return
+
+    # Resolve org_id
+    db = SessionLocal()
+    try:
+        member = db.query(OrganizationMember).filter(
+            OrganizationMember.user_id == user_id
+        ).first()
+        if not member:
+            await websocket.close(code=1008)
+            return
+        org_id = member.organization_id
+    finally:
+        db.close()
+
+    await ws_manager.connect(org_id, websocket)
+    try:
+        while True:
+            # Keep connection alive — receive messages (ping/pong or ignore)
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        ws_manager.disconnect(org_id, websocket)
 
 
 @app.get("/")
