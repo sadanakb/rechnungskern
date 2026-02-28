@@ -161,7 +161,12 @@ class DATEVExporter:
         row[0] = self._format_amount(gross)          # Umsatz
         row[1] = "S"                                   # Soll
         row[2] = invoice.get("currency", "EUR")        # WKZ
-        konto = invoice.get("skr03_account") or self.accounts["accounts_receivable"]
+        # Use AI-assigned SKR03 account only when exporting in SKR03 mode
+        konto = (
+            invoice.get("skr03_account") or self.accounts["accounts_receivable"]
+            if self.kontenrahmen == "SKR03"
+            else self.accounts["accounts_receivable"]
+        )
         row[6] = konto  # Konto
         row[7] = revenue_account                       # Gegenkonto (Erloese)
         row[8] = bu_key                                # BU-Schluessel

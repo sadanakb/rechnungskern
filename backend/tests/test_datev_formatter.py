@@ -41,8 +41,10 @@ class TestDATEVFormatter:
         inv = self._sample_invoice(skr03_account="4930")
         csv_str = exporter.export_buchungsstapel([inv], berater_nr="12345", mandant_nr="00001")
         lines = csv_str.strip().split("\n")
-        booking_line = lines[2]  # Line 0: header, Line 1: columns, Line 2: first booking
-        assert "4930" in booking_line
+        booking_line = lines[2]  # Line 0: EXTF header, Line 1: columns, Line 2: first booking
+        # Column index 6 is Konto (0-indexed, semicolon delimited)
+        fields = booking_line.split(";")
+        assert fields[6] == "4930", f"Expected Konto=4930 at column 6, got: {fields[6]!r}"
 
     def test_decimal_comma_formatting(self):
         """Amounts must use comma as decimal separator (German DATEV format)."""
