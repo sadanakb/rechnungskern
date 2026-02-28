@@ -125,7 +125,7 @@ def test_request_delete_sends_email(client, db_session):
 def test_confirm_delete_with_valid_token(client, db_session):
     """DELETE /api/gdpr/confirm-delete?token=... deletes user data when token is valid."""
     token = _register_and_login(client, "gdpr_delete2@test.de", "GDPR Org 4")
-    with patch("app.email_service.send_gdpr_delete_confirmation"):
+    with patch("app.routers.gdpr.send_gdpr_delete_confirmation"):
         client.post("/api/gdpr/request-delete", headers=_auth(token))
 
     req = db_session.query(GdprDeleteRequest).first()
