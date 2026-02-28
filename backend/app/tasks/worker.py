@@ -281,6 +281,57 @@ async def daily_recurring_check(ctx: Dict):
         db.close()
 
 
+async def categorize_invoice_task(ctx: Dict, invoice_id: str, org_id: int):
+    """Async ARQ task: categorize invoice via AI and send WS notification."""
+    from app.database import SessionLocal
+    from app.models import Invoice
+    from app.ai_service import categorize_invoice
+    from app.ws import notify_org
+    from datetime import datetime
+
+    db = SessionLocal()
+    try:
+        invoice = db.query(Invoice).filter(Invoice.invoice_id == invoice_id).first()
+        if not invoice:
+            logger.warning("categorize_invoice_task: invoice %s not found", invoice_id)
+            return {"error": "not found"}
+
+        description = " ".join([
+            li.get("description", "") for li in (invoice.line_items or [])
+        ]) or invoice.invoice_id or ""
+
+        result = categorize_invoice(
+            seller_name=invoice.seller_name or "",
+            description=description,
+            amount=float(invoice.gross_amount or 0),
+        )
+
+        invoice.skr03_account = result.get("skr03_account", "4900")
+        invoice.ai_category = result.get("category", "Sonstige")
+        invoice.ai_categorized_at = datetime.utcnow()
+        db.commit()
+
+        logger.info("Categorized invoice %s → %s (%s)", invoice_id, invoice.skr03_account, invoice.ai_category)
+
+        # Notify org via WebSocket
+        try:
+            await notify_org(
+                org_id,
+                "invoice.categorized",
+                {
+                    "invoice_id": invoice_id,
+                    "skr03": invoice.skr03_account,
+                    "category": invoice.ai_category,
+                },
+            )
+        except Exception as e:
+            logger.debug("WS notify failed (non-critical): %s", e)
+
+        return {"invoice_id": invoice_id, "skr03_account": invoice.skr03_account, "category": invoice.ai_category}
+    finally:
+        db.close()
+
+
 async def startup(ctx: Dict):
     """Worker startup hook."""
     logger.info("ARQ worker started")
@@ -300,6 +351,7 @@ class WorkerSettings:
         send_email_task,
         webhook_retry_task,
         daily_recurring_check,
+        categorize_invoice_task,
     ]
     cron_jobs = [
         cron(daily_recurring_check, hour=6, minute=0),  # 06:00 UTC daily
