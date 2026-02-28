@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     mistral_api_key: str = ""
     ollama_model: str = "qwen2.5:14b"
     ai_provider: str = "auto"  # auto, anthropic, mistral, ollama
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
 
     # Brevo (Newsletter)
     brevo_api_key: str = ""
