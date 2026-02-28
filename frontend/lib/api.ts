@@ -530,6 +530,19 @@ export async function exportDatev(year: number, quarter?: number): Promise<void>
   URL.revokeObjectURL(url)
 }
 
+export async function exportDatevZip(fromMonth: string, toMonth: string): Promise<void> {
+  const params = new URLSearchParams({ from_month: fromMonth, to_month: toMonth })
+  const res = await api.get(`/api/datev/export?${params}`, { responseType: 'blob' })
+  const url = URL.createObjectURL(new Blob([res.data], { type: 'application/zip' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `DATEV_${fromMonth}_${toMonth}.zip`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 // ---------------------------------------------------------------------------
 // DATEV Settings (Phase 10)
 // ---------------------------------------------------------------------------

@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
-import { Download, BarChart3, Calendar, AlertTriangle } from 'lucide-react'
+import { Download, BarChart3, Calendar, AlertTriangle, Mail } from 'lucide-react'
 import {
-  getTaxSummary, getCashflow, getOverdueAging, exportDatev,
+  getTaxSummary, getCashflow, getOverdueAging, exportDatevZip, sendDatevEmail,
   type TaxSummaryRow, type CashflowMonth, type OverdueAgingBucket,
 } from '@/lib/api'
 
@@ -393,79 +393,84 @@ function OverdueAgingSection() {
 // DATEV Export Section
 // ---------------------------------------------------------------------------
 
-const QUARTER_OPTIONS = [
-  { label: 'Gesamtes Jahr', value: '' },
-  { label: 'Q1 (Jan–Mrz)', value: '1' },
-  { label: 'Q2 (Apr–Jun)', value: '2' },
-  { label: 'Q3 (Jul–Sep)', value: '3' },
-  { label: 'Q4 (Okt–Dez)', value: '4' },
-]
-
 function DATEVExportSection() {
-  const currentYear = new Date().getFullYear()
-  const [year, setYear] = useState(2026)
-  const [quarter, setQuarter] = useState('')
+  const now = new Date()
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+  const [fromMonth, setFromMonth] = useState(currentMonth)
+  const [toMonth, setToMonth] = useState(currentMonth)
   const [loading, setLoading] = useState(false)
+  const [emailing, setEmailing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [emailSuccess, setEmailSuccess] = useState(false)
 
-  const yearOptions = [2024, 2025, 2026]
-
-  const handleExport = useCallback(async () => {
+  const handleExport = async () => {
     setLoading(true)
     setError(null)
     try {
-      await exportDatev(year, quarter ? Number(quarter) : undefined)
-    } catch {
-      setError('Export fehlgeschlagen. Bitte erneut versuchen.')
+      await exportDatevZip(fromMonth, toMonth)
+    } catch (e: any) {
+      const detail = e?.response?.data?.detail || 'Export fehlgeschlagen. Bitte erneut versuchen.'
+      setError(detail)
     } finally {
       setLoading(false)
     }
-  }, [year, quarter])
+  }
+
+  const handleSendEmail = async () => {
+    setEmailing(true)
+    setError(null)
+    setEmailSuccess(false)
+    try {
+      await sendDatevEmail(fromMonth, toMonth)
+      setEmailSuccess(true)
+      setTimeout(() => setEmailSuccess(false), 3000)
+    } catch (e: any) {
+      const detail = e?.response?.data?.detail || 'E-Mail fehlgeschlagen.'
+      setError(detail)
+    } finally {
+      setEmailing(false)
+    }
+  }
 
   return (
     <SectionCard title="DATEV-Export" icon={Download}>
       <p className="text-sm mb-4" style={{ color: 'rgb(var(--foreground-muted))' }}>
-        DATEV-kompatible Buchungssätze für Ihren Steuerberater
+        DATEV EXTF Buchungsstapel (ZIP) — nur KI-kategorisierte Rechnungen
       </p>
 
       <div className="flex flex-wrap gap-3 mb-4">
-        {/* Year selector */}
         <div className="flex items-center gap-2">
-          <Calendar size={14} style={{ color: 'rgb(var(--foreground-muted))' }} />
-          <span className="text-xs" style={{ color: 'rgb(var(--foreground-muted))' }}>Jahr:</span>
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+          <span className="text-xs" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            Von:
+          </span>
+          <input
+            type="month"
+            value={fromMonth}
+            onChange={(e) => setFromMonth(e.target.value)}
             className="rounded-lg border px-2 py-1 text-sm"
             style={{
               backgroundColor: 'rgb(var(--background))',
               borderColor: 'rgb(var(--border))',
               color: 'rgb(var(--foreground))',
             }}
-          >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+          />
         </div>
-
-        {/* Quarter selector */}
         <div className="flex items-center gap-2">
-          <span className="text-xs" style={{ color: 'rgb(var(--foreground-muted))' }}>Quartal:</span>
-          <select
-            value={quarter}
-            onChange={(e) => setQuarter(e.target.value)}
+          <span className="text-xs" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            Bis:
+          </span>
+          <input
+            type="month"
+            value={toMonth}
+            onChange={(e) => setToMonth(e.target.value)}
             className="rounded-lg border px-2 py-1 text-sm"
             style={{
               backgroundColor: 'rgb(var(--background))',
               borderColor: 'rgb(var(--border))',
               color: 'rgb(var(--foreground))',
             }}
-          >
-            {QUARTER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          />
         </div>
       </div>
 
@@ -475,18 +480,37 @@ function DATEVExportSection() {
         </p>
       )}
 
-      <button
-        onClick={handleExport}
-        disabled={loading}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{
-          backgroundColor: 'rgb(var(--primary))',
-          color: '#ffffff',
-        }}
-      >
-        <Download size={14} />
-        {loading ? 'Exportiere…' : 'DATEV exportieren'}
-      </button>
+      {emailSuccess && (
+        <p className="text-xs mb-3" style={{ color: 'rgb(var(--success, 34 197 94))' }}>
+          ✓ E-Mail an Steuerberater wird versendet
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={handleExport}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ backgroundColor: 'rgb(var(--primary))', color: '#ffffff' }}
+        >
+          <Download size={14} />
+          {loading ? 'Exportiere…' : 'ZIP Exportieren'}
+        </button>
+
+        <button
+          onClick={handleSendEmail}
+          disabled={emailing}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            backgroundColor: 'transparent',
+            borderColor: 'rgb(var(--border))',
+            color: 'rgb(var(--foreground))',
+          }}
+        >
+          <Mail size={14} />
+          {emailing ? 'Sende…' : 'An Steuerberater senden'}
+        </button>
+      </div>
     </SectionCard>
   )
 }
