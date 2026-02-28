@@ -156,6 +156,22 @@ def create_mahnung(
         mahnung.mahnung_id, next_level, invoice_id,
     )
 
+    # Phase 11: Push notification on mahnung created
+    if mahnung.organization_id:
+        try:
+            from app import push_service
+            level_label = {1: "Zahlungserinnerung", 2: "1. Mahnung", 3: "2. Mahnung"}.get(
+                mahnung.level, f"Mahnstufe {mahnung.level}"
+            )
+            push_service.notify_org(
+                organization_id=mahnung.organization_id,
+                title=f"{level_label} erstellt",
+                body=f"Für Rechnung {mahnung.invoice_id} wurde eine {level_label} angelegt.",
+                db=db,
+            )
+        except Exception:
+            pass
+
     # Attempt to send dunning email if buyer email is available
     buyer_email = _extract_buyer_email(invoice)
     if buyer_email:

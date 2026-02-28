@@ -23,6 +23,7 @@ import {
   Loader2,
   ArrowRight,
   Hash,
+  Bell,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import {
@@ -40,6 +41,11 @@ import {
   saveInvoiceSequence,
   getDatevSettings,
   saveDatevSettings,
+  getPushStatus,
+  subscribePush,
+  unsubscribePush,
+  exportGdprData,
+  requestAccountDelete,
   getErrorMessage,
   type UserProfile,
   type OnboardingStatus,
@@ -1608,6 +1614,220 @@ function DatevKonfigurationTab() {
 }
 
 // ---------------------------------------------------------------------------
+// Push Notifications Tab
+// ---------------------------------------------------------------------------
+function PushSettingsTab() {
+  const [subscribed, setSubscribed] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [toggling, setToggling] = useState(false)
+  const [fcmToken, setFcmToken] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem('rw-fcm-token')
+    if (stored) setFcmToken(stored)
+    getPushStatus()
+      .then((data) => setSubscribed(data.subscribed))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleToggle = async () => {
+    setToggling(true)
+    setError(null)
+    try {
+      if (subscribed && fcmToken) {
+        await unsubscribePush(fcmToken)
+        localStorage.removeItem('rw-fcm-token')
+        setFcmToken(null)
+        setSubscribed(false)
+      } else {
+        if (typeof Notification === 'undefined') {
+          setError('Push-Benachrichtigungen werden in diesem Browser nicht unterstützt.')
+          return
+        }
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+          setError('Benachrichtigungen wurden blockiert. Bitte in den Browser-Einstellungen erlauben.')
+          return
+        }
+        // In production: replace with real FCM token from Firebase SDK
+        const mockToken = `sw-token-${Date.now()}`
+        await subscribePush(mockToken)
+        localStorage.setItem('rw-fcm-token', mockToken)
+        setFcmToken(mockToken)
+        setSubscribed(true)
+      }
+    } catch {
+      setError('Fehler beim Ändern der Benachrichtigungseinstellungen.')
+    } finally {
+      setToggling(false)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Push-Benachrichtigungen</CardTitle>
+        <CardDescription>
+          Erhalte sofortige Browser-Benachrichtigungen bei wichtigen Ereignissen.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {loading ? (
+          <p className="text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>Laden…</p>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium" style={{ color: 'rgb(var(--foreground))' }}>
+                  {subscribed ? 'Benachrichtigungen aktiv' : 'Benachrichtigungen deaktiviert'}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--foreground-muted))' }}>
+                  Überfällige Rechnungen · Zahlung eingegangen · Mahnung · OCR
+                </p>
+              </div>
+              <button
+                onClick={handleToggle}
+                disabled={toggling}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 disabled:opacity-50"
+                style={{
+                  backgroundColor: subscribed ? 'rgb(var(--muted))' : 'rgb(var(--primary))',
+                  color: subscribed ? 'rgb(var(--foreground))' : 'rgb(var(--primary-foreground))',
+                }}
+              >
+                {toggling ? '…' : subscribed ? 'Deaktivieren' : 'Aktivieren'}
+              </button>
+            </div>
+            {error && (
+              <p className="text-sm" style={{ color: 'rgb(var(--destructive))' }}>{error}</p>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// GDPR Controls Tab
+// ---------------------------------------------------------------------------
+function GdprTab() {
+  const [exporting, setExporting] = useState(false)
+  const [requestingDelete, setRequestingDelete] = useState(false)
+  const [deleteRequested, setDeleteRequested] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleExport = async () => {
+    setExporting(true)
+    setError(null)
+    try {
+      await exportGdprData()
+    } catch {
+      setError('Export fehlgeschlagen. Bitte versuche es erneut.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleRequestDelete = async () => {
+    setRequestingDelete(true)
+    setError(null)
+    try {
+      await requestAccountDelete()
+      setDeleteRequested(true)
+      setShowDeleteConfirm(false)
+    } catch {
+      setError('Anfrage fehlgeschlagen. Bitte versuche es erneut.')
+    } finally {
+      setRequestingDelete(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Datenexport (Art. 20 DSGVO)</CardTitle>
+          <CardDescription>
+            Lade alle deine gespeicherten Daten als ZIP-Datei herunter (Rechnungen, Kontakte, Profil).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 disabled:opacity-50"
+            style={{ backgroundColor: 'rgb(var(--primary))', color: 'rgb(var(--primary-foreground))' }}
+          >
+            {exporting ? 'Wird erstellt…' : 'Daten herunterladen'}
+          </button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Account löschen (Art. 17 DSGVO)</CardTitle>
+          <CardDescription>
+            Lösche deinen Account und alle Daten unwiderruflich. Du erhältst eine Bestätigungs-E-Mail.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {deleteRequested ? (
+            <p className="text-sm" style={{ color: 'rgb(var(--primary))' }}>
+              Bestätigungs-E-Mail wurde gesendet. Bitte prüfe dein Postfach (gilt 24 Stunden).
+            </p>
+          ) : showDeleteConfirm ? (
+            <div className="space-y-3">
+              <p className="text-sm font-medium" style={{ color: 'rgb(var(--destructive))' }}>
+                Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRequestDelete}
+                  disabled={requestingDelete}
+                  className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                  style={{ backgroundColor: 'rgb(var(--destructive))', color: 'rgb(var(--destructive-foreground))' }}
+                >
+                  {requestingDelete ? '…' : 'Ja, Account löschen'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: 'rgb(var(--muted))', color: 'rgb(var(--foreground))' }}
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 rounded-lg text-sm font-medium"
+              style={{ backgroundColor: 'rgb(var(--muted))', color: 'rgb(var(--destructive))' }}
+            >
+              Account löschen
+            </button>
+          )}
+        </CardContent>
+      </Card>
+
+      {error && (
+        <p className="text-sm" style={{ color: 'rgb(var(--destructive))' }}>{error}</p>
+      )}
+
+      <p className="text-xs" style={{ color: 'rgb(var(--foreground-muted))' }}>
+        Weitere Informationen:{' '}
+        <a href="/datenschutz" style={{ color: 'rgb(var(--primary))' }}>
+          Datenschutzerklärung
+        </a>
+      </p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main Settings Page
 // ---------------------------------------------------------------------------
 export default function SettingsPage() {
@@ -1661,6 +1881,14 @@ export default function SettingsPage() {
             <ArrowRight size={14} />
             <span className="hidden sm:inline">DATEV</span>
           </TabsTrigger>
+          <TabsTrigger value="benachrichtigungen" className="gap-1.5">
+            <Bell size={14} />
+            <span className="hidden sm:inline">Benachrichtigungen</span>
+          </TabsTrigger>
+          <TabsTrigger value="datenschutz" className="gap-1.5">
+            <Shield size={14} />
+            <span className="hidden sm:inline">Datenschutz</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="konto">
@@ -1685,6 +1913,14 @@ export default function SettingsPage() {
 
         <TabsContent value="datev">
           <DatevKonfigurationTab />
+        </TabsContent>
+
+        <TabsContent value="benachrichtigungen">
+          <PushSettingsTab />
+        </TabsContent>
+
+        <TabsContent value="datenschutz">
+          <GdprTab />
         </TabsContent>
       </Tabs>
     </div>

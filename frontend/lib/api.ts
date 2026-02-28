@@ -1494,3 +1494,47 @@ export async function getAiMonthlySummary(month?: string): Promise<{
   const res = await api.get(url)
   return res.data
 }
+
+// ── Push Notifications (Phase 11) ──────────────────────────────────────────
+
+export interface PushStatusResponse {
+  subscribed: boolean
+  subscription_count: number
+}
+
+export async function getPushStatus(): Promise<PushStatusResponse> {
+  const res = await api.get('/api/push/status')
+  return res.data
+}
+
+export async function subscribePush(fcmToken: string, deviceLabel?: string): Promise<{ subscribed: boolean }> {
+  const res = await api.post('/api/push/subscribe', {
+    fcm_token: fcmToken,
+    device_label: deviceLabel ?? (typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 80) : 'unknown'),
+  })
+  return res.data
+}
+
+export async function unsubscribePush(fcmToken: string): Promise<void> {
+  await api.delete('/api/push/unsubscribe', { params: { fcm_token: fcmToken } })
+}
+
+// ── GDPR Controls (Phase 11) ───────────────────────────────────────────────
+
+export async function exportGdprData(): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10)
+  const res = await api.get('/api/gdpr/export', { responseType: 'blob' })
+  const url = URL.createObjectURL(new Blob([res.data], { type: 'application/zip' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `RechnungsWerk_Datenexport_${today}.zip`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+export async function requestAccountDelete(): Promise<{ message: string }> {
+  const res = await api.post('/api/gdpr/request-delete')
+  return res.data
+}

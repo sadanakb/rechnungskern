@@ -95,7 +95,8 @@ _MAX_UPLOAD_BYTES = settings.max_upload_size_mb * 1024 * 1024
 async def upload_pdf_for_ocr(
     request: Request,
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[dict] = Depends(get_current_user_optional),
 ):
     """
     Upload PDF invoice for OCR processing
@@ -206,6 +207,22 @@ async def upload_pdf_for_ocr(
         # Update upload log
         upload_log.upload_status = "success"
         db.commit()
+
+        # Phase 11: Push notification on OCR complete
+        _ocr_org_id = getattr(upload_log, "organization_id", None) or (
+            current_user.get("org_id") if current_user else None
+        )
+        if _ocr_org_id:
+            try:
+                from app import push_service
+                push_service.notify_org(
+                    organization_id=int(_ocr_org_id),
+                    title="OCR abgeschlossen",
+                    body="Rechnung wurde erkannt und gespeichert.",
+                    db=db,
+                )
+            except Exception:
+                pass
 
         return OCRResult(
             invoice_id=invoice_id,
@@ -736,6 +753,20 @@ async def update_payment_status(
 
     db.commit()
     db.refresh(invoice)
+
+    # Phase 11: Push notification on payment received
+    if body.status == "paid" and invoice.organization_id:
+        try:
+            from app import push_service
+            push_service.notify_org(
+                organization_id=invoice.organization_id,
+                title="Zahlung eingegangen",
+                body=f"Rechnung {invoice.invoice_id} wurde als bezahlt markiert.",
+                db=db,
+            )
+        except Exception:
+            pass  # Push failure must never break the payment update
+
     return {"ok": True, "payment_status": invoice.payment_status}
 
 

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     Column, Integer, String, Float, Numeric, Date, DateTime, Text,
-    JSON, Boolean, ForeignKey, func,
+    JSON, Boolean, ForeignKey, func, UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -459,3 +459,35 @@ class InvoiceShareLink(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     invoice = relationship("Invoice")
+
+
+class PushSubscription(Base):
+    """FCM push notification subscription per user/device — Phase 11."""
+    __tablename__ = 'push_subscriptions'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False, index=True)
+    fcm_token = Column(String(500), nullable=False)
+    device_label = Column(String(100), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
+
+    user = relationship("User", backref="push_subscriptions")
+    organization = relationship("Organization", backref="org_push_subscriptions")
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'fcm_token', name='uq_push_user_token'),
+    )
+
+
+class GdprDeleteRequest(Base):
+    """GDPR Art. 17 — pending account deletion confirmation — Phase 11."""
+    __tablename__ = 'gdpr_delete_requests'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    token = Column(String(64), unique=True, nullable=False, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
+
+    user = relationship("User", backref="gdpr_delete_requests")

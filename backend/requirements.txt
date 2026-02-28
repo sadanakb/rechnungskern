@@ -67,6 +67,9 @@ openai>=1.0.0
 # PDF Generation (GoBD docs)
 reportlab>=4.2.0
 
+# Push Notifications (Phase 11)
+firebase-admin>=6.2.0
+
 # Development & Testing
 pytest==8.3.0
 pytest-asyncio==0.24.0

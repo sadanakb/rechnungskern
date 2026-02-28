@@ -342,6 +342,9 @@ async def shutdown(ctx: Dict):
     logger.info("ARQ worker stopped")
 
 
+from app.tasks.push_cron import send_overdue_push_cron
+
+
 class WorkerSettings:
     """ARQ worker configuration."""
     functions = [
@@ -352,9 +355,11 @@ class WorkerSettings:
         webhook_retry_task,
         daily_recurring_check,
         categorize_invoice_task,
+        send_overdue_push_cron,
     ]
     cron_jobs = [
-        cron(daily_recurring_check, hour=6, minute=0),  # 06:00 UTC daily
+        cron(daily_recurring_check, hour=6, minute=0),   # 06:00 UTC daily
+        cron(send_overdue_push_cron, hour=8, minute=0),  # 08:00 UTC daily — Phase 11
     ]
     on_startup = startup
     on_shutdown = shutdown
