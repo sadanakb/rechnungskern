@@ -94,7 +94,7 @@ def create_connect_onboarding_url(
 
     Returns: {"url": str, "account_id": str}
     """
-    if existing_account_id:
+    if existing_account_id is not None:
         account_id = existing_account_id
     else:
         account = stripe.Account.create(
