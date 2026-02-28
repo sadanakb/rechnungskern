@@ -530,6 +530,44 @@ export async function exportDatev(year: number, quarter?: number): Promise<void>
   URL.revokeObjectURL(url)
 }
 
+export async function exportDatevZip(fromMonth: string, toMonth: string): Promise<void> {
+  const params = new URLSearchParams({ from_month: fromMonth, to_month: toMonth })
+  const res = await api.get(`/api/datev/export?${params}`, { responseType: 'blob' })
+  const url = URL.createObjectURL(new Blob([res.data], { type: 'application/zip' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `DATEV_${fromMonth}_${toMonth}.zip`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+// ---------------------------------------------------------------------------
+// DATEV Settings (Phase 10)
+// ---------------------------------------------------------------------------
+
+export interface DatevSettings {
+  datev_berater_nr: string | null
+  datev_mandant_nr: string | null
+  steuerberater_email: string | null
+}
+
+export async function getDatevSettings(): Promise<DatevSettings> {
+  const res = await api.get('/api/onboarding/datev-settings')
+  return res.data
+}
+
+export async function saveDatevSettings(settings: Partial<DatevSettings>): Promise<DatevSettings> {
+  const res = await api.post('/api/onboarding/datev-settings', settings)
+  return res.data
+}
+
+export async function sendDatevEmail(fromMonth: string, toMonth: string): Promise<{ message: string }> {
+  const res = await api.post('/api/datev/send-email', { from_month: fromMonth, to_month: toMonth })
+  return res.data
+}
+
 // ---------------------------------------------------------------------------
 // Analytics
 // ---------------------------------------------------------------------------

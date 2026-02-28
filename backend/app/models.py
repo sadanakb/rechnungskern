@@ -33,6 +33,10 @@ class Organization(Base):
     stripe_customer_id = Column(String(255), nullable=True)
     stripe_subscription_id = Column(String(255), nullable=True)
     plan_status = Column(String(50), default='active')  # active, cancelled, past_due, trialing
+    # DATEV configuration (Phase 10)
+    datev_berater_nr = Column(String(5), nullable=True)
+    datev_mandant_nr = Column(String(5), nullable=True)
+    steuerberater_email = Column(String(200), nullable=True)
     created_at = Column(DateTime(timezone=True), default=_utc_now)
     updated_at = Column(DateTime(timezone=True), default=_utc_now, onupdate=_utc_now)
 
