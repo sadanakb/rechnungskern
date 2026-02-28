@@ -1510,7 +1510,7 @@ export async function getPushStatus(): Promise<PushStatusResponse> {
 export async function subscribePush(fcmToken: string, deviceLabel?: string): Promise<{ subscribed: boolean }> {
   const res = await api.post('/api/push/subscribe', {
     fcm_token: fcmToken,
-    device_label: deviceLabel ?? navigator.userAgent.substring(0, 80),
+    device_label: deviceLabel ?? (typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 80) : 'unknown'),
   })
   return res.data
 }

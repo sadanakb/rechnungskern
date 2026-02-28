@@ -1622,6 +1622,8 @@ function PushSettingsTab() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const stored = localStorage.getItem('rw-fcm-token')
+    if (stored) setFcmToken(stored)
     getPushStatus()
       .then((data) => setSubscribed(data.subscribed))
       .catch(() => {})
@@ -1634,6 +1636,7 @@ function PushSettingsTab() {
     try {
       if (subscribed && fcmToken) {
         await unsubscribePush(fcmToken)
+        localStorage.removeItem('rw-fcm-token')
         setFcmToken(null)
         setSubscribed(false)
       } else {
@@ -1649,6 +1652,7 @@ function PushSettingsTab() {
         // In production: replace with real FCM token from Firebase SDK
         const mockToken = `sw-token-${Date.now()}`
         await subscribePush(mockToken)
+        localStorage.setItem('rw-fcm-token', mockToken)
         setFcmToken(mockToken)
         setSubscribed(true)
       }
@@ -1687,7 +1691,7 @@ function PushSettingsTab() {
                 className="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 disabled:opacity-50"
                 style={{
                   backgroundColor: subscribed ? 'rgb(var(--muted))' : 'rgb(var(--primary))',
-                  color: subscribed ? 'rgb(var(--foreground))' : 'white',
+                  color: subscribed ? 'rgb(var(--foreground))' : 'rgb(var(--primary-foreground))',
                 }}
               >
                 {toggling ? '…' : subscribed ? 'Deaktivieren' : 'Aktivieren'}
