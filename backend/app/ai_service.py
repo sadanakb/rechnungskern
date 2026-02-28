@@ -144,7 +144,10 @@ def _call_openai(prompt: str) -> dict:
         max_tokens=200,
         response_format={"type": "json_object"},
     )
-    return json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("Empty response from OpenAI")
+    return json.loads(content)
 
 
 def _call_openai_text(prompt: str) -> str:
@@ -156,7 +159,10 @@ def _call_openai_text(prompt: str) -> str:
         messages=[{"role": "user", "content": prompt}],
         max_tokens=300,
     )
-    return response.choices[0].message.content.strip()
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("Empty response from OpenAI")
+    return content.strip()
 
 
 def _call_anthropic(prompt: str) -> dict:
