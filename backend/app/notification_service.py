@@ -41,7 +41,7 @@ def create_notification(
             link=link,
         )
         db.add(n)
-        db.commit()
+        db.flush()  # Write to DB within caller's transaction — caller commits
     except Exception as exc:
         logger.warning("create_notification failed (org_id=%s): %s", org_id, exc)
         db.rollback()

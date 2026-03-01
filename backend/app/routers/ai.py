@@ -1,6 +1,6 @@
 """AI endpoints — categorization and monthly summary."""
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -74,7 +74,7 @@ async def categorize_invoice_endpoint(
 
     invoice.skr03_account = result.get("skr03_account", "4900")
     invoice.ai_category = result.get("category", "Sonstige")
-    invoice.ai_categorized_at = datetime.utcnow()
+    invoice.ai_categorized_at = datetime.now(timezone.utc)
     db.commit()
 
     return CategorizeResponse(
@@ -102,7 +102,7 @@ async def get_monthly_summary(
         except Exception:
             raise HTTPException(status_code=422, detail="month format must be YYYY-MM")
     else:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         year, mo = now.year, now.month
 
     month_key = f"{year}-{mo:02d}"

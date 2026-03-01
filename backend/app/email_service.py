@@ -1,4 +1,5 @@
 """Transactional email service via Brevo (formerly Sendinblue)."""
+import html
 import logging
 from app.config import settings
 
@@ -178,11 +179,14 @@ def send_team_invite(
 
     api = _get_transactional_api()
 
+    safe_inviter = html.escape(inviter_name)
+    safe_org = html.escape(org_name)
+
     html_content = (
         "<html><body>"
         "<h2>Team-Einladung</h2>"
-        f"<p><strong>{inviter_name}</strong> hat Sie eingeladen, dem Team "
-        f"<strong>{org_name}</strong> bei RechnungsWerk beizutreten.</p>"
+        f"<p><strong>{safe_inviter}</strong> hat Sie eingeladen, dem Team "
+        f"<strong>{safe_org}</strong> bei RechnungsWerk beizutreten.</p>"
         "<p>Klicken Sie auf den folgenden Link, um die Einladung anzunehmen:</p>"
         f'<p><a href="{invite_url}">{invite_url}</a></p>'
         "<p>Dieser Link ist 7 Tage gueltig.</p>"
@@ -193,7 +197,7 @@ def send_team_invite(
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject=f"Einladung zum Team {org_name} - RechnungsWerk",
+        subject=f"Einladung zum Team {safe_org} - RechnungsWerk",
         html_content=html_content,
     )
 
@@ -216,14 +220,19 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
 
     api = _get_transactional_api()
 
+    safe_name = html.escape(name)
+    safe_email = html.escape(email)
+    safe_subject = html.escape(subject)
+    safe_message = html.escape(message).replace(chr(10), '<br>')
+
     html_content = (
         "<html><body>"
         "<h2>Neue Kontaktanfrage ueber RechnungsWerk</h2>"
-        f"<p><strong>Name:</strong> {name}</p>"
-        f"<p><strong>E-Mail:</strong> {email}</p>"
-        f"<p><strong>Betreff:</strong> {subject}</p>"
+        f"<p><strong>Name:</strong> {safe_name}</p>"
+        f"<p><strong>E-Mail:</strong> {safe_email}</p>"
+        f"<p><strong>Betreff:</strong> {safe_subject}</p>"
         "<hr>"
-        f"<p>{message.replace(chr(10), '<br>')}</p>"
+        f"<p>{safe_message}</p>"
         "</body></html>"
     )
 
@@ -231,7 +240,7 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
         to=[{"email": "contact@rechnungswerk.de", "name": "RechnungsWerk Support"}],
         reply_to={"email": email, "name": name},
         sender=SENDER,
-        subject=f"[Kontaktformular] {subject} — von {name}",
+        subject=f"[Kontaktformular] {html.escape(subject)} — von {html.escape(name)}",
         html_content=html_content,
     )
 
@@ -280,10 +289,10 @@ def send_mahnung_email(
 
     total_with_fees = amount + fees
     replacements = {
-        "customer_name": customer_name,
-        "invoice_number": invoice_number,
+        "customer_name": html.escape(customer_name),
+        "invoice_number": html.escape(invoice_number),
         "amount": f"{amount:.2f}",
-        "due_date": due_date,
+        "due_date": html.escape(due_date),
         "fees": f"{fees:.2f}",
         "total_with_fees": f"{total_with_fees:.2f}",
     }
@@ -325,16 +334,21 @@ def send_invoice_portal_email(
     import sib_api_v3_sdk
     api = _get_transactional_api()
 
+    safe_buyer = html.escape(buyer_name)
+    safe_inv_num = html.escape(invoice_number)
+    safe_inv_date = html.escape(invoice_date)
+    safe_amount = html.escape(gross_amount)
+
     html_content = (
         "<html><body>"
-        f"<p>Sehr geehrte/r {buyer_name},</p>"
-        f"<p>anbei finden Sie Ihre Rechnung <strong>{invoice_number}</strong>"
-        + (f" vom {invoice_date}" if invoice_date else "")
-        + (f" über <strong>{gross_amount} EUR</strong>" if gross_amount else "")
+        f"<p>Sehr geehrte/r {safe_buyer},</p>"
+        f"<p>anbei finden Sie Ihre Rechnung <strong>{safe_inv_num}</strong>"
+        + (f" vom {safe_inv_date}" if invoice_date else "")
+        + (f" über <strong>{safe_amount} EUR</strong>" if gross_amount else "")
         + ".</p>"
         "<p>Sie können Ihre Rechnung über den folgenden Link einsehen, "
         "herunterladen und Ihre Zahlung bestätigen:</p>"
-        f'<p><a href="https://rechnungswerk.io{portal_url}" '
+        f'<p><a href="{settings.frontend_url}{portal_url}" '
         'style="background:#14b8a6;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Rechnung ansehen</a></p>'
         "<p>Der Link ist 30 Tage gültig.</p>"
@@ -345,7 +359,7 @@ def send_invoice_portal_email(
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject=f"Ihre Rechnung {invoice_number}",
+        subject=f"Ihre Rechnung {safe_inv_num}",
         html_content=html_content,
     )
 
@@ -384,10 +398,10 @@ def send_datev_export_email(
         "<h2>Neuer DATEV-Export verfügbar</h2>"
         "<p>Guten Tag,</p>"
         "<p>ein neuer DATEV-Export wurde erstellt.</p>"
-        f"<p><strong>Zeitraum:</strong> {from_month} bis {to_month}</p>"
+        f"<p><strong>Zeitraum:</strong> {html.escape(from_month)} bis {html.escape(to_month)}</p>"
         f"<p><strong>Anzahl Buchungssätze:</strong> {invoice_count}</p>"
         "<p>Bitte loggen Sie sich in RechnungsWerk ein, um den Export herunterzuladen:</p>"
-        '<p><a href="https://app.rechnungswerk.de/berichte" '
+        f'<p><a href="{settings.frontend_url}/berichte" '
         'style="background:#14b8a6;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Export herunterladen</a></p>'
         "<br><p>Mit freundlichen Grüßen,<br>RechnungsWerk</p>"
@@ -397,7 +411,7 @@ def send_datev_export_email(
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject=f"DATEV-Export {from_month} bis {to_month} — RechnungsWerk",
+        subject=f"DATEV-Export {html.escape(from_month)} bis {html.escape(to_month)} — RechnungsWerk",
         html_content=html_content,
     )
 
@@ -422,7 +436,7 @@ def send_gdpr_delete_confirmation(to_email: str, token: str) -> bool:
     import sib_api_v3_sdk
     api = _get_transactional_api()
 
-    confirm_url = f"https://app.rechnungswerk.de/gdpr/confirm-delete?token={token}"
+    confirm_url = f"{settings.frontend_url}/gdpr/confirm-delete?token={token}"
     html_content = (
         "<html><body>"
         "<h2>Account-Löschung bestätigen</h2>"

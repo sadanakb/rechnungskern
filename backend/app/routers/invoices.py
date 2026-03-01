@@ -29,7 +29,7 @@ from app.fraud.detector import FraudDetector
 from app.archive.gobd_archive import GoBDArchive
 from app.ai.categorizer import InvoiceCategorizer
 from app.auth import verify_api_key
-from app.auth_jwt import oauth2_scheme, decode_token
+from app.auth_jwt import oauth2_scheme, decode_token, get_current_user, ensure_invoice_belongs_to_org
 from app.invoice_number_service import generate_next_invoice_number
 from app.config import settings
 from app.webhook_service import publish_event
@@ -517,7 +517,8 @@ async def bulk_validate_invoices(
 async def generate_xrechnung(
     request: Request,
     invoice_id: str = Path(..., pattern=r"^INV-\d{8}-[a-f0-9]{8}$"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Generate XRechnung UBL XML from invoice
@@ -526,6 +527,7 @@ async def generate_xrechnung(
     invoice = db.query(Invoice).filter(Invoice.invoice_id == invoice_id).first()
     if not invoice:
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
+    ensure_invoice_belongs_to_org(invoice, current_user.get("org_id"))
 
     # Prepare invoice data
     invoice_data = {
@@ -933,7 +935,7 @@ async def create_share_link(
     """Create or regenerate a shareable portal link for this invoice."""
     from app.models import InvoiceShareLink
     import uuid
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
     invoice = db.query(Invoice).filter(
         Invoice.invoice_id == invoice_id,
@@ -955,7 +957,7 @@ async def create_share_link(
         db.flush()
 
     token = str(uuid.uuid4())
-    expires_at = datetime.utcnow() + timedelta(days=30)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=30)
     created_by = int(current_user["user_id"]) if current_user and current_user.get("user_id") else 0
     link = InvoiceShareLink(
         invoice_id=invoice.id,
@@ -1019,7 +1021,7 @@ async def send_invoice_email(
     from app.models import InvoiceShareLink
     from app.email_service import enqueue_email
     import uuid
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
     invoice = db.query(Invoice).filter(
         Invoice.invoice_id == invoice_id,
@@ -1042,7 +1044,7 @@ async def send_invoice_email(
         link = InvoiceShareLink(
             invoice_id=invoice.id,
             token=token,
-            expires_at=datetime.utcnow() + timedelta(days=30),
+            expires_at=datetime.now(timezone.utc) + timedelta(days=30),
             created_by_user_id=created_by,
         )
         db.add(link)
@@ -1543,9 +1545,14 @@ async def export_datev(
     format: str = Query(default="buchungsstapel", description="buchungsstapel or csv"),
     kontenrahmen: str = Query(default="SKR03", description="SKR03 or SKR04"),
     db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
 ):
     """Export all invoices as DATEV-compatible file."""
-    invoices = db.query(Invoice).all()
+    org_id = current_user.get("org_id")
+    query = db.query(Invoice)
+    if org_id is not None:
+        query = query.filter(Invoice.organization_id == org_id)
+    invoices = query.all()
     if not invoices:
         raise HTTPException(status_code=404, detail="Keine Rechnungen zum Exportieren")
 

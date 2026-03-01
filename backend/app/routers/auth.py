@@ -3,8 +3,9 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from sqlalchemy.orm import Session
+import hashlib
 import re
 
 from app.database import get_db
@@ -24,10 +25,12 @@ from app.schemas_auth import (
     MeResponse,
     UserResponse,
     OrganizationResponse,
+    validate_password_strength,
 )
 from app import email_service
 from app.email_service import enqueue_email
 from app.rate_limiter import limiter
+from app.config import settings
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -86,7 +89,7 @@ def register(request: Request, req: RegisterRequest, db: Session = Depends(get_d
     # Auto-send verification email (non-blocking — do NOT fail registration)
     try:
         raw_token = secrets.token_urlsafe(32)
-        user.email_verification_token = hash_password(raw_token)
+        user.email_verification_token = hashlib.sha256(raw_token.encode()).hexdigest()
         db.commit()
         verification_url = f"{FRONTEND_URL}/email-verifizieren?token={raw_token}"
         email_service.send_email_verification(user.email, verification_url)
@@ -157,7 +160,7 @@ def get_me(
 # Forgot / Reset Password
 # ---------------------------------------------------------------------------
 
-FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = settings.frontend_url
 
 
 class ForgotPasswordRequest(BaseModel):
@@ -168,6 +171,11 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
 
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        return validate_password_strength(v)
+
 
 @router.post("/forgot-password", status_code=200)
 @limiter.limit("5/minute")
@@ -175,9 +183,9 @@ async def forgot_password(request: Request, req: ForgotPasswordRequest, db: Sess
     """Request a password reset link. Always returns 200 to prevent email enumeration."""
     user = db.query(User).filter(User.email == req.email).first()
     if user:
-        # Generate a random token and store its hash
+        # Generate a random token and store its SHA256 hash (O(1) lookup)
         raw_token = secrets.token_urlsafe(32)
-        user.password_reset_token = hash_password(raw_token)
+        user.password_reset_token = hashlib.sha256(raw_token.encode()).hexdigest()
         user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
         db.commit()
 
@@ -197,23 +205,35 @@ async def forgot_password(request: Request, req: ForgotPasswordRequest, db: Sess
 @router.post("/reset-password", status_code=200)
 def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Reset password using a valid token."""
-    # Find users with a non-expired reset token
     now = datetime.now(timezone.utc)
-    candidates = (
+
+    # O(1) direct lookup via SHA256 hash
+    token_hash = hashlib.sha256(req.token.encode()).hexdigest()
+    matched_user = (
         db.query(User)
         .filter(
-            User.password_reset_token.isnot(None),
+            User.password_reset_token == token_hash,
             User.password_reset_expires > now,
         )
-        .all()
+        .first()
     )
 
-    # Verify the raw token against stored hashes
-    matched_user = None
-    for candidate in candidates:
-        if verify_password(req.token, candidate.password_reset_token):
-            matched_user = candidate
-            break
+    # Backward compatibility: fall back to bcrypt iteration for old tokens
+    if not matched_user:
+        candidates = (
+            db.query(User)
+            .filter(
+                User.password_reset_token.isnot(None),
+                User.password_reset_expires > now,
+            )
+            .all()
+        )
+        for candidate in candidates:
+            # SHA256 hashes are 64-char hex; bcrypt hashes start with '$'
+            if candidate.password_reset_token.startswith("$"):
+                if verify_password(req.token, candidate.password_reset_token):
+                    matched_user = candidate
+                    break
 
     if not matched_user:
         raise HTTPException(
@@ -252,9 +272,9 @@ def send_verification_email(
     if user.is_verified:
         return {"message": "E-Mail bereits verifiziert."}
 
-    # Generate new verification token
+    # Generate new verification token (SHA256 for O(1) lookup)
     raw_token = secrets.token_urlsafe(32)
-    user.email_verification_token = hash_password(raw_token)
+    user.email_verification_token = hashlib.sha256(raw_token.encode()).hexdigest()
     db.commit()
 
     verification_url = f"{FRONTEND_URL}/email-verifizieren?token={raw_token}"
@@ -266,19 +286,27 @@ def send_verification_email(
 @router.post("/verify-email", status_code=200)
 def verify_email(req: VerifyEmailRequest, db: Session = Depends(get_db)):
     """Verify email address using token from verification link."""
-    # Find users with a verification token set
-    candidates = (
+    # O(1) direct lookup via SHA256 hash
+    token_hash = hashlib.sha256(req.token.encode()).hexdigest()
+    matched_user = (
         db.query(User)
-        .filter(User.email_verification_token.isnot(None))
-        .all()
+        .filter(User.email_verification_token == token_hash)
+        .first()
     )
 
-    # Verify the raw token against stored hashes
-    matched_user = None
-    for candidate in candidates:
-        if verify_password(req.token, candidate.email_verification_token):
-            matched_user = candidate
-            break
+    # Backward compatibility: fall back to bcrypt iteration for old tokens
+    if not matched_user:
+        candidates = (
+            db.query(User)
+            .filter(User.email_verification_token.isnot(None))
+            .all()
+        )
+        for candidate in candidates:
+            # SHA256 hashes are 64-char hex; bcrypt hashes start with '$'
+            if candidate.email_verification_token.startswith("$"):
+                if verify_password(req.token, candidate.email_verification_token):
+                    matched_user = candidate
+                    break
 
     if not matched_user:
         raise HTTPException(

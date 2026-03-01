@@ -41,6 +41,8 @@ export interface InvoiceTableProps {
   loading: boolean
   /** Called with the list of selected invoice_ids whenever the selection changes */
   onSelectionChange?: (invoiceIds: string[]) => void
+  /** Called when a row body (not checkbox) is clicked */
+  onRowClick?: (invoiceId: string) => void
   /**
    * Changing this value (e.g. incrementing a counter) clears the row selection.
    * Useful when the parent wants to programmatically deselect all rows.
@@ -301,7 +303,7 @@ function createColumns(): ColumnDef<InvoiceRow>[] {
 // ---------------------------------------------------------------------------
 // InvoiceTable Component
 // ---------------------------------------------------------------------------
-export function InvoiceTable({ invoices, loading, onSelectionChange, selectionResetKey }: InvoiceTableProps) {
+export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick, selectionResetKey }: InvoiceTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -544,6 +546,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, selectionRe
                     key={row.id}
                     className={cn(
                       'border-b last:border-b-0 transition-colors duration-100',
+                      onRowClick && 'cursor-pointer',
                     )}
                     style={{
                       borderColor: 'rgb(var(--border))',
@@ -551,6 +554,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, selectionRe
                         ? 'rgb(var(--primary-light))'
                         : undefined,
                     }}
+                    onClick={() => onRowClick?.(row.original.invoice_id)}
                     onMouseEnter={(e) => {
                       if (!row.getIsSelected()) {
                         e.currentTarget.style.backgroundColor = 'rgb(var(--muted))'

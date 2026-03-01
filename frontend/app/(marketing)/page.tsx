@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { FileText, CheckCircle, BarChart3, Search } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'RechnungsWerk — E-Rechnungen erstellen | XRechnung & ZUGFeRD',
@@ -33,22 +34,22 @@ const features = [
   {
     title: 'OCR-Erkennung',
     description: 'PDF-Rechnungen per Tesseract OCR einlesen und automatisch in strukturierte Daten umwandeln.',
-    icon: '📄',
+    icon: FileText,
   },
   {
     title: 'XRechnung & ZUGFeRD',
     description: 'Konformer UBL-XML-Export (XRechnung 3.0.2) und ZUGFeRD 2.3.3 Hybrid-PDFs auf Knopfdruck.',
-    icon: '✅',
+    icon: CheckCircle,
   },
   {
     title: 'DATEV-Export',
     description: 'Buchungsdaten direkt im DATEV-Format exportieren. Nahtlose Uebergabe an den Steuerberater.',
-    icon: '📊',
+    icon: BarChart3,
   },
   {
     title: 'Validierung',
     description: 'Integrierte EN 16931 Validierung prueft Rechnungen vor dem Versand auf Konformitaet.',
-    icon: '🔍',
+    icon: Search,
   },
 ]
 
@@ -248,9 +249,7 @@ export default function LandingPage() {
                     borderColor: 'rgb(var(--border))',
                   }}
                 >
-                  <span className="text-2xl" role="img" aria-label={feature.title}>
-                    {feature.icon}
-                  </span>
+                  <feature.icon size={28} style={{ color: 'rgb(var(--primary))' }} />
                   <h3
                     className="mt-3 text-lg font-semibold"
                     style={{ color: 'rgb(var(--foreground))' }}

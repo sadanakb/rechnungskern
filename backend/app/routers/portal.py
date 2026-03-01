@@ -91,7 +91,7 @@ async def get_portal_invoice(
 async def confirm_payment(
     token: str, request: Request, db: Session = Depends(get_db)
 ):
-    """Customer confirms they have made payment. Sets payment_status to 'paid'."""
+    """Customer confirms they have made payment. Sets payment_status to 'payment_pending_confirmation'."""
     from datetime import date
 
     invoice, _link, _org = _get_invoice_by_token(token, db)
@@ -99,7 +99,10 @@ async def confirm_payment(
     if invoice.payment_status == "paid":
         return {"message": "Bereits als bezahlt markiert", "payment_status": "paid"}
 
-    invoice.payment_status = "paid"
+    if invoice.payment_status == "payment_pending_confirmation":
+        return {"message": "Zahlungsbestaetigung bereits eingereicht", "payment_status": "payment_pending_confirmation"}
+
+    invoice.payment_status = "payment_pending_confirmation"
     invoice.paid_date = date.today()
     invoice.payment_method = "portal_confirmation"
     db.commit()
@@ -109,13 +112,13 @@ async def confirm_payment(
     try:
         await notify_org(
             invoice.organization_id or 0,
-            "invoice.paid",
+            "invoice.payment_pending",
             {"invoice_id": invoice.invoice_id, "amount": float(invoice.gross_amount or 0)},
         )
     except Exception:
         pass  # WS notification is best-effort
 
-    return {"message": "Zahlung bestaetigt", "payment_status": "paid"}
+    return {"message": "Zahlungsbestaetigung eingereicht", "payment_status": "payment_pending_confirmation"}
 
 
 @router.get("/{token}/download-pdf")
@@ -229,10 +232,11 @@ async def create_payment_intent(
         raise HTTPException(status_code=409, detail="Online-Zahlung nicht aktiviert")
 
     # Idempotency: return existing "created" intent without calling Stripe again
+    # with_for_update() locks the row to prevent race conditions with concurrent requests
     existing = db.query(PortalPaymentIntent).filter(
         PortalPaymentIntent.invoice_id == invoice.id,
         PortalPaymentIntent.status == "created",
-    ).first()
+    ).with_for_update().first()
     if existing:
         return {
             "intent_id": existing.stripe_intent_id,

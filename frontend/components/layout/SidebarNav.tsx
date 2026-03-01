@@ -25,6 +25,8 @@ import {
   LayoutTemplate,
   Webhook,
   FileInput,
+  MoreHorizontal,
+  X,
 } from 'lucide-react'
 import { useTheme } from '@/components/design-system/theme-provider'
 import { cn } from '@/lib/utils'
@@ -56,13 +58,16 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/settings', label: 'Einstellungen', icon: Settings },
 ]
 
-const MOBILE_NAV_ITEMS = NAV_ITEMS.slice(0, 5)
+const APP_VERSION = '1.2.0'
+
+const MOBILE_NAV_ITEMS = NAV_ITEMS.slice(0, 4)
 
 export function SidebarNav() {
   const pathname = usePathname()
   const { theme, resolved, setTheme } = useTheme()
   const [collapsed, setCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -142,7 +147,7 @@ export function SidebarNav() {
                   color: 'rgb(var(--primary))',
                 }}
               >
-                8.0.0
+                {APP_VERSION}
               </span>
             </div>
           )}
@@ -183,7 +188,7 @@ export function SidebarNav() {
             const active = isActive(item.href)
             const Icon = item.icon
             return (
-              <div key={item.href} className="relative">
+              <div key={item.href} className="relative group">
                 {item.comingSoon ? (
                   <div
                     className={cn(
@@ -266,7 +271,7 @@ export function SidebarNav() {
                 {collapsed && (
                   <div
                     className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap
-                      opacity-0 pointer-events-none group-hover:opacity-100 z-50 hidden"
+                      invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 z-50"
                     style={{
                       backgroundColor: 'rgb(var(--foreground))',
                       color: 'rgb(var(--background))',
@@ -328,7 +333,7 @@ export function SidebarNav() {
               className="mt-3 text-[10px] px-2 leading-relaxed"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              RechnungsWerk v0.1 · EN 16931
+              RechnungsWerk v{APP_VERSION} · EN 16931
             </p>
           )}
         </div>
@@ -369,7 +374,64 @@ export function SidebarNav() {
               </Link>
             )
           })}
+          {/* "Mehr" button */}
+          <button
+            onClick={() => setMobileDrawerOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150"
+            style={{ color: 'rgb(var(--sidebar-icon))' }}
+          >
+            <MoreHorizontal size={20} />
+            <span className="text-[10px] font-medium leading-none">Mehr</span>
+          </button>
         </div>
+
+        {/* Mobile drawer overlay */}
+        {mobileDrawerOpen && (
+          <div className="fixed inset-0 z-[60]">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setMobileDrawerOpen(false)}
+            />
+            <div
+              className="absolute bottom-0 left-0 right-0 rounded-t-2xl pb-8 max-h-[70vh] overflow-y-auto"
+              style={{
+                backgroundColor: 'rgb(var(--card))',
+                boxShadow: '0 -8px 32px rgb(0 0 0 / 0.15)',
+              }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'rgb(var(--border))' }}>
+                <span className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>Navigation</span>
+                <button onClick={() => setMobileDrawerOpen(false)} style={{ color: 'rgb(var(--foreground-muted))' }}>
+                  <X size={20} />
+                </button>
+              </div>
+              <nav className="px-2 py-2 space-y-0.5">
+                {NAV_ITEMS.slice(4).map((item) => {
+                  const active = isActive(item.href)
+                  const Icon = item.icon
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileDrawerOpen(false)}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150',
+                        active ? '' : 'hover:opacity-80'
+                      )}
+                      style={{
+                        backgroundColor: active ? 'rgb(var(--sidebar-item-active-bg))' : 'transparent',
+                        color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--foreground))',
+                      }}
+                    >
+                      <Icon size={18} style={{ color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--sidebar-icon))' }} />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  )
+                })}
+              </nav>
+            </div>
+          </div>
+        )}
         {/* Safe area for iOS home indicator */}
         <div className="h-safe-bottom" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} />
       </nav>

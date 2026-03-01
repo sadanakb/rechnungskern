@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
     logger.info("[Startup] Database initialized")
     if settings.require_api_key:
         logger.info("[Auth] API-Key Authentifizierung AKTIV")
-        logger.info("[Auth] API-Key: %s", ACTIVE_API_KEY)
+        logger.info("[Auth] API-Key: %s...%s", ACTIVE_API_KEY[:4], ACTIVE_API_KEY[-4:])
     else:
         logger.warning("[Auth] API-Key Authentifizierung DEAKTIVIERT (Entwicklungsmodus)")
 

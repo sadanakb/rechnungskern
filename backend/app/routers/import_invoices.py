@@ -9,7 +9,7 @@ from typing import Optional
 import csv
 import io
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from app.database import get_db
 from app.models import Invoice, OrganizationMember
 from app.auth_jwt import get_current_user
@@ -78,9 +78,14 @@ def _parse_date(value: str) -> Optional[date]:
         return None
 
 
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+MAX_ROWS = 5000
+BATCH_SIZE = 500
+
+
 def _generate_invoice_id() -> str:
     """Generate a unique invoice ID like INV-20260227-abc12345."""
-    today = datetime.now().strftime("%Y%m%d")
+    today = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
     suffix = uuid.uuid4().hex[:8]
     return f"INV-{today}-{suffix}"
 
@@ -119,7 +124,11 @@ async def import_csv(
     if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Nur CSV-Dateien werden unterstützt")
 
-    content = await file.read()
+    # Read with size limit
+    content = await file.read(MAX_FILE_SIZE + 1)
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(400, f"Datei zu gross (max. {MAX_FILE_SIZE // (1024*1024)} MB)")
+
     try:
         text = content.decode("utf-8-sig")  # Handle BOM from Excel
     except UnicodeDecodeError:
@@ -143,19 +152,31 @@ async def import_csv(
         )
     existing_numbers = {row[0] for row in existing_query.all()}
 
+    rows_processed = 0
     for row_num, row in enumerate(reader, start=2):  # Row 1 = header, data starts at 2
+        if rows_processed >= MAX_ROWS:
+            errors.append({"row": row_num, "error": f"Zeilenlimit ({MAX_ROWS}) erreicht — restliche Zeilen uebersprungen"})
+            break
+
         try:
             invoice_number = (row.get("invoice_number") or "").strip()
             if not invoice_number:
                 errors.append({"row": row_num, "error": "invoice_number fehlt"})
+                rows_processed += 1
                 continue
 
             if invoice_number in existing_numbers:
                 skipped += 1
+                rows_processed += 1
                 continue
 
-            # Parse amounts
+            # Parse amounts with range validation
             net_amount = float(row.get("net_amount") or 0)
+            if net_amount < 0 or net_amount > 1_000_000_000:
+                errors.append({"row": row_num, "error": "net_amount ausserhalb gueltigem Bereich"})
+                rows_processed += 1
+                continue
+
             tax_rate_val = float(row.get("tax_rate") or 19)
             gross_amount_str = (row.get("gross_amount") or "").strip()
             gross_amount = float(gross_amount_str) if gross_amount_str else net_amount * (1 + tax_rate_val / 100)
@@ -186,8 +207,14 @@ async def import_csv(
             existing_numbers.add(invoice_number)
             imported += 1
 
-        except Exception as e:
-            errors.append({"row": row_num, "error": str(e)})
+            # Batch commit every BATCH_SIZE rows
+            if imported % BATCH_SIZE == 0:
+                db.flush()
+
+        except Exception:
+            errors.append({"row": row_num, "error": "Ungueltige Daten in dieser Zeile"})
+
+        rows_processed += 1
 
     if imported > 0:
         db.commit()

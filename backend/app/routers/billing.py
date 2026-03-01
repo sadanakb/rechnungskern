@@ -8,6 +8,7 @@ from app.database import get_db
 from app.auth_jwt import get_current_user
 from app.models import User, Organization, OrganizationMember, PortalPaymentIntent, Invoice
 from app import stripe_service
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ def create_portal(
     try:
         url = stripe_service.create_portal_session(
             customer_id=org.stripe_customer_id,
-            return_url="https://rechnungswerk.de/dashboard",
+            return_url=f"{settings.frontend_url}/dashboard",
         )
         return {"url": url}
     except Exception as e:
@@ -142,8 +143,8 @@ def connect_onboard(
     try:
         result = stripe_service.create_connect_onboarding_url(
             existing_account_id=org.stripe_connect_account_id,
-            return_url="https://rechnungswerk.de/dashboard/settings?stripe_connected=1",
-            refresh_url="https://rechnungswerk.de/dashboard/settings?stripe_refresh=1",
+            return_url=f"{settings.frontend_url}/dashboard/settings?stripe_connected=1",
+            refresh_url=f"{settings.frontend_url}/dashboard/settings?stripe_refresh=1",
         )
         if not org.stripe_connect_account_id:
             org.stripe_connect_account_id = result["account_id"]

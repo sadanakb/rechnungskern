@@ -8,7 +8,7 @@ Dieses Modul ist ein Client-Interface — der tatsächliche PEPPOL-AP wird exter
 """
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from enum import Enum
 
@@ -123,7 +123,7 @@ class PEPPOLClient:
             data = response.json()
             message.message_id = data.get("message_id", "")
             message.status = "sent"
-            message.sent_at = datetime.utcnow()
+            message.sent_at = datetime.now(timezone.utc)
 
             logger.info(
                 "PEPPOL-Nachricht gesendet: %s → %s:%s (ID: %s)",
@@ -168,7 +168,7 @@ class PEPPOLClient:
                     ),
                     document_type=PEPPOLDocumentType.INVOICE,
                     xml_content=item.get("content", ""),
-                    received_at=datetime.utcnow(),
+                    received_at=datetime.now(timezone.utc),
                     status="received",
                 )
                 messages.append(msg)

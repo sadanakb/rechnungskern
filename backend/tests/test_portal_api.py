@@ -1,6 +1,6 @@
 """Tests for public portal API endpoints (Task 7)."""
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class TestPortalAPI:
@@ -62,17 +62,17 @@ class TestPortalAPI:
         assert resp.status_code == 404
 
     def test_confirm_payment_updates_status(self, client):
-        """POST /api/portal/{token}/confirm-payment should mark invoice as paid."""
+        """POST /api/portal/{token}/confirm-payment should set status to payment_pending_confirmation."""
         invoice_id, token = self._setup_invoice_and_link(client)
 
         resp = client.post(f"/api/portal/{token}/confirm-payment")
         assert resp.status_code == 200, resp.text
-        assert resp.json()["payment_status"] == "paid"
+        assert resp.json()["payment_status"] == "payment_pending_confirmation"
 
         # Verify via portal GET that status is updated
         get_resp = client.get(f"/api/portal/{token}")
         assert get_resp.status_code == 200
-        assert get_resp.json()["payment_status"] == "paid"
+        assert get_resp.json()["payment_status"] == "payment_pending_confirmation"
 
     def test_expired_token_returns_410(self, client, db_session):
         """Portal endpoint should return 410 for expired tokens."""
@@ -84,7 +84,7 @@ class TestPortalAPI:
         link = db_session.query(InvoiceShareLink).filter(
             InvoiceShareLink.token == token
         ).first()
-        link.expires_at = datetime.utcnow() - timedelta(days=1)
+        link.expires_at = datetime.now(timezone.utc) - timedelta(days=1)
         db_session.commit()
 
         resp = client.get(f"/api/portal/{token}")
@@ -114,13 +114,13 @@ class TestPortalAPI:
         assert link_before.access_count == count_before + 1
 
     def test_confirm_payment_idempotent(self, client):
-        """Confirming payment twice should return 'paid' both times."""
+        """Confirming payment twice should return 'payment_pending_confirmation' both times."""
         _, token = self._setup_invoice_and_link(client)
 
         resp1 = client.post(f"/api/portal/{token}/confirm-payment")
         assert resp1.status_code == 200
-        assert resp1.json()["payment_status"] == "paid"
+        assert resp1.json()["payment_status"] == "payment_pending_confirmation"
 
         resp2 = client.post(f"/api/portal/{token}/confirm-payment")
         assert resp2.status_code == 200
-        assert resp2.json()["payment_status"] == "paid"
+        assert resp2.json()["payment_status"] == "payment_pending_confirmation"

@@ -160,11 +160,12 @@ class ErrorResponse(BaseModel):
 async def list_invoices(
     skip: int = Query(default=0, ge=0, description="Anzahl zu überspringender Einträge"),
     limit: int = Query(default=50, ge=1, le=200, description="Maximale Anzahl (1–200)"),
+    org_id: str = Query(..., description="Organization ID zur Filterung"),
     db: Session = Depends(get_db),
 ):
     """Gibt eine paginierte Liste aller Rechnungen zurück."""
-    total = db.query(Invoice).count()
-    invoices = db.query(Invoice).offset(skip).limit(limit).all()
+    total = db.query(Invoice).filter(Invoice.organization_id == org_id).count()
+    invoices = db.query(Invoice).filter(Invoice.organization_id == org_id).offset(skip).limit(limit).all()
 
     items = []
     for inv in invoices:
@@ -200,10 +201,14 @@ async def list_invoices(
 )
 async def get_invoice(
     invoice_id: str = Path(..., description="Eindeutige Rechnungs-ID (z. B. INV-20260223-abc12345)"),
+    org_id: str = Query(..., description="Organization ID zur Filterung"),
     db: Session = Depends(get_db),
 ):
     """Gibt die Daten einer einzelnen Rechnung zurück."""
-    invoice = db.query(Invoice).filter(Invoice.invoice_id == invoice_id).first()
+    invoice = db.query(Invoice).filter(
+        Invoice.invoice_id == invoice_id,
+        Invoice.organization_id == org_id,
+    ).first()
     if not invoice:
         raise HTTPException(
             status_code=404,

@@ -18,7 +18,20 @@ from fastapi.security import OAuth2PasswordBearer
 logger = logging.getLogger(__name__)
 
 # Configuration
-SECRET_KEY = "rechnungswerk-secret-change-in-production"  # Override via env
+from app.config import settings
+
+_INSECURE_DEFAULT = "rechnungswerk-secret-change-in-production"
+
+# Startup check: refuse to run with insecure secret when auth is enabled
+if settings.require_api_key and (
+    not settings.jwt_secret_key or settings.jwt_secret_key == _INSECURE_DEFAULT
+):
+    raise RuntimeError(
+        "JWT_SECRET_KEY is not set or still uses the insecure default. "
+        "Set a strong JWT_SECRET_KEY in your environment or .env file."
+    )
+
+SECRET_KEY = settings.jwt_secret_key or _INSECURE_DEFAULT
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -84,9 +97,8 @@ def decode_token(token: str) -> dict:
 async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
     """FastAPI dependency to get current authenticated user from JWT."""
     # If JWT auth is not enabled, allow access (dev mode)
-    from app.config import settings
     if not settings.require_api_key:
-        return {"user_id": "dev-user", "email": "dev@localhost", "role": "admin"}
+        return {"user_id": "dev-user", "email": "dev@localhost", "role": "member"}
 
     if not token:
         raise HTTPException(
@@ -106,4 +118,22 @@ async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
         "user_id": payload.get("sub"),
         "email": payload.get("email"),
         "role": payload.get("role", "user"),
+        "org_id": payload.get("org_id"),
     }
+
+
+def ensure_invoice_belongs_to_org(invoice, org_id: str | None) -> None:
+    """Raise 403 if the invoice does not belong to the caller's organization.
+
+    In dev mode (org_id is None) or when the invoice has no organization_id,
+    the check is skipped to maintain backwards compatibility.
+    """
+    if org_id is None:
+        return
+    if getattr(invoice, "organization_id", None) is None:
+        return
+    if str(invoice.organization_id) != str(org_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Kein Zugriff auf diese Rechnung",
+        )

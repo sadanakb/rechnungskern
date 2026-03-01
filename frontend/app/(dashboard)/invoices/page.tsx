@@ -32,6 +32,7 @@ import {
 } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { InvoiceTable, type InvoiceRow } from '@/components/InvoiceTable'
+import { toast } from '@/components/ui/toast'
 import DATEVExportDialog from '@/components/DATEVExportDialog'
 
 // ---------------------------------------------------------------------------
@@ -548,7 +549,7 @@ function InvoicesContent() {
     try {
       await downloadZugferd(invoice.invoice_id, invoice.invoice_number)
     } catch {
-      // Silent fail — browser will show no download, user can retry
+      toast.error('ZUGFeRD-Download fehlgeschlagen. Bitte erneut versuchen.')
     }
   }, [])
 
@@ -1042,6 +1043,10 @@ function InvoicesContent() {
                 .map((invId) => filtered.find((inv) => inv.invoice_id === invId)?.id)
                 .filter((id): id is number => id !== undefined)
               setSelectedIds(numericIds)
+            }}
+            onRowClick={(invoiceId) => {
+              const inv = filtered.find((i) => i.invoice_id === invoiceId)
+              if (inv) setDetailInvoice(inv)
             }}
           />
         </motion.div>

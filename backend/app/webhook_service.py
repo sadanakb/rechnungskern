@@ -9,15 +9,19 @@ Provides:
 - _deliver()                 — async single delivery attempt (url, payload, secret) → (success, code, body)
 - schedule_webhook_retry()   — enqueue a retry via ARQ
 """
+import asyncio
 import hashlib
 import hmac
 import json
+import logging
 import secrets
 from datetime import datetime, timezone
 
 import httpx
 
 from app.models import WebhookSubscription, WebhookDelivery
+
+logger = logging.getLogger(__name__)
 
 WEBHOOK_EVENTS = [
     "invoice.created",
@@ -42,6 +46,9 @@ def publish_event(db, org_id: int, event_type: str, payload: dict):
     """
     Fan-out an event to all active subscriptions for this org that
     include *event_type* in their events list.
+
+    Delivery runs as fire-and-forget async tasks when an event loop is
+    available; otherwise falls back to synchronous delivery.
     """
     subscriptions = (
         db.query(WebhookSubscription)
@@ -53,10 +60,26 @@ def publish_event(db, org_id: int, event_type: str, payload: dict):
     )
 
     for sub in subscriptions:
-        # Filter by subscribed event types (JSON list stored in DB)
         subscribed = sub.events or []
-        if event_type in subscribed:
+        if event_type not in subscribed:
+            continue
+        # Try async fire-and-forget; fall back to sync
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(_deliver_async_and_log(sub.url, payload, sub.secret, event_type))
+        except RuntimeError:
+            # No running event loop — fall back to synchronous delivery
             _deliver_sync(db, sub, event_type, payload)
+
+
+async def _deliver_async_and_log(url: str, payload: dict, secret: str, event_type: str):
+    """Fire-and-forget async delivery with error logging."""
+    try:
+        success, status_code, body = await _deliver(url, payload, secret, event_type)
+        if not success:
+            logger.warning("Webhook delivery failed: url=%s status=%s", url, status_code)
+    except Exception as exc:
+        logger.warning("Webhook delivery error: url=%s %s", url, exc)
 
 
 def _deliver_sync(db, subscription: WebhookSubscription, event_type: str, payload: dict):

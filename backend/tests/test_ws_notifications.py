@@ -1,6 +1,6 @@
 """Tests for WebSocket event notifications from invoice actions (Task 4)."""
 import uuid
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 
 import pytest
 from unittest.mock import AsyncMock, patch
@@ -54,7 +54,7 @@ class TestWebSocketNotifications:
         link = InvoiceShareLink(
             invoice_id=test_invoice.id,
             token=str(uuid.uuid4()),
-            expires_at=datetime.utcnow() + timedelta(days=30),
+            expires_at=datetime.now(timezone.utc) + timedelta(days=30),
             created_by_user_id=test_user["user_id"],
         )
         db_session.add(link)
@@ -67,14 +67,14 @@ class TestWebSocketNotifications:
         assert response.status_code == 200
         mock_notify.assert_called_once()
         call_args = mock_notify.call_args
-        assert call_args[0][1] == "invoice.paid"
+        assert call_args[0][1] == "invoice.payment_pending"
 
     def test_portal_visit_sends_ws_event(self, client, db_session, test_user, test_invoice):
         """Visiting the portal GET endpoint should trigger a portal.visited event."""
         link = InvoiceShareLink(
             invoice_id=test_invoice.id,
             token=str(uuid.uuid4()),
-            expires_at=datetime.utcnow() + timedelta(days=30),
+            expires_at=datetime.now(timezone.utc) + timedelta(days=30),
             created_by_user_id=test_user["user_id"],
         )
         db_session.add(link)

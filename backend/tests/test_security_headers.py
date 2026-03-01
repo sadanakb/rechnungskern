@@ -8,10 +8,16 @@ def test_security_headers_present():
     resp = client.get("/api/health")
     assert resp.headers.get("X-Content-Type-Options") == "nosniff"
     assert resp.headers.get("X-Frame-Options") == "DENY"
-    assert resp.headers.get("X-XSS-Protection") == "1; mode=block"
-    assert "strict-transport-security" in {k.lower() for k in resp.headers.keys()}
+    # X-XSS-Protection intentionally removed — deprecated and can cause issues in modern browsers
+    assert "X-XSS-Protection" not in resp.headers
+    assert resp.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains; preload"
     assert resp.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
     assert resp.headers.get("Permissions-Policy") == "camera=(), microphone=(), geolocation=()"
+    # Content-Security-Policy must be present with Stripe domains
+    csp = resp.headers.get("Content-Security-Policy")
+    assert csp is not None
+    assert "default-src 'self'" in csp
+    assert "https://js.stripe.com" in csp
 
 
 def test_headers_on_api_endpoints(client):

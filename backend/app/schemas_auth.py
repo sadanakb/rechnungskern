@@ -3,6 +3,17 @@ from pydantic import BaseModel, EmailStr, field_validator
 import re
 
 
+def validate_password_strength(v: str) -> str:
+    """Shared password strength validator for registration and password reset."""
+    if len(v) < 8:
+        raise ValueError("Passwort muss mindestens 8 Zeichen lang sein")
+    if not re.search(r"[A-Z]", v):
+        raise ValueError("Passwort muss mindestens einen Grossbuchstaben enthalten")
+    if not re.search(r"[0-9]", v):
+        raise ValueError("Passwort muss mindestens eine Zahl enthalten")
+    return v
+
+
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
@@ -12,13 +23,7 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def password_strength(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("Passwort muss mindestens 8 Zeichen lang sein")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("Passwort muss mindestens einen Grossbuchstaben enthalten")
-        if not re.search(r"[0-9]", v):
-            raise ValueError("Passwort muss mindestens eine Zahl enthalten")
-        return v
+        return validate_password_strength(v)
 
 
 class LoginRequest(BaseModel):

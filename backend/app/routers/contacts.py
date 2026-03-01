@@ -99,6 +99,8 @@ def _resolve_org_id(current_user: dict, db: Session) -> int:
 def list_contacts(
     type: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -112,7 +114,7 @@ def list_contacts(
         q = q.filter(Contact.type == type)
     if search:
         q = q.filter(Contact.name.ilike(f"%{search}%"))
-    return q.order_by(Contact.name).all()
+    return q.order_by(Contact.name).offset(skip).limit(limit).all()
 
 
 @router.post("", response_model=ContactResponse, status_code=201)

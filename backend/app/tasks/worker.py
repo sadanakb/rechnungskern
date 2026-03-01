@@ -287,7 +287,7 @@ async def categorize_invoice_task(ctx: Dict, invoice_id: str, org_id: int):
     from app.models import Invoice
     from app.ai_service import categorize_invoice
     from app.ws import notify_org
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     db = SessionLocal()
     try:
@@ -308,7 +308,7 @@ async def categorize_invoice_task(ctx: Dict, invoice_id: str, org_id: int):
 
         invoice.skr03_account = result.get("skr03_account", "4900")
         invoice.ai_category = result.get("category", "Sonstige")
-        invoice.ai_categorized_at = datetime.utcnow()
+        invoice.ai_categorized_at = datetime.now(timezone.utc)
         db.commit()
 
         logger.info("Categorized invoice %s → %s (%s)", invoice_id, invoice.skr03_account, invoice.ai_category)

@@ -35,8 +35,12 @@ class Settings(BaseSettings):
     kosit_validator_url: str = "http://localhost:8081/validate"
     kosit_health_check_interval: int = 300  # 5 minutes
 
+    # Frontend URL (used for email links, redirects, etc.)
+    frontend_url: str = "http://localhost:3000"
+
     # Auth
-    require_api_key: bool = False  # True für Produktion, False für lokale Entwicklung
+    require_api_key: bool = True  # True für Produktion, False für lokale Entwicklung
+    jwt_secret_key: str = ""
 
     # Upload Settings
     max_upload_size_mb: int = 10

@@ -12,13 +12,13 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Invoice, Mahnung
 from app.schemas_mahnwesen import MahnungResponse, MahnungStatusUpdate, OverdueInvoiceResponse
-from app.auth_jwt import get_current_user
+from app.auth_jwt import get_current_user, ensure_invoice_belongs_to_org
 from app.feature_gate import require_feature
 from app.email_service import send_mahnung_email
 
@@ -36,6 +36,8 @@ MAHNUNG_CONFIG = {
 # IMPORTANT: /overdue must be defined BEFORE /{invoice_id} to avoid path conflicts
 @router.get("/overdue", response_model=List[OverdueInvoiceResponse])
 def list_overdue_invoices(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_feature("mahnwesen")),
 ):
@@ -48,7 +50,7 @@ def list_overdue_invoices(
     if org_id:
         query = query.filter(Invoice.organization_id == org_id)
 
-    overdue_invoices = query.all()
+    overdue_invoices = query.offset(skip).limit(limit).all()
     today = date.today()
 
     results = []
@@ -107,6 +109,7 @@ def create_mahnung(
     invoice = db.query(Invoice).filter(Invoice.invoice_id == invoice_id).first()
     if not invoice:
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
+    ensure_invoice_belongs_to_org(invoice, current_user.get("org_id"))
 
     # Determine next level
     existing_count = (

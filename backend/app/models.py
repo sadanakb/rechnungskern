@@ -90,8 +90,8 @@ class Invoice(Base):
 
     # Invoice Data (extracted or manual)
     invoice_number = Column(String, index=True)
-    invoice_date = Column(Date)
-    due_date = Column(Date)
+    invoice_date = Column(Date, index=True)
+    due_date = Column(Date, index=True)
 
     # Seller Info
     seller_name = Column(String)
@@ -141,7 +141,7 @@ class Invoice(Base):
     ai_categorized_at = Column(DateTime(timezone=True), nullable=True)
 
     # Payment Status Lifecycle
-    payment_status = Column(String(20), default='unpaid', nullable=False)
+    payment_status = Column(String(20), default='unpaid', nullable=False, index=True)
     paid_date = Column(Date, nullable=True)
     payment_method = Column(String(50), nullable=True)
     payment_reference = Column(String(255), nullable=True)
@@ -151,12 +151,16 @@ class Invoice(Base):
     updated_at = Column(DateTime(timezone=True), default=_utc_now, onupdate=_utc_now)
 
     # Multi-tenant
-    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=True)
+    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False, default=0, index=True)
     organization = relationship("Organization", back_populates="invoices")
 
     # Relationships (H6)
     upload_logs = relationship("UploadLog", back_populates="invoice")
     validation_results = relationship("ValidationResult", back_populates="invoice")
+
+    __table_args__ = (
+        UniqueConstraint('invoice_number', 'organization_id', name='uq_invoice_number_org'),
+    )
 
     @property
     def xrechnung_available(self) -> bool:
@@ -327,6 +331,10 @@ class Mahnung(Base):
 
     invoice = relationship("Invoice")
 
+    __table_args__ = (
+        UniqueConstraint('invoice_id', 'level', name='uq_mahnung_invoice_level'),
+    )
+
 
 class WebhookSubscription(Base):
     """Outbound webhook subscription for an organization"""
@@ -409,7 +417,7 @@ class Notification(Base):
     message = Column(String(1000), nullable=False)
     is_read = Column(Boolean, default=False, nullable=False)
     link = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
 
 
 class Contact(Base):
@@ -431,7 +439,7 @@ class Contact(Base):
     payment_terms = Column(Integer, default=30)
     notes = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
 
 
 class InvoiceNumberSequence(Base):
@@ -447,7 +455,7 @@ class InvoiceNumberSequence(Base):
     current_counter = Column(Integer, default=0, nullable=False)
     reset_yearly = Column(Boolean, default=True, nullable=False)
     last_reset_year = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
 
 
 class InvoiceShareLink(Base):
@@ -460,7 +468,7 @@ class InvoiceShareLink(Base):
     expires_at = Column(DateTime, nullable=True)
     access_count = Column(Integer, default=0, nullable=False)
     created_by_user_id = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
 
     invoice = relationship("Invoice")
 

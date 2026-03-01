@@ -82,8 +82,8 @@ class TestInvoiceOrgRelation:
         db.commit()
         assert invoice.organization_id == org.id
 
-    def test_invoice_without_org_still_works(self, db):
+    def test_invoice_without_org_defaults_to_zero(self, db):
         invoice = Invoice(invoice_number="INV-002", seller_name="Seller", buyer_name="Buyer")
         db.add(invoice)
         db.commit()
-        assert invoice.organization_id is None
+        assert invoice.organization_id == 0

@@ -31,9 +31,14 @@ def create_checkout_session(
     customer_email: str,
     plan: str,
     billing_cycle: str = "monthly",
-    success_url: str = "https://rechnungswerk.de/dashboard?upgraded=true",
-    cancel_url: str = "https://rechnungswerk.de/preise",
+    success_url: str = "",
+    cancel_url: str = "",
 ) -> str:
+    if not success_url:
+        success_url = f"{settings.frontend_url}/dashboard?upgraded=true"
+    if not cancel_url:
+        cancel_url = f"{settings.frontend_url}/preise"
+
     price_key = f"{plan}_{billing_cycle}"
     price_id = _get_price_id(price_key)
     if not price_id:
@@ -52,9 +57,11 @@ def create_checkout_session(
 
 def create_portal_session(
     customer_id: str,
-    return_url: str = "https://rechnungswerk.de/dashboard",
+    return_url: str = "",
 ) -> str:
     """Create a Stripe Customer Portal session and return the URL."""
+    if not return_url:
+        return_url = f"{settings.frontend_url}/dashboard"
     session = stripe.billing_portal.Session.create(
         customer=customer_id,
         return_url=return_url,

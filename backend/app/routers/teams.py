@@ -12,6 +12,7 @@ from app.models import User, Organization, OrganizationMember
 from app.auth_jwt import get_current_user
 from app.feature_gate import require_feature
 from app import email_service
+from app.config import settings
 
 router = APIRouter()
 
@@ -151,7 +152,7 @@ def invite_member(
 
     # Generate invite token
     invite_token = secrets.token_urlsafe(32)
-    invite_url = f"http://localhost:3000/team/einladung?token={invite_token}"
+    invite_url = f"{settings.frontend_url}/team/einladung?token={invite_token}"
 
     # Send invitation email
     email_service.send_team_invite(
