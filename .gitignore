@@ -25,8 +25,13 @@ node_modules/
 dist/
 build/
 *.log
+tsconfig.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
 # Serwist service worker (generated at build time)
 frontend/public/sw.js
+# Test artifacts
+frontend/playwright-report/
+frontend/test-results/
 
 # macOS
 .DS_Store
