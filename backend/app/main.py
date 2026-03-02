@@ -16,7 +16,6 @@ from app.rate_limiter import limiter
 from app.config import settings
 from app.middleware.security import SecurityHeadersMiddleware
 from app.database import init_db
-from app.auth import ACTIVE_API_KEY
 from app.routers import health, invoices, suppliers, external_api, recurring, email, auth as auth_router, billing, mahnwesen, onboarding, newsletter, gobd, users, teams, webhooks, api_keys, audit, templates, notifications, contacts, invoice_sequences, import_invoices, contact as contact_router, portal as portal_router, ai as ai_router, datev as datev_router, push as push_router, gdpr as gdpr_router
 
 logger = logging.getLogger(__name__)

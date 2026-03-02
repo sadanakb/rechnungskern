@@ -310,7 +310,7 @@ export const uploadBatchForOCR = async (files: File[]): Promise<BatchJobResponse
  * Poll the status of a batch OCR job by ID.
  */
 export const getBatchStatus = async (batchId: string): Promise<BatchJobResponse> => {
-  const response = await api.get<BatchJobResponse>(`/api/upload-ocr-batch/${batchId}`)
+  const response = await api.get<BatchJobResponse>(`/api/batch/${batchId}`)
   return response.data
 }
 

@@ -169,6 +169,26 @@ async def get_org_from_api_key(
     raise HTTPException(status_code=403, detail="Ungültiger API-Key")
 
 
+def require_scope(api_ctx: dict, scope: str) -> None:
+    """Enforce that the API key carries the required scope.
+
+    Rules:
+    - If scopes is empty, None, or missing: allow all access (backward
+      compatibility for existing keys that were created without scopes).
+    - If scopes is non-empty: the requested *scope* must be present,
+      otherwise raise 403.
+    """
+    scopes = api_ctx.get("scopes") or []
+    if not scopes:
+        # No scopes defined on this key — allow everything (backward compat)
+        return
+    if scope not in scopes:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"API-Key hat nicht die erforderliche Berechtigung: {scope}",
+        )
+
+
 def ensure_invoice_belongs_to_org(invoice, org_id: str | None) -> None:
     """Raise 404 if the invoice does not belong to the caller's organization.
 

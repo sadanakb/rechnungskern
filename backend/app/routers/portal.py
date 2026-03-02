@@ -4,6 +4,7 @@ Public portal router — no authentication required.
 Customer-facing endpoints accessed via share token.
 Rate limited to prevent abuse.
 """
+import os
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, Response
@@ -15,6 +16,9 @@ from app.rate_limiter import limiter
 from app import stripe_service
 
 router = APIRouter()
+
+# Base directory for ZUGFeRD PDFs — all served paths must resolve within this.
+_ZUGFERD_PDF_BASE = os.path.realpath("data/zugferd_output")
 
 
 def _get_invoice_by_token(token: str, db: Session) -> tuple:
@@ -127,16 +131,18 @@ async def download_pdf(
     token: str, request: Request, db: Session = Depends(get_db)
 ):
     """Serve ZUGFeRD PDF for download."""
-    import os
-
     invoice, _link, _org = _get_invoice_by_token(token, db)
 
-    if invoice.zugferd_pdf_path and os.path.exists(invoice.zugferd_pdf_path):
-        return FileResponse(
-            path=invoice.zugferd_pdf_path,
-            media_type="application/pdf",
-            filename=f"Rechnung_{invoice.invoice_number}.pdf",
-        )
+    if invoice.zugferd_pdf_path:
+        resolved = os.path.realpath(invoice.zugferd_pdf_path)
+        if not resolved.startswith(_ZUGFERD_PDF_BASE):
+            raise HTTPException(status_code=403, detail="Zugriff auf diese Datei nicht erlaubt")
+        if os.path.isfile(resolved):
+            return FileResponse(
+                path=resolved,
+                media_type="application/pdf",
+                filename=f"Rechnung_{invoice.invoice_number}.pdf",
+            )
 
     # Generate on-the-fly
     from app.xrechnung_generator import XRechnungGenerator

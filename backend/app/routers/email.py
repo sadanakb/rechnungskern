@@ -4,8 +4,11 @@ Email inbox router — process IMAP inboxes for PDF invoice attachments.
 POST /api/email/process-inbox  — fetch PDFs from IMAP, optionally run OCR
 GET  /api/email/status         — last inbox scan result
 """
+import ipaddress
 import logging
-from typing import List, Optional
+import socket
+from datetime import datetime, timezone
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -13,9 +16,62 @@ from app.auth_jwt import get_current_user
 from app.email.inbox_processor import InboxProcessor
 
 logger = logging.getLogger(__name__)
+audit_logger = logging.getLogger("audit.email")
 router = APIRouter(prefix="/api/email", tags=["Email"])
 
-_last_result: dict = {}
+# User-scoped cache: keyed by user_id
+_last_result: Dict[str, dict] = {}
+
+_ALLOWED_IMAP_PORTS = {993, 143}
+
+
+def _validate_imap_host(host: str, port: int) -> None:
+    """
+    Validate an IMAP host to prevent SSRF attacks.
+
+    Blocks connections to private/internal IP ranges and restricts
+    ports to standard IMAP ports (993 SSL, 143 plain).
+
+    Raises:
+        HTTPException(400) if the host or port is not allowed.
+    """
+    # --- Port validation ---
+    if port not in _ALLOWED_IMAP_PORTS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unzulässiger IMAP-Port: {port}. Erlaubt: {sorted(_ALLOWED_IMAP_PORTS)}",
+        )
+
+    # --- Host validation: resolve and check all IPs ---
+    try:
+        addr_infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        raise HTTPException(
+            status_code=400,
+            detail=f"IMAP-Host konnte nicht aufgelöst werden: {host}",
+        )
+
+    if not addr_infos:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Keine DNS-Ergebnisse für Host: {host}",
+        )
+
+    for family, _type, _proto, _canonname, sockaddr in addr_infos:
+        ip = ipaddress.ip_address(sockaddr[0])
+
+        if ip.is_private or ip.is_reserved or ip.is_loopback or ip.is_link_local:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Verbindung zu internen/privaten Adressen ist nicht erlaubt: {host}",
+            )
+
+        # Explicitly block common internal ranges for defence-in-depth
+        if ip.is_multicast or ip.is_unspecified:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Verbindung zu internen/privaten Adressen ist nicht erlaubt: {host}",
+            )
 
 
 class EmailConfig(BaseModel):
@@ -70,7 +126,19 @@ def process_inbox(config: EmailConfig, current_user: dict = Depends(get_current_
     Connects to the specified mailbox, finds unread emails with PDF attachments,
     saves them to data/uploads/, and optionally runs the OCR pipeline on each PDF.
     """
-    global _last_result
+    user_id = current_user.get("sub", current_user.get("user_id", "unknown"))
+
+    # --- Audit logging ---
+    audit_logger.info(
+        "process_inbox called | user_id=%s | imap_host=%s | port=%d | timestamp=%s",
+        user_id,
+        config.imap_host,
+        config.imap_port,
+        datetime.now(timezone.utc).isoformat(),
+    )
+
+    # --- SSRF validation: block private IPs and non-standard ports ---
+    _validate_imap_host(config.imap_host, config.imap_port)
 
     try:
         processor = InboxProcessor(
@@ -119,14 +187,16 @@ def process_inbox(config: EmailConfig, current_user: dict = Depends(get_current_
         ocr_triggered=ocr_count,
         results=attachments,
     )
-    _last_result = result.model_dump()
+    _last_result[user_id] = result.model_dump()
     logger.info("Inbox scan complete: %d attachments, %d OCR runs", len(raw_results), ocr_count)
     return result
 
 
 @router.get("/status")
 def inbox_status(current_user: dict = Depends(get_current_user)):
-    """Return the result of the last inbox scan."""
-    if not _last_result:
+    """Return the result of the last inbox scan for the current user."""
+    user_id = current_user.get("sub", current_user.get("user_id", "unknown"))
+    user_result = _last_result.get(user_id)
+    if not user_result:
         return {"message": "Noch kein Inbox-Scan durchgeführt"}
-    return _last_result
+    return user_result

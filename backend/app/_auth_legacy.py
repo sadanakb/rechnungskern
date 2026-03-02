@@ -1,6 +1,14 @@
 """
-API-Key Authentifizierung für RechnungsWerk.
+DEPRECATED — Legacy file-based API-Key authentication for RechnungsWerk.
 
+This module is superseded by app.auth_jwt which provides JWT authentication
+and DB-backed API keys (see get_org_from_api_key). This file is kept only
+for backward compatibility with tests that reference verify_api_key as a
+FastAPI dependency override key and ACTIVE_API_KEY for legacy test flows.
+
+Do NOT add new code here. Use app.auth_jwt instead.
+
+Original description:
 Alle Endpoints außer /health und /docs werden geschützt.
 API-Key wird via Header "X-API-Key" oder Query-Parameter "api_key" übergeben.
 """

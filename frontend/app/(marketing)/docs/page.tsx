@@ -587,7 +587,7 @@ CLOUD_MODE=false`}</CodeBlock>
                 <CodeBlock language="bash">{`# In /etc/cron.d/rechnungswerk eintragen:
 0 2 * * * root docker compose -f /opt/rechnungswerk/docker-compose.yml \\
   exec -T db pg_dump -U rw rechnungswerk \\
-  > /backups/rechnungswerk_$(date +\%Y\%m\%d).sql`}</CodeBlock>
+  > /backups/rechnungswerk_$(date +%Y%m%d).sql`}</CodeBlock>
               </div>
 
               <div

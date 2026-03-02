@@ -1,6 +1,7 @@
 """Teams router: manage organization members, invitations, roles."""
+import hashlib
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
@@ -8,11 +9,13 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.models import User, Organization, OrganizationMember
+from app.models import User, Organization, OrganizationMember, TeamInvite
 from app.auth_jwt import get_current_user
 from app.feature_gate import require_feature
 from app import email_service
 from app.config import settings
+
+INVITE_EXPIRY_DAYS = 7
 
 router = APIRouter()
 
@@ -42,6 +45,10 @@ class InviteResponse(BaseModel):
     message: str
     email: str
     role: str
+
+
+class AcceptInviteRequest(BaseModel):
+    token: str
 
 
 class RoleUpdateRequest(BaseModel):
@@ -150,9 +157,22 @@ def invite_member(
     inviter = db.query(User).filter(User.id == int(current_user["user_id"])).first()
     inviter_name = inviter.full_name or inviter.email if inviter else "Ein Teammitglied"
 
-    # Generate invite token
+    # Generate invite token and hash it for storage
     invite_token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(invite_token.encode()).hexdigest()
     invite_url = f"{settings.frontend_url}/team/einladung?token={invite_token}"
+
+    # Persist the invite in the database
+    invite_record = TeamInvite(
+        organization_id=org.id,
+        email=payload.email,
+        role=payload.role,
+        token_hash=token_hash,
+        invited_by=int(current_user["user_id"]),
+        expires_at=datetime.now(timezone.utc) + timedelta(days=INVITE_EXPIRY_DAYS),
+    )
+    db.add(invite_record)
+    db.commit()
 
     # Send invitation email
     email_service.send_team_invite(
@@ -268,3 +288,63 @@ def update_member_role(
         role=target_member.role,
         joined_at=target_member.joined_at,
     )
+
+
+@router.post("/accept-invite", status_code=200)
+def accept_invite(
+    payload: AcceptInviteRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Accept a team invitation using the token from the invite email."""
+    # Hash the incoming token to look up the stored record
+    token_hash = hashlib.sha256(payload.token.encode()).hexdigest()
+
+    invite = (
+        db.query(TeamInvite)
+        .filter(TeamInvite.token_hash == token_hash)
+        .first()
+    )
+    if not invite:
+        raise HTTPException(status_code=404, detail="Einladung nicht gefunden")
+
+    # Check if already used
+    if invite.is_used:
+        raise HTTPException(status_code=410, detail="Einladung wurde bereits verwendet")
+
+    # Check expiry
+    if invite.expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=410, detail="Einladung ist abgelaufen")
+
+    user_id = int(current_user["user_id"])
+
+    # Check if user is already a member of this organization
+    existing_membership = (
+        db.query(OrganizationMember)
+        .filter(
+            OrganizationMember.user_id == user_id,
+            OrganizationMember.organization_id == invite.organization_id,
+        )
+        .first()
+    )
+    if existing_membership:
+        raise HTTPException(
+            status_code=409,
+            detail="Sie sind bereits Mitglied dieser Organisation",
+        )
+
+    # Create the organization membership
+    new_member = OrganizationMember(
+        user_id=user_id,
+        organization_id=invite.organization_id,
+        role=invite.role,
+    )
+    db.add(new_member)
+
+    # Mark the invite as used
+    invite.is_used = True
+    invite.accepted_at = datetime.now(timezone.utc)
+
+    db.commit()
+
+    return {"message": "Einladung angenommen. Sie sind jetzt Mitglied der Organisation."}

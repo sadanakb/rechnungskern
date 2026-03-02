@@ -39,6 +39,24 @@ class OnboardingCompleteResponse(BaseModel):
 # Helpers
 # ---------------------------------------------------------------------------
 
+CONTENT_TYPE_TO_EXT = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+}
+
+
+def _validate_image_magic(content: bytes, content_type: str) -> bool:
+    """Verify the file's magic bytes match the declared content type."""
+    if content_type == "image/png":
+        return content[:4] == b'\x89PNG'
+    elif content_type == "image/jpeg":
+        return content[:3] == b'\xff\xd8\xff'
+    elif content_type == "image/webp":
+        return content[:4] == b'RIFF' and b'WEBP' in content[:12]
+    return False
+
+
 def _get_org(current_user: dict, db: Session) -> Organization:
     """Resolve the organization for the current user via OrganizationMember."""
     user_id = current_user.get("user_id")
@@ -119,18 +137,24 @@ async def upload_logo(
     db: Session = Depends(get_db),
 ):
     """Upload a company logo and save it to disk; update the organization record."""
-    allowed_types = {"image/png", "image/jpeg", "image/svg+xml", "image/webp"}
+    allowed_types = {"image/png", "image/jpeg", "image/webp"}
     if file.content_type not in allowed_types:
         raise HTTPException(
             status_code=400,
-            detail="Ungültiges Dateiformat. Erlaubt: PNG, JPG, SVG, WebP",
+            detail="Ungültiges Dateiformat. Erlaubt: PNG, JPG, WebP",
         )
 
     contents = await file.read()
     if len(contents) > 2 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Datei zu groß. Maximum: 2 MB")
 
-    ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "png"
+    if not _validate_image_magic(contents, file.content_type):
+        raise HTTPException(
+            status_code=400,
+            detail="Dateiinhalt stimmt nicht mit dem deklarierten Format überein",
+        )
+
+    ext = CONTENT_TYPE_TO_EXT.get(file.content_type, "png")
     save_dir = "static/logos"
     os.makedirs(save_dir, exist_ok=True)
 

@@ -165,6 +165,13 @@ def confirm_account_delete(
             detail="Delete-Token fehlt. Header 'X-Delete-Token' oder Query-Parameter 'token' setzen.",
         )
 
+    # Log deprecation warning when token arrives via query string
+    if x_delete_token is None and token is not None:
+        logger.warning(
+            "[GDPR] Delete token received via query-string (deprecated). "
+            "Clients should migrate to the X-Delete-Token header."
+        )
+
     req = db.query(GdprDeleteRequest).filter(GdprDeleteRequest.token == effective_token).first()
     if not req:
         raise HTTPException(status_code=404, detail="Token ungültig oder bereits verwendet.")
@@ -175,6 +182,17 @@ def confirm_account_delete(
         expires = expires.replace(tzinfo=timezone.utc)
     if expires < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Token abgelaufen. Bitte erneut anfordern.")
+
+    # Secondary safeguard: reject tokens older than 24 hours based on created_at
+    created = req.created_at
+    if created is not None:
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        if created + timedelta(hours=24) < datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=400,
+                detail="Token abgelaufen. Bitte erneut anfordern.",
+            )
 
     user_id = req.user_id
     member = db.query(OrganizationMember).filter(

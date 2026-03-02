@@ -21,7 +21,7 @@ os.environ.setdefault("REQUIRE_API_KEY", "false")
 from app.main import app
 from app.models import Base, Invoice, Organization, OrganizationMember, User
 from app.database import get_db
-from app.auth import verify_api_key
+from app._auth_legacy import verify_api_key
 from app.auth_jwt import hash_password
 
 

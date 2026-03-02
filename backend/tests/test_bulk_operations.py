@@ -16,7 +16,7 @@ from unittest.mock import patch
 os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["REQUIRE_API_KEY"] = "false"
 
-from app.auth import verify_api_key
+from app._auth_legacy import verify_api_key
 
 
 # ---------------------------------------------------------------------------

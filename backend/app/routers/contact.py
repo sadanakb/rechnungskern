@@ -5,6 +5,7 @@ import logging
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
+import pydantic
 from pydantic import BaseModel, EmailStr
 
 from app.rate_limiter import limiter
@@ -15,10 +16,10 @@ router = APIRouter(prefix="/api/contact", tags=["contact"])
 
 
 class ContactMessage(BaseModel):
-    name: str
-    email: str
-    subject: str
-    message: str
+    name: str = pydantic.Field(max_length=100)
+    email: EmailStr = pydantic.Field(max_length=254)  # RFC 5321
+    subject: str = pydantic.Field(max_length=200)
+    message: str = pydantic.Field(max_length=5000)
     website: Optional[str] = None  # honeypot — hidden field, bots fill it
 
 

@@ -91,8 +91,9 @@ class TestEmailRouter:
         data = response.json()
         assert "message" in data or "processed" in data
 
+    @patch("app.routers.email._validate_imap_host")
     @patch("app.routers.email.InboxProcessor")
-    def test_process_inbox_no_attachments(self, mock_cls, client, auth_header):
+    def test_process_inbox_no_attachments(self, mock_cls, mock_validate, client, auth_header):
         """Empty inbox returns zero processed."""
         mock_cls.return_value.fetch_pdf_attachments.return_value = []
 
@@ -103,8 +104,9 @@ class TestEmailRouter:
         assert data["attachments_found"] == 0
         assert data["results"] == []
 
+    @patch("app.routers.email._validate_imap_host")
     @patch("app.routers.email.InboxProcessor")
-    def test_process_inbox_with_attachment(self, mock_cls, client, auth_header):
+    def test_process_inbox_with_attachment(self, mock_cls, mock_validate, client, auth_header):
         """Inbox with one PDF attachment returns correct result."""
         mock_cls.return_value.fetch_pdf_attachments.return_value = [
             {
@@ -126,8 +128,9 @@ class TestEmailRouter:
         assert data["results"][0]["filename"] == "rechnung_2026.pdf"
         assert data["results"][0]["sender"] == "lieferant@beispiel.de"
 
+    @patch("app.routers.email._validate_imap_host")
     @patch("app.routers.email.InboxProcessor")
-    def test_process_inbox_imap_error_returns_502(self, mock_cls, client, auth_header):
+    def test_process_inbox_imap_error_returns_502(self, mock_cls, mock_validate, client, auth_header):
         """IMAP connection failure returns 502."""
         mock_cls.return_value.fetch_pdf_attachments.side_effect = ConnectionError(
             "IMAP-Verbindung fehlgeschlagen"
@@ -150,9 +153,10 @@ class TestEmailRouter:
         response = client.post("/api/email/process-inbox", json=bad_config, headers=auth_header)
         assert response.status_code == 422
 
+    @patch("app.routers.email._validate_imap_host")
     @patch("app.routers.email.InboxProcessor")
     @patch("app.routers.email._run_ocr")
-    def test_process_inbox_with_ocr(self, mock_ocr, mock_cls, client, auth_header):
+    def test_process_inbox_with_ocr(self, mock_ocr, mock_cls, mock_validate, client, auth_header):
         """When run_ocr=True, _run_ocr is called for each attachment."""
         mock_cls.return_value.fetch_pdf_attachments.return_value = [
             {
@@ -173,8 +177,9 @@ class TestEmailRouter:
         assert data["ocr_triggered"] == 1
         assert data["results"][0]["ocr_confidence"] == 87.5
 
+    @patch("app.routers.email._validate_imap_host")
     @patch("app.routers.email.InboxProcessor")
-    def test_status_after_scan(self, mock_cls, client, auth_header):
+    def test_status_after_scan(self, mock_cls, mock_validate, client, auth_header):
         """Status endpoint reflects the last scan result."""
         mock_cls.return_value.fetch_pdf_attachments.return_value = []
         client.post("/api/email/process-inbox", json=VALID_CONFIG, headers=auth_header)

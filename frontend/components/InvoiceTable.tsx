@@ -348,7 +348,6 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
     if (onSelectionChange) {
       onSelectionChange(Object.keys(rowSelection))
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelection])
 
   // --- Loading state ---

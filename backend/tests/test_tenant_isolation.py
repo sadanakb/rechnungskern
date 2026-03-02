@@ -14,7 +14,7 @@ os.environ["REQUIRE_API_KEY"] = "false"
 from app.main import app
 from app.models import Base
 from app.database import get_db
-from app.auth import verify_api_key
+from app._auth_legacy import verify_api_key
 
 
 @pytest.fixture

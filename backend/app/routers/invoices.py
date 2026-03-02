@@ -1222,7 +1222,8 @@ async def upload_batch_for_ocr(
         filenames.append(safe_name)
 
     # Create batch job
-    batch_job = batch_processor.create_batch(filenames)
+    org_id = current_user.get("org_id")
+    batch_job = batch_processor.create_batch(filenames, org_id=org_id)
 
     # Save all files
     file_paths = []
@@ -1293,11 +1294,17 @@ async def upload_batch_for_ocr(
 @router.get("/batch/{batch_id}", response_model=BatchJobResponse)
 async def get_batch_status(
     batch_id: str = Path(...),
+    current_user: dict = Depends(get_current_user),
 ):
     """Get status of a batch processing job."""
     job = BatchProcessor.get_batch(batch_id)
     if not job:
         raise HTTPException(status_code=404, detail="Batch-Job nicht gefunden")
+
+    # Verify the batch belongs to the caller's organisation
+    user_org = current_user.get("org_id")
+    if job.org_id and user_org != job.org_id:
+        raise HTTPException(status_code=403, detail="Kein Zugriff auf diesen Batch-Job")
 
     return BatchJobResponse(
         batch_id=job.batch_id,

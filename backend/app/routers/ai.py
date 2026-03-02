@@ -12,6 +12,7 @@ from app.auth_jwt import get_current_user
 from app.database import get_db
 from app.models import Invoice, OrganizationMember
 from app.ai_service import categorize_invoice, generate_monthly_summary
+from app.rate_limiter import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -48,7 +49,9 @@ class CategorizeResponse(BaseModel):
 
 
 @router.post("/categorize", response_model=CategorizeResponse)
+@limiter.limit("30/minute")
 async def categorize_invoice_endpoint(
+    request: Request,
     body: CategorizeRequest,
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user),
@@ -85,9 +88,10 @@ async def categorize_invoice_endpoint(
 
 
 @router.get("/monthly-summary")
+@limiter.limit("10/minute")
 async def get_monthly_summary(
+    request: Request,
     month: Optional[str] = None,  # Format: "2026-02"
-    request: Request = None,
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user),
 ):
@@ -205,6 +209,7 @@ Du hast Zugang zu den Rechnungsdaten des Nutzers über die bereitgestellten Tool
 
 
 @router.post("/chat")
+@limiter.limit("20/minute")
 async def chat(
     body: ChatRequest,
     request: Request,

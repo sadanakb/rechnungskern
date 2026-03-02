@@ -43,6 +43,7 @@ class BatchJob:
     """Tracks batch processing state."""
     batch_id: str
     total_files: int
+    org_id: Optional[str] = None
     processed: int = 0
     succeeded: int = 0
     failed: int = 0
@@ -67,12 +68,13 @@ class BatchProcessor:
     def __init__(self):
         self.pipeline = OCRPipelineV2()
 
-    def create_batch(self, filenames: List[str]) -> BatchJob:
+    def create_batch(self, filenames: List[str], org_id: Optional[str] = None) -> BatchJob:
         """Create a new batch job."""
         batch_id = f"batch-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
         job = BatchJob(
             batch_id=batch_id,
             total_files=len(filenames),
+            org_id=org_id,
             status=BatchStatus.PENDING,
             results=[BatchFileResult(filename=f) for f in filenames],
             created_at=datetime.now(timezone.utc).isoformat(),

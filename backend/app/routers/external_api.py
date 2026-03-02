@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from app.auth_jwt import get_org_from_api_key
+from app.auth_jwt import get_org_from_api_key, require_scope
 from app.database import get_db
 from app.models import Invoice
 from app.xrechnung_generator import XRechnungGenerator
@@ -163,6 +163,7 @@ async def list_invoices(
     db: Session = Depends(get_db),
 ):
     """Gibt eine paginierte Liste aller Rechnungen zurück."""
+    require_scope(api_ctx, "invoices:read")
     org_id = api_ctx["org_id"]
     if org_id is None:
         raise HTTPException(
@@ -210,6 +211,7 @@ async def get_invoice(
     db: Session = Depends(get_db),
 ):
     """Gibt die Daten einer einzelnen Rechnung zurück."""
+    require_scope(api_ctx, "invoices:read")
     org_id = api_ctx["org_id"]
     if org_id is None:
         raise HTTPException(
@@ -264,6 +266,7 @@ async def convert_to_xrechnung(
     Die Konvertierung erfolgt nach EN 16931 / XRechnung 3.0.2.
     Es wird kein Datensatz in der Datenbank angelegt.
     """
+    require_scope(api_ctx, "invoices:read")
     # Rechnungsdaten für den Generator aufbereiten
     invoice_data = {
         "invoice_number": request.invoice_number,
@@ -331,6 +334,7 @@ async def validate_xrechnung(
     Nutzt bevorzugt den Docker-basierten KoSIT-Validator.
     Bei Nicht-Verfügbarkeit wird eine lokale Strukturprüfung durchgeführt.
     """
+    require_scope(api_ctx, "invoices:read")
     if not request.xml_content or not request.xml_content.strip():
         raise HTTPException(
             status_code=400,

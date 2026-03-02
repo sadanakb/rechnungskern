@@ -72,7 +72,7 @@ def client(db_session):
 
 def _get_api_key() -> str:
     """Return the active API key for invoice endpoint calls."""
-    from app.auth import ACTIVE_API_KEY
+    from app._auth_legacy import ACTIVE_API_KEY
     return ACTIVE_API_KEY
 
 

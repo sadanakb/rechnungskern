@@ -475,6 +475,25 @@ class InvoiceShareLink(Base):
     invoice = relationship("Invoice")
 
 
+class TeamInvite(Base):
+    """Team invitation token — stores SHA-256 hash of the invite token."""
+    __tablename__ = "team_invites"
+
+    id = Column(Integer, primary_key=True, index=True)
+    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False)
+    email = Column(String(255), nullable=False)
+    role = Column(String(20), default="member")
+    token_hash = Column(String(64), nullable=False, index=True)  # SHA-256 hex digest
+    invited_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=_utc_now)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    accepted_at = Column(DateTime(timezone=True), nullable=True)
+    is_used = Column(Boolean, default=False)
+
+    organization = relationship("Organization")
+    inviter = relationship("User")
+
+
 class PushSubscription(Base):
     """FCM push notification subscription per user/device — Phase 11."""
     __tablename__ = 'push_subscriptions'

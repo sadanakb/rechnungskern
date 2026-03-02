@@ -16,7 +16,8 @@ describe('cn()', () => {
 
   // --- Falsy-Werte werden gefiltert ---
   it('filtert false-Ausdrücke heraus', () => {
-    expect(cn('a', false && 'b', 'c')).toBe('a c')
+    const falsy = false as boolean
+    expect(cn('a', falsy && 'b', 'c')).toBe('a c')
   })
 
   it('filtert undefined heraus', () => {
