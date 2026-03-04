@@ -33,6 +33,7 @@ from app.rate_limiter import limiter
 from app.config import settings
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+FRONTEND_URL = settings.frontend_url
 
 
 def _slugify(name: str) -> str:
@@ -159,8 +160,6 @@ def get_me(
 # ---------------------------------------------------------------------------
 # Forgot / Reset Password
 # ---------------------------------------------------------------------------
-
-FRONTEND_URL = settings.frontend_url
 
 
 class ForgotPasswordRequest(BaseModel):

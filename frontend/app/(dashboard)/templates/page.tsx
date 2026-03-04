@@ -10,6 +10,14 @@ import {
   type InvoiceTemplate,
   type InvoiceTemplateCreate,
 } from '@/lib/api'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -528,6 +536,9 @@ export default function TemplatesPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [editTarget, setEditTarget] = useState<InvoiceTemplate | null>(null)
 
+  // Delete confirmation dialog
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: number | null }>({ open: false, id: null })
+
   const load = useCallback(async () => {
     setLoading(true)
     try {
@@ -557,10 +568,14 @@ export default function TemplatesPage() {
     load()
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Vorlage wirklich löschen?')) return
+  const handleDelete = (id: number) => {
+    setDeleteConfirm({ open: true, id })
+  }
+
+  const confirmDeleteTemplate = async () => {
+    if (deleteConfirm.id === null) return
     try {
-      await deleteTemplate(id)
+      await deleteTemplate(deleteConfirm.id)
       load()
     } catch (err: unknown) {
       const detail =
@@ -569,6 +584,7 @@ export default function TemplatesPage() {
           : undefined
       setError(detail || 'Löschen fehlgeschlagen')
     }
+    setDeleteConfirm({ open: false, id: null })
   }
 
   const handleSetDefault = async (id: number) => {
@@ -694,6 +710,33 @@ export default function TemplatesPage() {
           onClose={() => setEditTarget(null)}
         />
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteConfirm.open} onOpenChange={(open) => !open && setDeleteConfirm({ open: false, id: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Vorlage löschen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Möchten Sie diese Vorlage wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteConfirm({ open: false, id: null })}
+              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground))' }}
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={confirmDeleteTemplate}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+            >
+              Löschen
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

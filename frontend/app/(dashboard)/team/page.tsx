@@ -265,6 +265,9 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
+  // Remove member confirmation dialog
+  const [removeConfirm, setRemoveConfirm] = useState<{ open: boolean; userId: number | null; memberName: string }>({ open: false, userId: null, memberName: '' })
+
   // Determine current user's role in the organization
   const currentUserId = user?.id
   const currentMember = members.find((m) => m.user_id === currentUserId)
@@ -291,17 +294,22 @@ export default function TeamPage() {
     }
   }, [authLoading, isProfessional, fetchMembers])
 
-  const handleRemoveMember = async (userId: number, memberName: string) => {
-    if (!confirm(`Moechten Sie ${memberName} wirklich aus dem Team entfernen?`)) return
+  const handleRemoveMember = (userId: number, memberName: string) => {
+    setRemoveConfirm({ open: true, userId, memberName })
+  }
+
+  const confirmRemoveMember = async () => {
+    if (removeConfirm.userId === null) return
     setFeedback(null)
     try {
-      await api.delete(`/api/teams/members/${userId}`)
-      setFeedback({ type: 'success', message: `${memberName} wurde entfernt.` })
+      await api.delete(`/api/teams/members/${removeConfirm.userId}`)
+      setFeedback({ type: 'success', message: `${removeConfirm.memberName} wurde entfernt.` })
       fetchMembers()
       setTimeout(() => setFeedback(null), 4000)
     } catch (err) {
       setFeedback({ type: 'error', message: getErrorMessage(err, 'Entfernen fehlgeschlagen.') })
     }
+    setRemoveConfirm({ open: false, userId: null, memberName: '' })
   }
 
   const handleChangeRole = async (userId: number, newRole: string) => {
@@ -476,6 +484,26 @@ export default function TeamPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Remove member confirmation dialog */}
+      <Dialog open={removeConfirm.open} onOpenChange={(open) => !open && setRemoveConfirm({ open: false, userId: null, memberName: '' })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mitglied entfernen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Möchten Sie &bdquo;{removeConfirm.memberName}&ldquo; wirklich aus dem Team entfernen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRemoveConfirm({ open: false, userId: null, memberName: '' })}>
+              Abbrechen
+            </Button>
+            <Button variant="destructive" onClick={confirmRemoveMember}>
+              Entfernen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

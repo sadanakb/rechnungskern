@@ -12,6 +12,14 @@ import {
   type RecurringTemplate,
   type RecurringCreate,
 } from '@/lib/api'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -208,6 +216,9 @@ export default function RecurringPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
+  // Delete confirmation dialog
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; templateId: string | null }>({ open: false, templateId: null })
+
   // ---------------------------------------------------------------------------
   // Load templates
   // ---------------------------------------------------------------------------
@@ -244,17 +255,22 @@ export default function RecurringPage() {
     }
   }
 
-  const handleDelete = async (templateId: string) => {
-    if (!confirm('Vorlage wirklich löschen? Bereits generierte Rechnungen bleiben erhalten.')) return
+  const handleDelete = (templateId: string) => {
+    setDeleteConfirm({ open: true, templateId })
+  }
+
+  const confirmDeleteRecurring = async () => {
+    if (!deleteConfirm.templateId) return
     setActionLoading(true)
     try {
-      await deleteRecurring(templateId)
-      setTemplates(prev => prev.filter(t => t.template_id !== templateId))
+      await deleteRecurring(deleteConfirm.templateId)
+      setTemplates(prev => prev.filter(t => t.template_id !== deleteConfirm.templateId))
     } catch (err) {
       setError(getErrorMessage(err, 'Vorlage konnte nicht gelöscht werden'))
     } finally {
       setActionLoading(false)
     }
+    setDeleteConfirm({ open: false, templateId: null })
   }
 
   const handleTrigger = async (templateId: string) => {
@@ -620,6 +636,33 @@ export default function RecurringPage() {
           <p>4. Jede generierte Rechnung erscheint in der Rechnungsliste und kann als ZUGFeRD/XRechnung exportiert werden.</p>
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteConfirm.open} onOpenChange={(open) => !open && setDeleteConfirm({ open: false, templateId: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Vorlage löschen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Möchten Sie diese Vorlage wirklich löschen? Bereits generierte Rechnungen bleiben erhalten. Dieser Vorgang kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteConfirm({ open: false, templateId: null })}
+              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground))' }}
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={confirmDeleteRecurring}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+            >
+              Löschen
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

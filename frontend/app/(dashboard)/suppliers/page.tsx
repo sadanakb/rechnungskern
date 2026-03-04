@@ -5,10 +5,19 @@ import { Plus, Search, Trash2, Edit2, X } from 'lucide-react'
 import {
   listSuppliers,
   createSupplier,
+  updateSupplier,
   deleteSupplier,
   type Supplier,
   type SupplierCreate,
 } from '@/lib/api'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 function EmptyState() {
   return (
@@ -35,6 +44,7 @@ export default function SuppliersPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
   const [form, setForm] = useState<SupplierCreate>({
     name: '',
     vat_id: '',
@@ -47,6 +57,9 @@ export default function SuppliersPage() {
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // Delete confirmation dialog
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; item: Supplier | null }>({ open: false, item: null })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -63,30 +76,59 @@ export default function SuppliersPage() {
 
   useEffect(() => { load() }, [load])
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setForm({ name: '', vat_id: '', address: '', iban: '', bic: '', email: '', default_account: '', notes: '' })
+    setEditingSupplier(null)
+    setShowForm(false)
+  }
+
+  const handleEdit = (supplier: Supplier) => {
+    setEditingSupplier(supplier)
+    setForm({
+      name: supplier.name,
+      vat_id: supplier.vat_id,
+      address: supplier.address ?? '',
+      iban: supplier.iban ?? '',
+      bic: supplier.bic ?? '',
+      email: supplier.email ?? '',
+      default_account: supplier.default_account ?? '',
+      notes: supplier.notes ?? '',
+    })
+    setShowForm(true)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name || !form.vat_id) return
     setSubmitting(true)
     try {
-      await createSupplier(form)
-      setForm({ name: '', vat_id: '', address: '', iban: '', bic: '', email: '', default_account: '', notes: '' })
-      setShowForm(false)
+      if (editingSupplier) {
+        await updateSupplier(editingSupplier.id, form)
+      } else {
+        await createSupplier(form)
+      }
+      resetForm()
       load()
     } catch {
-      setError('Lieferant konnte nicht erstellt werden')
+      setError(editingSupplier ? 'Lieferant konnte nicht aktualisiert werden' : 'Lieferant konnte nicht erstellt werden')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Lieferant wirklich löschen?')) return
+  const handleDelete = (supplier: Supplier) => {
+    setDeleteConfirm({ open: true, item: supplier })
+  }
+
+  const confirmDeleteSupplier = async () => {
+    if (!deleteConfirm.item) return
     try {
-      await deleteSupplier(id)
+      await deleteSupplier(deleteConfirm.item.id)
       load()
     } catch {
       setError('Löschen fehlgeschlagen')
     }
+    setDeleteConfirm({ open: false, item: null })
   }
 
   const filtered = search
@@ -111,7 +153,15 @@ export default function SuppliersPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) {
+              resetForm()
+            } else {
+              setEditingSupplier(null)
+              setForm({ name: '', vat_id: '', address: '', iban: '', bic: '', email: '', default_account: '', notes: '' })
+              setShowForm(true)
+            }
+          }}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           style={{ backgroundColor: 'rgb(var(--primary))', color: '#fff' }}
         >
@@ -129,11 +179,13 @@ export default function SuppliersPage() {
       {/* Create Form */}
       {showForm && (
         <form
-          onSubmit={handleCreate}
+          onSubmit={handleSubmit}
           className="rounded-xl border p-5 space-y-4"
           style={{ backgroundColor: 'rgb(var(--card))', borderColor: 'rgb(var(--border))' }}
         >
-          <h2 className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>Neuen Lieferanten anlegen</h2>
+          <h2 className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>
+            {editingSupplier ? 'Lieferant bearbeiten' : 'Neuen Lieferanten anlegen'}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
               { key: 'name', label: 'Firmenname *', placeholder: 'Musterfirma GmbH' },
@@ -170,7 +222,7 @@ export default function SuppliersPage() {
             className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity disabled:opacity-50"
             style={{ backgroundColor: 'rgb(var(--primary))', color: '#fff' }}
           >
-            {submitting ? 'Speichere...' : 'Lieferant erstellen'}
+            {submitting ? 'Speichere...' : editingSupplier ? 'Änderungen speichern' : 'Lieferant erstellen'}
           </button>
         </form>
       )}
@@ -242,14 +294,28 @@ export default function SuppliersPage() {
                   <td className="px-4 py-3" style={{ color: 'rgb(var(--foreground))' }}>{s.invoice_count}</td>
                   <td className="px-4 py-3 font-medium" style={{ color: 'rgb(var(--foreground))' }}>{fmt(s.total_volume)}</td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleDelete(s.id)}
-                      className="p-1.5 rounded-md transition-colors"
-                      style={{ color: 'rgb(var(--danger))' }}
-                      title="Löschen"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleEdit(s)}
+                        className="p-1.5 rounded-md transition-colors"
+                        style={{ color: 'rgb(var(--foreground-muted))' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgb(var(--muted))')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                        title="Bearbeiten"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(s)}
+                        className="p-1.5 rounded-md transition-colors"
+                        style={{ color: 'rgb(var(--danger))' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgb(var(--danger-light))')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                        title="Löschen"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -257,6 +323,33 @@ export default function SuppliersPage() {
           </table>
         </div>
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteConfirm.open} onOpenChange={(open) => !open && setDeleteConfirm({ open: false, item: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Lieferant löschen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Möchten Sie &bdquo;{deleteConfirm.item?.name}&ldquo; wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteConfirm({ open: false, item: null })}
+              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground))' }}
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={confirmDeleteSupplier}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+            >
+              Löschen
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

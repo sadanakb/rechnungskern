@@ -65,6 +65,14 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 // ---------------------------------------------------------------------------
 // Plan config
@@ -1038,6 +1046,9 @@ function ApiKeysTab({ plan }: { plan: string }) {
   const [newKeyResult, setNewKeyResult] = useState<ApiKeyCreateResult | null>(null)
   const [revokingId, setRevokingId] = useState<number | null>(null)
 
+  // Revoke confirmation dialog
+  const [revokeConfirm, setRevokeConfirm] = useState<{ open: boolean; id: number | null }>({ open: false, id: null })
+
   const fetchKeys = useCallback(async () => {
     setLoading(true)
     try {
@@ -1054,8 +1065,14 @@ function ApiKeysTab({ plan }: { plan: string }) {
     if (isProfessional) fetchKeys()
   }, [isProfessional, fetchKeys])
 
-  const handleRevoke = async (id: number) => {
-    if (!window.confirm('Diesen API-Schluessel wirklich widerrufen? Diese Aktion kann nicht rueckgaengig gemacht werden.')) return
+  const handleRevoke = (id: number) => {
+    setRevokeConfirm({ open: true, id })
+  }
+
+  const confirmRevoke = async () => {
+    if (revokeConfirm.id === null) return
+    const id = revokeConfirm.id
+    setRevokeConfirm({ open: false, id: null })
     setRevokingId(id)
     try {
       await revokeApiKey(id)
@@ -1245,6 +1262,26 @@ function ApiKeysTab({ plan }: { plan: string }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Revoke confirmation dialog */}
+      <Dialog open={revokeConfirm.open} onOpenChange={(open) => !open && setRevokeConfirm({ open: false, id: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>API-Schlüssel widerrufen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Diesen API-Schlüssel wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRevokeConfirm({ open: false, id: null })}>
+              Abbrechen
+            </Button>
+            <Button variant="destructive" onClick={confirmRevoke}>
+              Widerrufen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

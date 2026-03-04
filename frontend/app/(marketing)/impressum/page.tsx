@@ -13,9 +13,9 @@ export default function ImpressumPage() {
           <h2 className="text-xl font-semibold mb-2">Angaben gemaess § 5 TMG</h2>
           <p>
             RechnungsWerk<br />
-            [Vor- und Nachname / Firmenname]<br />
-            [Strasse und Hausnummer]<br />
-            [PLZ Ort]<br />
+            {process.env.NEXT_PUBLIC_COMPANY_NAME || '[Nicht konfiguriert]'}<br />
+            {process.env.NEXT_PUBLIC_COMPANY_STREET || '[Nicht konfiguriert]'}<br />
+            {process.env.NEXT_PUBLIC_COMPANY_CITY || '[Nicht konfiguriert]'}<br />
             Deutschland
           </p>
         </section>
@@ -24,7 +24,7 @@ export default function ImpressumPage() {
           <h2 className="text-xl font-semibold mb-2">Kontakt</h2>
           <p>
             E-Mail: kontakt@rechnungswerk.de<br />
-            Telefon: [Telefonnummer]
+            Telefon: {process.env.NEXT_PUBLIC_COMPANY_PHONE || '[Nicht konfiguriert]'}
           </p>
         </section>
 
@@ -32,15 +32,15 @@ export default function ImpressumPage() {
           <h2 className="text-xl font-semibold mb-2">Umsatzsteuer-ID</h2>
           <p>
             Umsatzsteuer-Identifikationsnummer gemaess § 27a UStG:<br />
-            [USt-IdNr.]
+            {process.env.NEXT_PUBLIC_COMPANY_VAT_ID || '[Nicht konfiguriert]'}
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-2">Verantwortlich fuer den Inhalt nach § 18 Abs. 2 MStV</h2>
           <p>
-            [Vor- und Nachname]<br />
-            [Adresse wie oben]
+            {process.env.NEXT_PUBLIC_COMPANY_RESPONSIBLE_NAME || '[Nicht konfiguriert]'}<br />
+            {process.env.NEXT_PUBLIC_COMPANY_RESPONSIBLE_ADDRESS || '[Nicht konfiguriert]'}
           </p>
         </section>
 

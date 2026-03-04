@@ -22,6 +22,14 @@ import {
   type WebhookSubscription,
   type WebhookDelivery,
 } from '@/lib/api'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -540,9 +548,14 @@ function WebhookRow({ webhook, onDeleted, onToast }: WebhookRowProps) {
   const [showDeliveries, setShowDeliveries] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [testing, setTesting] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Webhook "${webhook.url}" wirklich löschen?`)) return
+  const handleDelete = () => {
+    setDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    setDeleteConfirmOpen(false)
     setDeleting(true)
     try {
       await deleteWebhook(webhook.id)
@@ -713,6 +726,33 @@ function WebhookRow({ webhook, onDeleted, onToast }: WebhookRowProps) {
           </td>
         </tr>
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={(open) => !open && setDeleteConfirmOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Webhook löschen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Möchten Sie den Webhook &bdquo;{webhook.url}&ldquo; wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteConfirmOpen(false)}
+              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground))' }}
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+            >
+              Löschen
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

@@ -10,6 +10,14 @@ import {
   type Contact,
   type ContactCreate,
 } from '@/lib/api'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -424,6 +432,9 @@ export default function ContactsPage() {
   const [editTarget, setEditTarget] = useState<Contact | undefined>(undefined)
   const [saving, setSaving] = useState(false)
 
+  // Delete confirmation dialog
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; item: Contact | null }>({ open: false, item: null })
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -488,15 +499,20 @@ export default function ContactsPage() {
     }
   }
 
-  const handleDelete = async (contact: Contact) => {
-    if (!window.confirm(`Kontakt "${contact.name}" wirklich löschen?`)) return
+  const handleDelete = (contact: Contact) => {
+    setDeleteConfirm({ open: true, item: contact })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.item) return
     setError('')
     try {
-      await deleteContact(contact.id)
+      await deleteContact(deleteConfirm.item.id)
       load()
     } catch {
       setError('Löschen fehlgeschlagen.')
     }
+    setDeleteConfirm({ open: false, item: null })
   }
 
   // Tab config
@@ -699,6 +715,33 @@ export default function ContactsPage() {
           saving={saving}
         />
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteConfirm.open} onOpenChange={(open) => !open && setDeleteConfirm({ open: false, item: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Kontakt löschen</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Möchten Sie &bdquo;{deleteConfirm.item?.name}&ldquo; wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteConfirm({ open: false, item: null })}
+              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground))' }}
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+            >
+              Löschen
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -23,19 +23,45 @@ function ResetPasswordContent() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+
+  const validatePassword = (password: string): string[] => {
+    const validationErrors: string[] = []
+
+    if (password.length < 10) {
+      validationErrors.push('Passwort muss mindestens 10 Zeichen lang sein.')
+    }
+    if (password.length > 128) {
+      validationErrors.push('Passwort darf maximal 128 Zeichen lang sein.')
+    }
+    if (!/[A-Z]/.test(password)) {
+      validationErrors.push('Passwort muss mindestens einen Grossbuchstaben enthalten.')
+    }
+    if (!/[a-z]/.test(password)) {
+      validationErrors.push('Passwort muss mindestens einen Kleinbuchstaben enthalten.')
+    }
+    if (!/[0-9]/.test(password)) {
+      validationErrors.push('Passwort muss mindestens eine Zahl enthalten.')
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>_\-+=[\];'/~]/.test(password)) {
+      validationErrors.push('Passwort muss mindestens ein Sonderzeichen enthalten.')
+    }
+
+    return validationErrors
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    setErrors([])
 
     if (newPassword !== confirmPassword) {
-      setError('Passwoerter stimmen nicht ueberein.')
+      setErrors(['Passwoerter stimmen nicht ueberein.'])
       return
     }
 
-    if (newPassword.length < 8) {
-      setError('Passwort muss mindestens 8 Zeichen lang sein.')
+    const validationErrors = validatePassword(newPassword)
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors)
       return
     }
 
@@ -47,7 +73,7 @@ function ResetPasswordContent() {
       })
       setSuccess(true)
     } catch {
-      setError('Link ungueltig oder abgelaufen.')
+      setErrors(['Link ungueltig oder abgelaufen.'])
     } finally {
       setLoading(false)
     }
@@ -127,7 +153,7 @@ function ResetPasswordContent() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                hint="Mindestens 8 Zeichen"
+                hint="Mind. 10 Zeichen, Gross-/Kleinbuchstaben, Zahl und Sonderzeichen"
               />
               <Input
                 id="confirm_password"
@@ -137,7 +163,13 @@ function ResetPasswordContent() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {errors.length > 0 && (
+                <div className="space-y-1">
+                  {errors.map((err, i) => (
+                    <p key={i} className="text-sm text-red-500">{err}</p>
+                  ))}
+                </div>
+              )}
               <Button
                 type="submit"
                 className="w-full"
