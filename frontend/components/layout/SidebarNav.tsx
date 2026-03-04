@@ -27,6 +27,7 @@ import {
   FileInput,
   MoreHorizontal,
   X,
+  ScrollText,
 } from 'lucide-react'
 import { useTheme } from '@/components/design-system/theme-provider'
 import { cn } from '@/lib/utils'
@@ -44,6 +45,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/import', label: 'Import', icon: FileInput },
   { href: '/manual', label: 'Manuelle Eingabe', icon: FileText },
   { href: '/invoices', label: 'Rechnungen', icon: List },
+  { href: '/angebote', label: 'Angebote', icon: ScrollText },
   { href: '/validator', label: 'Validator', icon: CheckCircle },
   { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/suppliers', label: 'Lieferanten', icon: Users },
@@ -385,7 +387,7 @@ export function SidebarNav() {
           </button>
         </div>
 
-        {/* Mobile drawer overlay */}
+        {/* Mobile full drawer overlay */}
         {mobileDrawerOpen && (
           <div className="fixed inset-0 z-[60]">
             <div
@@ -393,42 +395,99 @@ export function SidebarNav() {
               onClick={() => setMobileDrawerOpen(false)}
             />
             <div
-              className="absolute bottom-0 left-0 right-0 rounded-t-2xl pb-8 max-h-[70vh] overflow-y-auto"
+              className="absolute bottom-0 left-0 right-0 rounded-t-2xl pb-8 max-h-[85vh] overflow-y-auto"
               style={{
                 backgroundColor: 'rgb(var(--card))',
                 boxShadow: '0 -8px 32px rgb(0 0 0 / 0.15)',
               }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation"
             >
+              {/* Drag handle */}
+              <div className="flex justify-center pt-2 pb-1">
+                <div className="w-10 h-1 rounded-full" style={{ backgroundColor: 'rgb(var(--border))' }} />
+              </div>
               <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'rgb(var(--border))' }}>
-                <span className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>Navigation</span>
-                <button onClick={() => setMobileDrawerOpen(false)} style={{ color: 'rgb(var(--foreground-muted))' }}>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 font-bold text-xs text-white"
+                    style={{ backgroundColor: 'rgb(var(--primary))' }}
+                  >
+                    R
+                  </div>
+                  <span className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>Navigation</span>
+                </div>
+                <button
+                  onClick={() => setMobileDrawerOpen(false)}
+                  aria-label="Navigation schließen"
+                  className="p-2 -mr-2 rounded-lg"
+                  style={{ color: 'rgb(var(--foreground-muted))' }}
+                >
                   <X size={20} />
                 </button>
               </div>
               <nav className="px-2 py-2 space-y-0.5">
-                {NAV_ITEMS.slice(4).map((item) => {
+                {NAV_ITEMS.map((item) => {
                   const active = isActive(item.href)
                   const Icon = item.icon
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileDrawerOpen(false)}
+                      href={item.comingSoon ? '#' : item.href}
+                      onClick={(e) => {
+                        if (item.comingSoon) {
+                          e.preventDefault()
+                          return
+                        }
+                        setMobileDrawerOpen(false)
+                      }}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150',
+                        'flex items-center gap-3 px-3 rounded-lg transition-colors duration-150',
+                        item.comingSoon ? 'opacity-40 cursor-not-allowed' : '',
                         active ? '' : 'hover:opacity-80'
                       )}
                       style={{
+                        minHeight: 44,
+                        display: 'flex',
+                        alignItems: 'center',
                         backgroundColor: active ? 'rgb(var(--sidebar-item-active-bg))' : 'transparent',
                         color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--foreground))',
                       }}
                     >
                       <Icon size={18} style={{ color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--sidebar-icon))' }} />
                       <span className="text-sm font-medium">{item.label}</span>
+                      {item.comingSoon && (
+                        <span
+                          className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: 'rgb(var(--muted))',
+                            color: 'rgb(var(--foreground-muted))',
+                          }}
+                        >
+                          bald
+                        </span>
+                      )}
                     </Link>
                   )
                 })}
               </nav>
+              {/* Theme toggle in drawer */}
+              <div className="px-4 pt-2 border-t mt-2" style={{ borderColor: 'rgb(var(--border))' }}>
+                <button
+                  onClick={cycleTheme}
+                  className="flex items-center gap-3 px-3 w-full rounded-lg transition-colors duration-150"
+                  style={{
+                    minHeight: 44,
+                    color: 'rgb(var(--foreground))',
+                  }}
+                >
+                  <ThemeIcon size={18} style={{ color: 'rgb(var(--sidebar-icon))' }} />
+                  <span className="text-sm font-medium">
+                    Design: {theme === 'light' ? 'Hell' : theme === 'dark' ? 'Dunkel' : 'System'}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         )}

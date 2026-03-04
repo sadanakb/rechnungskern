@@ -154,6 +154,9 @@ class Invoice(Base):
     organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False, default=0, index=True)
     organization = relationship("Organization", back_populates="invoices")
 
+    # Quote conversion tracking
+    quote_id = Column(Integer, ForeignKey('quotes.id'), nullable=True)
+
     # Relationships (H6)
     upload_logs = relationship("UploadLog", back_populates="invoice")
     validation_results = relationship("ValidationResult", back_populates="invoice")
@@ -524,6 +527,76 @@ class GdprDeleteRequest(Base):
     created_at = Column(DateTime(timezone=True), default=_utc_now)
 
     user = relationship("User", backref="gdpr_delete_requests")
+
+
+class QuoteNumberSequence(Base):
+    """Configurable quote number sequence per organization."""
+    __tablename__ = 'quote_number_sequences'
+
+    id = Column(Integer, primary_key=True, index=True)
+    organization_id = Column(Integer, ForeignKey('organizations.id'), nullable=False, unique=True)
+    prefix = Column(String, default='ANB')
+    separator = Column(String, default='-')
+    current_counter = Column(Integer, default=0)
+    padding = Column(Integer, default=4)
+    reset_yearly = Column(Boolean, default=True)
+    last_reset_year = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class Quote(Base):
+    """Quote / Angebot entity"""
+    __tablename__ = 'quotes'
+
+    id = Column(Integer, primary_key=True, index=True)
+    quote_id = Column(String, unique=True, index=True, nullable=False)  # Public-facing ID
+    quote_number = Column(String, nullable=True)  # Sequential number
+    status = Column(String, default='draft')  # draft, sent, accepted, rejected, expired, converted
+    quote_date = Column(Date, nullable=True)
+    valid_until = Column(Date, nullable=True)
+
+    # Seller info
+    seller_name = Column(String, nullable=True)
+    seller_vat_id = Column(String, nullable=True)
+    seller_address = Column(String, nullable=True)
+
+    # Buyer info
+    buyer_name = Column(String, nullable=True)
+    buyer_vat_id = Column(String, nullable=True)
+    buyer_address = Column(String, nullable=True)
+
+    # Amounts
+    net_amount = Column(Numeric(12, 2), nullable=True)
+    tax_amount = Column(Numeric(12, 2), nullable=True)
+    gross_amount = Column(Numeric(12, 2), nullable=True)
+    tax_rate = Column(Numeric(5, 2), default=19.00)
+    currency = Column(String, default='EUR')
+
+    # Content
+    line_items = Column(JSON, nullable=True)
+    intro_text = Column(Text, nullable=True)
+    closing_text = Column(Text, nullable=True)
+    internal_notes = Column(Text, nullable=True)
+
+    # Payment info (for when converted)
+    iban = Column(String, nullable=True)
+    bic = Column(String, nullable=True)
+    payment_account_name = Column(String, nullable=True)
+
+    # PDF
+    pdf_path = Column(String, nullable=True)
+
+    # Conversion tracking
+    converted_invoice_id = Column(Integer, ForeignKey('invoices.id'), nullable=True)
+
+    # Multi-tenant
+    organization_id = Column(Integer, ForeignKey('organizations.id'), nullable=False)
+    created_by = Column(Integer, ForeignKey('users.id'), nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 class PortalPaymentIntent(Base):

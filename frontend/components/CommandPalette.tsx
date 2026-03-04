@@ -16,6 +16,7 @@ import {
   Plus,
   Upload,
   Settings,
+  ScrollText,
 } from 'lucide-react'
 
 interface CommandPaletteProps {
@@ -33,11 +34,13 @@ const navigationItems = [
   { label: 'Mahnwesen', href: '/mahnwesen', icon: AlertTriangle },
   { label: 'Validierung', href: '/validator', icon: CheckCircle },
   { label: 'Analytik', href: '/analytics', icon: BarChart3 },
+  { label: 'Angebote', href: '/angebote', icon: ScrollText },
 ]
 
 const actionItems = [
   { label: 'Neue Rechnung erstellen', href: '/manual', icon: Plus },
   { label: 'PDF hochladen OCR', href: '/ocr', icon: Upload },
+  { label: 'Neues Angebot erstellen', href: '/angebote/neu', icon: Plus },
   { label: 'Einstellungen', href: '/settings', icon: Settings },
 ]
 

@@ -1571,3 +1571,123 @@ export async function getPaymentSettings(): Promise<PaymentSettingsData> {
 export async function savePaymentSettings(data: { paypal_link: string | null }): Promise<void> {
   await api.patch('/api/billing/payment-settings', data)
 }
+
+// ---------------------------------------------------------------------------
+// Quotes (Angebote)
+// ---------------------------------------------------------------------------
+
+export interface Quote {
+  id: number
+  quote_id: string
+  quote_number: string | null
+  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'converted'
+  quote_date: string | null
+  valid_until: string | null
+  buyer_name: string | null
+  net_amount: number | null
+  gross_amount: number | null
+  currency: string
+  created_at: string
+}
+
+export interface QuoteDetail extends Quote {
+  seller_name: string | null
+  seller_vat_id: string | null
+  seller_address: string | null
+  buyer_vat_id: string | null
+  buyer_address: string | null
+  tax_amount: number | null
+  tax_rate: number | null
+  line_items: Array<{
+    description: string
+    quantity: number
+    unit_price: number
+    net_amount: number
+    tax_rate?: number
+  }> | null
+  intro_text: string | null
+  closing_text: string | null
+  internal_notes: string | null
+  iban: string | null
+  bic: string | null
+  payment_account_name: string | null
+  pdf_path: string | null
+  converted_invoice_id: number | null
+  organization_id: number | null
+  updated_at: string | null
+}
+
+export interface QuoteCreate {
+  quote_date?: string
+  valid_until?: string
+  seller_name?: string
+  seller_vat_id?: string
+  seller_address?: string
+  buyer_name?: string
+  buyer_vat_id?: string
+  buyer_address?: string
+  tax_rate?: number
+  currency?: string
+  line_items?: Array<{
+    description: string
+    quantity: number
+    unit_price: number
+    net_amount?: number
+    tax_rate?: number
+  }>
+  intro_text?: string
+  closing_text?: string
+  internal_notes?: string
+  iban?: string
+  bic?: string
+  payment_account_name?: string
+}
+
+export const listQuotes = async (params?: Record<string, string>): Promise<{ quotes: Quote[]; total: number }> => {
+  const query = params ? '?' + new URLSearchParams(params).toString() : ''
+  const resp = await api.get(`/api/quotes/list${query}`)
+  return resp.data
+}
+
+export const getQuote = async (quoteId: string): Promise<QuoteDetail> => {
+  const resp = await api.get(`/api/quotes/${quoteId}`)
+  return resp.data
+}
+
+export const createQuote = async (data: QuoteCreate): Promise<QuoteDetail> => {
+  const resp = await api.post('/api/quotes/create', data)
+  return resp.data
+}
+
+export const updateQuote = async (quoteId: string, data: Partial<QuoteCreate>): Promise<QuoteDetail> => {
+  const resp = await api.put(`/api/quotes/${quoteId}`, data)
+  return resp.data
+}
+
+export const deleteQuote = async (quoteId: string): Promise<void> => {
+  await api.delete(`/api/quotes/${quoteId}`)
+}
+
+export const sendQuote = async (quoteId: string): Promise<QuoteDetail> => {
+  const resp = await api.post(`/api/quotes/${quoteId}/send`)
+  return resp.data
+}
+
+export const acceptQuote = async (quoteId: string): Promise<QuoteDetail> => {
+  const resp = await api.post(`/api/quotes/${quoteId}/accept`)
+  return resp.data
+}
+
+export const rejectQuote = async (quoteId: string): Promise<QuoteDetail> => {
+  const resp = await api.post(`/api/quotes/${quoteId}/reject`)
+  return resp.data
+}
+
+export const convertQuoteToInvoice = async (quoteId: string): Promise<any> => {
+  const resp = await api.post(`/api/quotes/${quoteId}/convert`)
+  return resp.data
+}
+
+export const getQuotePdfUrl = (quoteId: string): string => {
+  return `${API_BASE}/api/quotes/${quoteId}/pdf`
+}
