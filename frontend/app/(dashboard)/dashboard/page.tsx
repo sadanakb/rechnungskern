@@ -1,19 +1,19 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
+import dynamic from 'next/dynamic'
+
+const LazyBarChart = dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), { ssr: false })
+const LazyBar = dynamic(() => import('recharts').then(mod => ({ default: mod.Bar })), { ssr: false })
+const LazyXAxis = dynamic(() => import('recharts').then(mod => ({ default: mod.XAxis })), { ssr: false })
+const LazyYAxis = dynamic(() => import('recharts').then(mod => ({ default: mod.YAxis })), { ssr: false })
+const LazyCartesianGrid = dynamic(() => import('recharts').then(mod => ({ default: mod.CartesianGrid })), { ssr: false })
+const LazyTooltip = dynamic(() => import('recharts').then(mod => ({ default: mod.Tooltip })), { ssr: false })
+const LazyResponsiveContainer = dynamic(() => import('recharts').then(mod => ({ default: mod.ResponsiveContainer })), { ssr: false })
 import {
   FileText,
   Upload,
@@ -285,13 +285,17 @@ export default function Dashboard() {
     },
   ]
 
-  const monthlyData = stats?.monthly_revenue
-    ? stats.monthly_revenue.map((r) => ({
-        month: MONTH_NAMES[parseInt(r.month.split('-')[1], 10) - 1],
-        betrag: r.amount,
-        anzahl: 0,
-      }))
-    : buildMonthlyData(invoices)
+  const monthlyData = useMemo(
+    () =>
+      stats?.monthly_revenue
+        ? stats.monthly_revenue.map((r) => ({
+            month: MONTH_NAMES[parseInt(r.month.split('-')[1], 10) - 1],
+            betrag: r.amount,
+            anzahl: 0,
+          }))
+        : buildMonthlyData(invoices),
+    [stats, invoices],
+  )
   const recentInvoices = [...invoices]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
@@ -628,33 +632,33 @@ export default function Dashboard() {
                   <Loader2 size={20} className="animate-spin" style={{ color: 'rgb(var(--foreground-muted))' }} />
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={monthlyData} barSize={28} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                    <CartesianGrid
+                <LazyResponsiveContainer width="100%" height={160}>
+                  <LazyBarChart data={monthlyData} barSize={28} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                    <LazyCartesianGrid
                       vertical={false}
                       strokeDasharray="3 3"
                       stroke="rgb(var(--border))"
                     />
-                    <XAxis
+                    <LazyXAxis
                       dataKey="month"
                       tick={{ fontSize: 11, fill: 'rgb(var(--foreground-muted))' }}
                       axisLine={false}
                       tickLine={false}
                     />
-                    <YAxis
+                    <LazyYAxis
                       tick={{ fontSize: 11, fill: 'rgb(var(--foreground-muted))' }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
                     />
-                    <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgb(var(--muted))' }} />
-                    <Bar
+                    <LazyTooltip content={<ChartTooltip />} cursor={{ fill: 'rgb(var(--muted))' }} />
+                    <LazyBar
                       dataKey="betrag"
                       fill="rgb(var(--primary))"
                       radius={[4, 4, 0, 0]}
                     />
-                  </BarChart>
-                </ResponsiveContainer>
+                  </LazyBarChart>
+                </LazyResponsiveContainer>
               )}
             </div>
           </motion.div>

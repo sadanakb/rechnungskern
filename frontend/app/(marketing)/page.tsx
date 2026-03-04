@@ -473,8 +473,10 @@ export default function LandingPage() {
             name: 'RechnungsWerk',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
+            description: 'Professionelle Rechnungssoftware für Deutschland. ZUGFeRD & XRechnung konform.',
+            url: 'https://rechnungswerk.de',
             offers: [
-              { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
+              { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR', description: 'Kostenlose Testversion verfügbar' },
               { '@type': 'Offer', name: 'Starter', price: '9.90', priceCurrency: 'EUR' },
               { '@type': 'Offer', name: 'Professional', price: '19.90', priceCurrency: 'EUR' },
             ],

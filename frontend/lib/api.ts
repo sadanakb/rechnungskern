@@ -7,6 +7,7 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:800
 
 const api = axios.create({
   baseURL: API_BASE,
+  timeout: 30000, // 30 seconds
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,8 +15,30 @@ const api = axios.create({
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     console.error('API Error:', error?.response?.status, error?.config?.url)
+    const originalRequest = error.config
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      try {
+        const refreshToken = localStorage.getItem('rw-refresh-token')
+        if (refreshToken) {
+          const { data } = await axios.post(`${API_BASE}/api/auth/refresh`, { refresh_token: refreshToken })
+          localStorage.setItem('rw-access-token', data.access_token)
+          if (data.refresh_token) {
+            localStorage.setItem('rw-refresh-token', data.refresh_token)
+          }
+          originalRequest.headers.Authorization = `Bearer ${data.access_token}`
+          return api(originalRequest)
+        }
+      } catch {
+        localStorage.removeItem('rw-access-token')
+        localStorage.removeItem('rw-refresh-token')
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login'
+        }
+      }
+    }
     return Promise.reject(error)
   },
 )

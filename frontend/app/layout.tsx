@@ -9,10 +9,41 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { CookieBanner } from '@/components/CookieBanner'
 
 export const metadata: Metadata = {
-  title: 'RechnungsWerk - E-Invoice OCR & XRechnung 3.0.2',
+  title: 'RechnungsWerk — Rechnungssoftware für Deutschland',
   description:
-    'Convert paper invoices to XRechnung 3.0.2 and ZUGFeRD using Tesseract OCR. EN 16931 compliant UBL XML generator.',
-  keywords: ['XRechnung', 'ZUGFeRD', 'E-Rechnung', 'OCR', 'UBL', 'EN 16931'],
+    'Professionelle Rechnungen, Angebote und Buchhaltung für Selbständige und KMU. ZUGFeRD & XRechnung konform. Made in Germany.',
+  keywords: ['Rechnungssoftware', 'Rechnung erstellen', 'ZUGFeRD', 'XRechnung', 'Buchhaltung', 'Angebote', 'SaaS', 'Deutschland'],
+  authors: [{ name: 'RechnungsWerk' }],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
+  openGraph: {
+    title: 'RechnungsWerk — Rechnungssoftware für Deutschland',
+    description: 'Professionelle Rechnungen, Angebote und Buchhaltung für Selbständige und KMU. ZUGFeRD & XRechnung konform.',
+    url: 'https://rechnungswerk.de',
+    siteName: 'RechnungsWerk',
+    locale: 'de_DE',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RechnungsWerk — Rechnungssoftware für Deutschland',
+    description: 'Professionelle Rechnungen, Angebote und Buchhaltung. ZUGFeRD & XRechnung konform.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: 'https://rechnungswerk.de',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

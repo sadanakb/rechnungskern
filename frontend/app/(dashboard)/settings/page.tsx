@@ -1,3 +1,4 @@
+// TODO: Split into tab components (CompanyTab, BillingTab, SecurityTab, etc.)
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
