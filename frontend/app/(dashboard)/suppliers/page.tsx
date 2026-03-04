@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Search, Trash2, Edit2, X } from 'lucide-react'
+import { Plus, Search, Trash2, Edit2, X, Package } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
+import { toast } from '@/components/ui/toast'
 import {
   listSuppliers,
   createSupplier,
@@ -19,24 +21,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 
-function EmptyState() {
-  return (
-    <div className="text-center py-16">
-      <div
-        className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-        style={{ backgroundColor: 'rgb(var(--muted))' }}
-      >
-        <Plus size={24} style={{ color: 'rgb(var(--foreground-muted))' }} />
-      </div>
-      <p className="text-sm font-medium" style={{ color: 'rgb(var(--foreground))' }}>
-        Noch keine Lieferanten
-      </p>
-      <p className="text-xs mt-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
-        Erstelle deinen ersten Lieferanten, um automatische Zuordnungen zu aktivieren.
-      </p>
-    </div>
-  )
-}
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
@@ -104,13 +88,15 @@ export default function SuppliersPage() {
     try {
       if (editingSupplier) {
         await updateSupplier(editingSupplier.id, form)
+        toast.success('Erfolgreich gespeichert')
       } else {
         await createSupplier(form)
+        toast.success('Erfolgreich erstellt')
       }
       resetForm()
       load()
     } catch {
-      setError(editingSupplier ? 'Lieferant konnte nicht aktualisiert werden' : 'Lieferant konnte nicht erstellt werden')
+      toast.error(editingSupplier ? 'Lieferant konnte nicht aktualisiert werden' : 'Lieferant konnte nicht erstellt werden')
     } finally {
       setSubmitting(false)
     }
@@ -124,9 +110,10 @@ export default function SuppliersPage() {
     if (!deleteConfirm.item) return
     try {
       await deleteSupplier(deleteConfirm.item.id)
+      toast.success('Erfolgreich gelöscht')
       load()
     } catch {
-      setError('Löschen fehlgeschlagen')
+      toast.error('Löschen fehlgeschlagen')
     }
     setDeleteConfirm({ open: false, item: null })
   }
@@ -198,10 +185,11 @@ export default function SuppliersPage() {
               { key: 'notes', label: 'Notizen', placeholder: 'Hauptlieferant Büromaterial' },
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
-                <label className="block text-xs font-medium mb-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
+                <label htmlFor={`supplier-${key}`} className="block text-xs font-medium mb-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
                   {label}
                 </label>
                 <input
+                  id={`supplier-${key}`}
                   type="text"
                   value={form[key as keyof SupplierCreate] || ''}
                   onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
@@ -255,8 +243,22 @@ export default function SuppliersPage() {
             <div key={i} className="h-16 rounded-lg animate-pulse" style={{ backgroundColor: 'rgb(var(--muted))' }} />
           ))}
         </div>
+      ) : filtered.length === 0 && suppliers.length === 0 ? (
+        <EmptyState
+          icon={Package}
+          title="Noch keine Lieferanten"
+          description="Erstelle deinen ersten Lieferanten, um automatische Zuordnungen zu aktivieren."
+          actionLabel="Neuer Lieferant"
+          onAction={() => {
+            setEditingSupplier(null)
+            setForm({ name: '', vat_id: '', address: '', iban: '', bic: '', email: '', default_account: '', notes: '' })
+            setShowForm(true)
+          }}
+        />
       ) : filtered.length === 0 ? (
-        <EmptyState />
+        <div className="text-center py-12" style={{ color: 'rgb(var(--foreground-muted))' }}>
+          <p className="text-sm">Keine Lieferanten entsprechen deiner Suche.</p>
+        </div>
       ) : (
         <div
           className="rounded-xl border overflow-hidden"
@@ -302,6 +304,7 @@ export default function SuppliersPage() {
                         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgb(var(--muted))')}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                         title="Bearbeiten"
+                        aria-label={`${s.name} bearbeiten`}
                       >
                         <Edit2 size={14} />
                       </button>
@@ -312,6 +315,7 @@ export default function SuppliersPage() {
                         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgb(var(--danger-light))')}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                         title="Löschen"
+                        aria-label={`${s.name} löschen`}
                       >
                         <Trash2 size={14} />
                       </button>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Trash2, Edit2, X, Users2 } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
+import { toast } from '@/components/ui/toast'
 import {
   listContacts,
   createContact,
@@ -57,32 +59,6 @@ function LoadingSkeleton() {
   )
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-  return (
-    <div className="text-center py-20">
-      <div
-        className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-        style={{ backgroundColor: 'rgb(var(--muted))' }}
-      >
-        <Users2 size={28} style={{ color: 'rgb(var(--foreground-muted))' }} />
-      </div>
-      <p className="text-base font-semibold" style={{ color: 'rgb(var(--foreground))' }}>
-        Noch keine Kontakte
-      </p>
-      <p className="text-sm mt-1 mb-5" style={{ color: 'rgb(var(--foreground-muted))' }}>
-        Lege Kunden und Lieferanten an, um sie in Rechnungen zu verwenden.
-      </p>
-      <button
-        onClick={onAdd}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-        style={{ backgroundColor: 'rgb(var(--primary))', color: '#fff' }}
-      >
-        <Plus size={15} />
-        Ersten Kontakt anlegen
-      </button>
-    </div>
-  )
-}
 
 function TypeBadge({ type }: { type: string }) {
   const isCustomer = type === 'customer'
@@ -147,6 +123,9 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
     >
       {/* Panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={initialData ? 'Kontakt bearbeiten' : 'Neuer Kontakt'}
         className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
         style={{ backgroundColor: 'rgb(var(--card))' }}
       >
@@ -160,6 +139,7 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
           </h2>
           <button
             onClick={onClose}
+            aria-label="Dialog schließen"
             className="p-1.5 rounded-lg transition-colors"
             style={{ color: 'rgb(var(--foreground-muted))' }}
             onMouseEnter={(e) =>
@@ -176,11 +156,11 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
         {/* Body */}
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
           {/* Type */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+          <fieldset>
+            <legend className="block text-xs font-semibold uppercase tracking-wider mb-2"
               style={{ color: 'rgb(var(--foreground-muted))' }}>
               Typ
-            </label>
+            </legend>
             <div className="flex gap-3">
               {(['customer', 'supplier'] as const).map((t) => (
                 <label
@@ -201,15 +181,16 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-medium mb-1"
+            <label htmlFor="contact-name" className="block text-xs font-medium mb-1"
               style={{ color: 'rgb(var(--foreground-muted))' }}>
               Name *
             </label>
             <input
+              id="contact-name"
               type="text"
               required
               value={form.name}
@@ -227,11 +208,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
           {/* E-Mail + Telefon */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1"
+              <label htmlFor="contact-email" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
                 E-Mail
               </label>
               <input
+                id="contact-email"
                 type="email"
                 value={form.email ?? ''}
                 onChange={(e) => set('email', e.target.value)}
@@ -245,11 +227,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1"
+              <label htmlFor="contact-phone" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Telefon
               </label>
               <input
+                id="contact-phone"
                 type="tel"
                 value={form.phone ?? ''}
                 onChange={(e) => set('phone', e.target.value)}
@@ -266,11 +249,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
 
           {/* Address */}
           <div>
-            <label className="block text-xs font-medium mb-1"
+            <label htmlFor="contact-address" className="block text-xs font-medium mb-1"
               style={{ color: 'rgb(var(--foreground-muted))' }}>
               Adresse
             </label>
             <input
+              id="contact-address"
               type="text"
               value={form.address_line1 ?? ''}
               onChange={(e) => set('address_line1', e.target.value)}
@@ -287,11 +271,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
           {/* PLZ + Ort */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1"
+              <label htmlFor="contact-zip" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
                 PLZ
               </label>
               <input
+                id="contact-zip"
                 type="text"
                 value={form.zip ?? ''}
                 onChange={(e) => set('zip', e.target.value)}
@@ -305,11 +290,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1"
+              <label htmlFor="contact-city" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Ort
               </label>
               <input
+                id="contact-city"
                 type="text"
                 value={form.city ?? ''}
                 onChange={(e) => set('city', e.target.value)}
@@ -327,11 +313,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
           {/* USt-IdNr. + Zahlungsziel */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1"
+              <label htmlFor="contact-vat" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
                 USt-IdNr.
               </label>
               <input
+                id="contact-vat"
                 type="text"
                 value={form.vat_id ?? ''}
                 onChange={(e) => set('vat_id', e.target.value)}
@@ -345,11 +332,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1"
+              <label htmlFor="contact-payment-terms" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Zahlungsziel (Tage)
               </label>
               <input
+                id="contact-payment-terms"
                 type="number"
                 min={0}
                 max={365}
@@ -367,11 +355,12 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-medium mb-1"
+            <label htmlFor="contact-notes" className="block text-xs font-medium mb-1"
               style={{ color: 'rgb(var(--foreground-muted))' }}>
               Notizen
             </label>
             <textarea
+              id="contact-notes"
               value={form.notes ?? ''}
               onChange={(e) => set('notes', e.target.value)}
               placeholder="Interne Anmerkungen..."
@@ -487,13 +476,15 @@ export default function ContactsPage() {
     try {
       if (editTarget) {
         await updateContact(editTarget.id, data)
+        toast.success('Erfolgreich gespeichert')
       } else {
         await createContact(data)
+        toast.success('Erfolgreich erstellt')
       }
       closeModal()
       load()
     } catch {
-      setError('Kontakt konnte nicht gespeichert werden.')
+      toast.error('Kontakt konnte nicht gespeichert werden.')
     } finally {
       setSaving(false)
     }
@@ -508,9 +499,10 @@ export default function ContactsPage() {
     setError('')
     try {
       await deleteContact(deleteConfirm.item.id)
+      toast.success('Erfolgreich gelöscht')
       load()
     } catch {
-      setError('Löschen fehlgeschlagen.')
+      toast.error('Löschen fehlgeschlagen.')
     }
     setDeleteConfirm({ open: false, item: null })
   }
@@ -608,7 +600,13 @@ export default function ContactsPage() {
       {loading ? (
         <LoadingSkeleton />
       ) : filtered.length === 0 && contacts.length === 0 ? (
-        <EmptyState onAdd={openCreate} />
+        <EmptyState
+          icon={Users2}
+          title="Noch keine Kontakte"
+          description="Lege Kunden und Lieferanten an, um sie in Rechnungen zu verwenden."
+          actionLabel="Ersten Kontakt anlegen"
+          onAction={openCreate}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-12" style={{ color: 'rgb(var(--foreground-muted))' }}>
           <p className="text-sm">Keine Kontakte entsprechen deiner Suche.</p>
@@ -680,6 +678,7 @@ export default function ContactsPage() {
                           (e.currentTarget.style.backgroundColor = 'transparent')
                         }
                         title="Bearbeiten"
+                        aria-label={`${c.name} bearbeiten`}
                       >
                         <Edit2 size={14} />
                       </button>
@@ -693,7 +692,8 @@ export default function ContactsPage() {
                         onMouseLeave={(e) =>
                           (e.currentTarget.style.backgroundColor = 'transparent')
                         }
-                        title="Loschen"
+                        title="Löschen"
+                        aria-label={`${c.name} löschen`}
                       >
                         <Trash2 size={14} />
                       </button>

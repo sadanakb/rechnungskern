@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Trash2, Edit2, X, Check, Star } from 'lucide-react'
+import { Plus, Trash2, Edit2, X, Check, Star, LayoutTemplate } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
+import { toast } from '@/components/ui/toast'
 import {
   listTemplates,
   createTemplate,
@@ -175,6 +177,9 @@ function FormModal({ initial, onSave, onClose, title }: FormModalProps) {
 
       {/* Dialog */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-2xl"
         style={{
           backgroundColor: 'rgb(var(--card))',
@@ -194,6 +199,7 @@ function FormModal({ initial, onSave, onClose, title }: FormModalProps) {
           </h2>
           <button
             onClick={onClose}
+            aria-label="Dialog schließen"
             className="p-1.5 rounded-lg transition-colors"
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
@@ -517,6 +523,7 @@ function TemplateCard({ tmpl, onEdit, onDelete, onSetDefault }: TemplateCardProp
           className="p-1.5 rounded-md transition-colors"
           style={{ color: 'rgb(var(--danger))' }}
           title="Löschen"
+          aria-label={`${tmpl.name} löschen`}
         >
           <Trash2 size={13} />
         </button>
@@ -557,6 +564,7 @@ export default function TemplatesPage() {
 
   const handleCreate = async (data: InvoiceTemplateCreate) => {
     await createTemplate(data)
+    toast.success('Erfolgreich erstellt')
     setShowCreate(false)
     load()
   }
@@ -564,6 +572,7 @@ export default function TemplatesPage() {
   const handleUpdate = async (data: InvoiceTemplateCreate) => {
     if (!editTarget) return
     await updateTemplate(editTarget.id, data)
+    toast.success('Erfolgreich gespeichert')
     setEditTarget(null)
     load()
   }
@@ -576,13 +585,14 @@ export default function TemplatesPage() {
     if (deleteConfirm.id === null) return
     try {
       await deleteTemplate(deleteConfirm.id)
+      toast.success('Erfolgreich gelöscht')
       load()
     } catch (err: unknown) {
       const detail =
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
           : undefined
-      setError(detail || 'Löschen fehlgeschlagen')
+      toast.error(detail || 'Löschen fehlgeschlagen')
     }
     setDeleteConfirm({ open: false, id: null })
   }
@@ -590,9 +600,10 @@ export default function TemplatesPage() {
   const handleSetDefault = async (id: number) => {
     try {
       await updateTemplate(id, { is_default: true })
+      toast.success('Standard-Vorlage gesetzt')
       load()
     } catch {
-      setError('Konnte Standard-Vorlage nicht setzen')
+      toast.error('Konnte Standard-Vorlage nicht setzen')
     }
   }
 
@@ -645,27 +656,13 @@ export default function TemplatesPage() {
           ))}
         </div>
       ) : templates.length === 0 ? (
-        <div className="text-center py-20">
-          <div
-            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: 'rgb(var(--muted))' }}
-          >
-            <Plus size={24} style={{ color: 'rgb(var(--foreground-muted))' }} />
-          </div>
-          <p className="text-sm font-medium" style={{ color: 'rgb(var(--foreground))' }}>
-            Noch keine Vorlagen
-          </p>
-          <p className="text-xs mt-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Erstelle deine erste Rechnungsvorlage mit eigenen Farben und Bankdaten.
-          </p>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="mt-4 px-4 py-2 rounded-lg text-sm font-medium"
-            style={{ backgroundColor: 'rgb(var(--primary))', color: '#fff' }}
-          >
-            Erste Vorlage erstellen
-          </button>
-        </div>
+        <EmptyState
+          icon={LayoutTemplate}
+          title="Noch keine Vorlagen"
+          description="Erstelle deine erste Rechnungsvorlage mit eigenen Farben und Bankdaten."
+          actionLabel="Erste Vorlage erstellen"
+          onAction={() => setShowCreate(true)}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((tmpl) => (

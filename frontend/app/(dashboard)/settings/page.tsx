@@ -286,6 +286,7 @@ function KontoTab() {
                   type="button"
                   onClick={() => setShowCurrentPw((p) => !p)}
                   className="pointer-events-auto cursor-pointer"
+                  aria-label={showCurrentPw ? 'Passwort verbergen' : 'Passwort anzeigen'}
                 >
                   {showCurrentPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -303,6 +304,7 @@ function KontoTab() {
                   type="button"
                   onClick={() => setShowNewPw((p) => !p)}
                   className="pointer-events-auto cursor-pointer"
+                  aria-label={showNewPw ? 'Passwort verbergen' : 'Passwort anzeigen'}
                 >
                   {showNewPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -898,7 +900,7 @@ function NewKeyBox({ fullKey, onDismiss }: { fullKey: string; onDismiss: () => v
         ].join(' ')}>
           {fullKey}
         </code>
-        <Button variant="outline" size="sm" onClick={handleCopy} title="Kopieren">
+        <Button variant="outline" size="sm" onClick={handleCopy} title="Kopieren" aria-label="API-Key kopieren">
           {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
         </Button>
       </div>

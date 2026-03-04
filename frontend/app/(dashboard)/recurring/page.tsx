@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Calendar, Clock, Pause, Play, Trash2, Zap, RefreshCw } from 'lucide-react'
+import { Plus, Calendar, Clock, Pause, Play, Trash2, Zap, RefreshCw, Repeat } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
+import { toast } from '@/components/ui/toast'
 import {
   listRecurring,
   createRecurring,
@@ -46,24 +48,6 @@ const fmt = (n: number, currency = 'EUR') =>
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function EmptyState() {
-  return (
-    <div className="text-center py-16">
-      <div
-        className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-        style={{ backgroundColor: 'rgb(var(--muted))' }}
-      >
-        <Calendar size={24} style={{ color: 'rgb(var(--foreground-muted))' }} />
-      </div>
-      <p className="text-sm font-medium" style={{ color: 'rgb(var(--foreground))' }}>
-        Keine wiederkehrenden Rechnungen
-      </p>
-      <p className="text-xs mt-1 max-w-sm mx-auto" style={{ color: 'rgb(var(--foreground-muted))' }}>
-        Erstelle eine Vorlage, um Rechnungen automatisch in regelmäßigen Abständen zu generieren.
-      </p>
-    </div>
-  )
-}
 
 interface TemplateCardProps {
   template: RecurringTemplate
@@ -248,8 +232,9 @@ export default function RecurringPage() {
     try {
       const updated = await toggleRecurring(templateId)
       setTemplates(prev => prev.map(t => t.template_id === templateId ? updated : t))
+      toast.success(updated.active ? 'Vorlage aktiviert' : 'Vorlage pausiert')
     } catch (err) {
-      setError(getErrorMessage(err, 'Status konnte nicht geändert werden'))
+      toast.error(getErrorMessage(err, 'Status konnte nicht geändert werden'))
     } finally {
       setActionLoading(false)
     }
@@ -265,8 +250,9 @@ export default function RecurringPage() {
     try {
       await deleteRecurring(deleteConfirm.templateId)
       setTemplates(prev => prev.filter(t => t.template_id !== deleteConfirm.templateId))
+      toast.success('Erfolgreich gelöscht')
     } catch (err) {
-      setError(getErrorMessage(err, 'Vorlage konnte nicht gelöscht werden'))
+      toast.error(getErrorMessage(err, 'Vorlage konnte nicht gelöscht werden'))
     } finally {
       setActionLoading(false)
     }
@@ -277,10 +263,11 @@ export default function RecurringPage() {
     setActionLoading(true)
     try {
       const result = await triggerRecurring(templateId)
+      toast.success(`Rechnung ${result.invoice_number} generiert`)
       setSuccessMsg(`Rechnung ${result.invoice_number} generiert (${fmt(result.gross_amount)}). Nächste: ${new Date(result.next_date).toLocaleDateString('de-DE')}`)
       await loadTemplates() // Refresh next_date and last_generated
     } catch (err) {
-      setError(getErrorMessage(err, 'Rechnung konnte nicht generiert werden'))
+      toast.error(getErrorMessage(err, 'Rechnung konnte nicht generiert werden'))
     } finally {
       setActionLoading(false)
     }
@@ -336,8 +323,9 @@ export default function RecurringPage() {
       setTemplates(prev => [created, ...prev])
       setForm(DEFAULT_FORM)
       setShowForm(false)
+      toast.success('Erfolgreich erstellt')
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Vorlage konnte nicht erstellt werden'))
+      toast.error(getErrorMessage(err, 'Vorlage konnte nicht erstellt werden'))
     } finally {
       setActionLoading(false)
     }
@@ -605,7 +593,13 @@ export default function RecurringPage() {
           ))}
         </div>
       ) : templates.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={Repeat}
+          title="Keine wiederkehrenden Rechnungen"
+          description="Erstelle eine Vorlage, um Rechnungen automatisch in regelmäßigen Abständen zu generieren."
+          actionLabel="Neue Vorlage"
+          onAction={() => { setShowForm(true); setFormError(null) }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map(t => (

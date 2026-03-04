@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { ClipboardList, Download, Filter, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
 import {
   getAuditLog,
   type AuditLogEntry,
@@ -298,16 +299,11 @@ export default function AuditPage() {
             <p className="text-sm" style={{ color: 'rgb(var(--danger, 239 68 68))' }}>{error}</p>
           </div>
         ) : entries.length === 0 ? (
-          <div className="p-8 text-center">
-            <ClipboardList
-              size={40}
-              className="mx-auto mb-3 opacity-30"
-              style={{ color: 'rgb(var(--foreground-muted))' }}
-            />
-            <p className="text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
-              Keine Einträge gefunden
-            </p>
-          </div>
+          <EmptyState
+            icon={ClipboardList}
+            title="Keine Einträge gefunden"
+            description="Es gibt noch keine Aktivitäten im Protokoll oder die Filter ergeben keine Treffer."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

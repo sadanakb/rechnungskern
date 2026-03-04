@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { api, getErrorMessage } from '@/lib/api'
+import { toast } from '@/components/ui/toast'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -126,6 +127,7 @@ function InviteDialog({
     setSending(true)
     try {
       await api.post('/api/teams/invite', { email, role })
+      toast.success('Einladung wurde gesendet')
       setFeedback({ type: 'success', message: 'Einladung wurde gesendet.' })
       setEmail('')
       setRole('member')
@@ -135,6 +137,7 @@ function InviteDialog({
         setFeedback(null)
       }, 1500)
     } catch (err) {
+      toast.error(getErrorMessage(err, 'Einladung fehlgeschlagen.'))
       setFeedback({ type: 'error', message: getErrorMessage(err, 'Einladung fehlgeschlagen.') })
     } finally {
       setSending(false)
@@ -303,10 +306,12 @@ export default function TeamPage() {
     setFeedback(null)
     try {
       await api.delete(`/api/teams/members/${removeConfirm.userId}`)
+      toast.success('Erfolgreich gelöscht')
       setFeedback({ type: 'success', message: `${removeConfirm.memberName} wurde entfernt.` })
       fetchMembers()
       setTimeout(() => setFeedback(null), 4000)
     } catch (err) {
+      toast.error(getErrorMessage(err, 'Entfernen fehlgeschlagen.'))
       setFeedback({ type: 'error', message: getErrorMessage(err, 'Entfernen fehlgeschlagen.') })
     }
     setRemoveConfirm({ open: false, userId: null, memberName: '' })
@@ -316,10 +321,12 @@ export default function TeamPage() {
     setFeedback(null)
     try {
       await api.patch(`/api/teams/members/${userId}`, { role: newRole })
+      toast.success('Erfolgreich gespeichert')
       setFeedback({ type: 'success', message: 'Rolle wurde geaendert.' })
       fetchMembers()
       setTimeout(() => setFeedback(null), 4000)
     } catch (err) {
+      toast.error(getErrorMessage(err, 'Rollenaenderung fehlgeschlagen.'))
       setFeedback({ type: 'error', message: getErrorMessage(err, 'Rollenaenderung fehlgeschlagen.') })
     }
   }

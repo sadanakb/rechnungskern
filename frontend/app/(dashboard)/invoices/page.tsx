@@ -128,6 +128,7 @@ function InvoiceDetailPanel({
         </div>
         <button
           onClick={onClose}
+          aria-label="Detail-Panel schließen"
           className="p-1.5 rounded-md transition-colors"
           style={{ color: 'rgb(var(--foreground-muted))' }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(var(--muted))' }}
@@ -309,6 +310,9 @@ function BulkValidateModal({
 
       {/* Modal */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Validierungsergebnisse"
         className="relative z-10 w-full max-w-lg rounded-xl border shadow-2xl overflow-hidden"
         style={{
           backgroundColor: 'rgb(var(--card))',
@@ -328,6 +332,7 @@ function BulkValidateModal({
           </div>
           <button
             onClick={onClose}
+            aria-label="Validierungsergebnisse schließen"
             className="p-1.5 rounded-md transition-colors"
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
@@ -418,6 +423,9 @@ function DeleteConfirmDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Rechnungen löschen"
         className="relative z-10 w-full max-w-sm rounded-xl border shadow-2xl p-6"
         style={{
           backgroundColor: 'rgb(var(--card))',
@@ -579,12 +587,13 @@ function InvoicesContent() {
     setBulkDeleting(true)
     try {
       await bulkDeleteInvoices(selectedIds)
+      toast.success('Erfolgreich gelöscht')
       setSelectedIds([])
       setSelectionResetKey((k) => k + 1)
       setShowDeleteConfirm(false)
       fetchInvoices()
     } catch {
-      // Silently keep dialog open on error — user can retry
+      toast.error('Löschen fehlgeschlagen. Bitte erneut versuchen.')
     } finally {
       setBulkDeleting(false)
     }
@@ -763,6 +772,7 @@ function InvoicesContent() {
               backgroundColor: 'rgb(var(--card))',
             }}
             title="Aktualisieren"
+            aria-label="Rechnungsliste aktualisieren"
           >
             <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
           </button>
