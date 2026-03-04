@@ -21,6 +21,10 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3000",
+        "http://app.localhost:3000",
+        "https://app.rechnungswerk.de",
+        "https://rechnungswerk.de",
+        "https://www.rechnungswerk.de",
     ]
 
     # OCR Settings

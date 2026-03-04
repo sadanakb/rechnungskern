@@ -7,6 +7,14 @@ import { useAuth } from '@/lib/auth'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
+const getMainDomainUrl = (path: string) => {
+  if (typeof window !== 'undefined' && window.location.hostname.startsWith('app.')) {
+    const mainHost = window.location.hostname.replace('app.', '')
+    return `${window.location.protocol}//${mainHost}${path}`
+  }
+  return path
+}
+
 export default function RegisterPage() {
   const { register } = useAuth()
   const router = useRouter()
@@ -51,9 +59,9 @@ export default function RegisterPage() {
     >
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <Link href="/" className="inline-block mb-4 text-lg font-bold tracking-tight" style={{ color: 'rgb(var(--primary))' }}>
+          <a href={getMainDomainUrl('/')} className="inline-block mb-4 text-lg font-bold tracking-tight" style={{ color: 'rgb(var(--primary))' }}>
             &larr; RechnungsWerk
-          </Link>
+          </a>
           <h1 className="text-2xl font-bold">Konto erstellen</h1>
           <p className="text-sm mt-1 opacity-60">
             Starte kostenlos mit RechnungsWerk
