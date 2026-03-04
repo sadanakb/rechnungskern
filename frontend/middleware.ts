@@ -21,6 +21,16 @@ export function middleware(request: NextRequest) {
 
   const isAppSubdomain = hostname.startsWith('app.')
 
+  // In development, don't redirect between subdomains (app.localhost may not resolve)
+  const isDev = hostname.includes('localhost') || hostname.includes('127.0.0.1')
+  if (isDev) {
+    // Only redirect app subdomain root to dashboard
+    if (isAppSubdomain && pathname === '/') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+    return NextResponse.next()
+  }
+
   // On app subdomain
   if (isAppSubdomain) {
     // Root of app subdomain → redirect to dashboard
@@ -42,7 +52,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(pathname, `${request.nextUrl.protocol}//${appDomain}`))
   }
   // Auth routes on main domain → redirect to app subdomain
-  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
+  if (AUTH_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))) {
     const appDomain = `app.${hostname}`
     return NextResponse.redirect(new URL(pathname, `${request.nextUrl.protocol}//${appDomain}`))
   }

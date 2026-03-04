@@ -3,6 +3,7 @@ Quote (Angebot) endpoints — CRUD, status transitions, PDF generation, and conv
 """
 import logging
 import os
+import re
 import uuid
 from datetime import datetime, date
 from decimal import Decimal
@@ -39,11 +40,9 @@ def _ensure_quote_belongs_to_org(quote: Quote, org_id: Optional[str]) -> None:
 
     Returns 404 (not 403) to avoid revealing that the resource exists to
     unauthorized callers.
-
-    In dev mode (org_id is None) the check is skipped.
     """
     if org_id is None:
-        return
+        raise HTTPException(status_code=401, detail="Organisation nicht gefunden")
     if str(quote.organization_id) != str(org_id):
         raise HTTPException(
             status_code=404,
@@ -54,12 +53,17 @@ def _ensure_quote_belongs_to_org(quote: Quote, org_id: Optional[str]) -> None:
 def _calculate_amounts(line_items, tax_rate):
     """Calculate net, tax, and gross amounts from line items."""
     net_amount = Decimal('0')
-    for item in line_items:
-        item_net = item.get("net_amount") or item.get("quantity", 1) * item.get("unit_price", 0)
-        net_amount += Decimal(str(item_net))
+    for item in (line_items or []):
+        if item.get("net_amount") is not None:
+            item_net = Decimal(str(item["net_amount"]))
+        else:
+            qty = Decimal(str(item.get("quantity", 1)))
+            price = Decimal(str(item.get("unit_price", 0)))
+            item_net = qty * price
+        net_amount += item_net
 
-    tax_rate_dec = Decimal(str(tax_rate)) if tax_rate is not None else Decimal('19.00')
-    tax_amount = net_amount * tax_rate_dec / Decimal('100')
+    tax = Decimal(str(tax_rate or 19))
+    tax_amount = (net_amount * tax / Decimal('100')).quantize(Decimal('0.01'))
     gross_amount = net_amount + tax_amount
 
     return net_amount, tax_amount, gross_amount
@@ -73,15 +77,15 @@ async def create_quote(
 ):
     """Create a new quote (Angebot)."""
     org_id = current_user.get("org_id")
+    if not org_id:
+        raise HTTPException(status_code=401, detail="Organisation nicht gefunden")
     user_id = current_user.get("user_id")
 
     # Generate public-facing quote_id
     quote_id = f"ANB-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6]}"
 
     # Generate sequential quote number
-    quote_number = None
-    if org_id:
-        quote_number = generate_next_quote_number(db, int(org_id))
+    quote_number = generate_next_quote_number(db, int(org_id))
 
     # Calculate amounts from line items
     net_amount = Decimal('0')
@@ -128,7 +132,7 @@ async def create_quote(
         iban=data.iban,
         bic=data.bic,
         payment_account_name=data.payment_account_name,
-        organization_id=int(org_id) if org_id else 0,
+        organization_id=int(org_id),
         created_by=int(user_id) if user_id else None,
     )
 
@@ -149,12 +153,12 @@ async def list_quotes(
     current_user: dict = Depends(get_current_user),
 ):
     """List quotes with optional filters (filtered by org)."""
-    query = db.query(Quote)
-
-    # Tenant isolation
     org_id = current_user.get("org_id")
-    if org_id:
-        query = query.filter(Quote.organization_id == int(org_id))
+    if not org_id:
+        raise HTTPException(status_code=401, detail="Organisation nicht gefunden")
+
+    query = db.query(Quote)
+    query = query.filter(Quote.organization_id == int(org_id))
 
     # Optional filters
     if status:
@@ -243,7 +247,7 @@ async def update_quote(
         'quote_date', 'valid_until', 'seller_name', 'seller_vat_id', 'seller_address',
         'buyer_name', 'buyer_vat_id', 'buyer_address', 'tax_rate', 'currency',
         'intro_text', 'closing_text', 'internal_notes', 'iban', 'bic',
-        'payment_account_name', 'status',
+        'payment_account_name',
     ]
     for field in simple_fields:
         if field in update_data:
@@ -372,34 +376,28 @@ async def convert_quote_to_invoice(
     current_user: dict = Depends(get_current_user),
 ):
     """Convert a quote to an invoice. Copies all data and creates a new Invoice."""
-    quote = db.query(Quote).filter(Quote.quote_id == quote_id).first()
+    quote = db.query(Quote).filter(Quote.quote_id == quote_id).with_for_update().first()
     if not quote:
         raise HTTPException(status_code=404, detail="Angebot nicht gefunden")
 
     _ensure_quote_belongs_to_org(quote, current_user.get("org_id"))
 
-    if quote.status == 'converted':
+    if quote.status not in ('accepted',):
         raise HTTPException(
             status_code=400,
-            detail="Angebot wurde bereits konvertiert",
-        )
-
-    if quote.status not in ('accepted', 'sent', 'draft'):
-        raise HTTPException(
-            status_code=400,
-            detail="Angebot kann in diesem Status nicht konvertiert werden",
+            detail="Nur angenommene Angebote koennen in Rechnungen umgewandelt werden",
         )
 
     org_id = current_user.get("org_id")
+    if not org_id:
+        raise HTTPException(status_code=401, detail="Organisation nicht gefunden")
 
     # Generate invoice ID
     invoice_id = f"INV-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
 
     # Generate invoice number
     from app.invoice_number_service import generate_next_invoice_number
-    invoice_number = None
-    if org_id:
-        invoice_number = generate_next_invoice_number(db, int(org_id))
+    invoice_number = generate_next_invoice_number(db, int(org_id))
 
     # Create invoice from quote data
     db_invoice = Invoice(
@@ -423,7 +421,7 @@ async def convert_quote_to_invoice(
         payment_account_name=quote.payment_account_name,
         source_type="quote",
         validation_status="pending",
-        organization_id=int(org_id) if org_id else 0,
+        organization_id=int(org_id),
         quote_id=quote.id,
     )
 
@@ -495,15 +493,16 @@ async def get_quote_pdf(
         with open(pdf_path, "rb") as f:
             pdf_content = f.read()
 
+        safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', quote.quote_number or quote.quote_id)
         return StreamingResponse(
             io.BytesIO(pdf_content),
             media_type="application/pdf",
             headers={
-                "Content-Disposition": f'attachment; filename="Angebot_{quote.quote_number or quote.quote_id}.pdf"'
+                "Content-Disposition": f'attachment; filename="Angebot_{safe_name}.pdf"'
             },
         )
-    except ImportError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except ImportError:
+        raise HTTPException(status_code=500, detail="PDF-Generierung nicht verfuegbar")
     except Exception as e:
         logger.error("Quote PDF generation failed for %s: %s", quote_id, e)
         raise HTTPException(status_code=500, detail="PDF-Generierung fehlgeschlagen")

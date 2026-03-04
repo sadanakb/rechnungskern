@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -11,10 +10,6 @@ import {
   Eye,
   Edit2,
   Trash2,
-  Send,
-  Check,
-  X,
-  Clock,
   RefreshCw,
   AlertCircle,
 } from 'lucide-react'
@@ -124,8 +119,6 @@ function DeleteConfirmDialog({
 // Page
 // ---------------------------------------------------------------------------
 export default function AngebotePage() {
-  const router = useRouter()
-
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -141,7 +134,6 @@ export default function AngebotePage() {
     try {
       const params: Record<string, string> = {}
       if (statusFilter !== 'all') params.status = statusFilter
-      if (searchQuery.trim()) params.search = searchQuery.trim()
       const data = await listQuotes(params)
       setQuotes(data.quotes)
       setTotal(data.total)
@@ -150,7 +142,7 @@ export default function AngebotePage() {
     } finally {
       setLoading(false)
     }
-  }, [statusFilter, searchQuery])
+  }, [statusFilter])
 
   useEffect(() => {
     fetchQuotes()

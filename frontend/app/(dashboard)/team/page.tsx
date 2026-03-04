@@ -270,6 +270,7 @@ export default function TeamPage() {
 
   // Remove member confirmation dialog
   const [removeConfirm, setRemoveConfirm] = useState<{ open: boolean; userId: number | null; memberName: string }>({ open: false, userId: null, memberName: '' })
+  const [removing, setRemoving] = useState(false)
 
   // Determine current user's role in the organization
   const currentUserId = user?.id
@@ -302,7 +303,8 @@ export default function TeamPage() {
   }
 
   const confirmRemoveMember = async () => {
-    if (removeConfirm.userId === null) return
+    if (removeConfirm.userId === null || removing) return
+    setRemoving(true)
     setFeedback(null)
     try {
       await api.delete(`/api/teams/members/${removeConfirm.userId}`)
@@ -310,11 +312,13 @@ export default function TeamPage() {
       setFeedback({ type: 'success', message: `${removeConfirm.memberName} wurde entfernt.` })
       fetchMembers()
       setTimeout(() => setFeedback(null), 4000)
+      setRemoveConfirm({ open: false, userId: null, memberName: '' })
     } catch (err) {
       toast.error(getErrorMessage(err, 'Entfernen fehlgeschlagen.'))
       setFeedback({ type: 'error', message: getErrorMessage(err, 'Entfernen fehlgeschlagen.') })
+    } finally {
+      setRemoving(false)
     }
-    setRemoveConfirm({ open: false, userId: null, memberName: '' })
   }
 
   const handleChangeRole = async (userId: number, newRole: string) => {
@@ -443,7 +447,7 @@ export default function TeamPage() {
                           {member.role !== 'owner' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" size="sm" aria-label={`Aktionen für ${member.full_name ?? member.email}`}>
                                   <MoreHorizontal size={16} />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -505,8 +509,8 @@ export default function TeamPage() {
             <Button variant="outline" onClick={() => setRemoveConfirm({ open: false, userId: null, memberName: '' })}>
               Abbrechen
             </Button>
-            <Button variant="destructive" onClick={confirmRemoveMember}>
-              Entfernen
+            <Button variant="destructive" onClick={confirmRemoveMember} disabled={removing}>
+              {removing ? 'Entferne...' : 'Entfernen'}
             </Button>
           </DialogFooter>
         </DialogContent>

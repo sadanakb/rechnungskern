@@ -245,18 +245,18 @@ export default function RecurringPage() {
   }
 
   const confirmDeleteRecurring = async () => {
-    if (!deleteConfirm.templateId) return
+    if (!deleteConfirm.templateId || actionLoading) return
     setActionLoading(true)
     try {
       await deleteRecurring(deleteConfirm.templateId)
       setTemplates(prev => prev.filter(t => t.template_id !== deleteConfirm.templateId))
       toast.success('Erfolgreich gelöscht')
+      setDeleteConfirm({ open: false, templateId: null })
     } catch (err) {
       toast.error(getErrorMessage(err, 'Vorlage konnte nicht gelöscht werden'))
     } finally {
       setActionLoading(false)
     }
-    setDeleteConfirm({ open: false, templateId: null })
   }
 
   const handleTrigger = async (templateId: string) => {
@@ -360,6 +360,7 @@ export default function RecurringPage() {
           <button
             onClick={loadTemplates}
             title="Aktualisieren"
+            aria-label="Aktualisieren"
             className="p-2 rounded-lg border transition-colors hover:opacity-80"
             style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground-muted))' }}
           >
@@ -650,9 +651,10 @@ export default function RecurringPage() {
             </button>
             <button
               onClick={confirmDeleteRecurring}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+              disabled={actionLoading}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Löschen
+              {actionLoading ? 'Lösche...' : 'Löschen'}
             </button>
           </DialogFooter>
         </DialogContent>

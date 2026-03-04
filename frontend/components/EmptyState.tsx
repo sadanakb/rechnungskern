@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { LucideIcon } from 'lucide-react'
 
 interface EmptyStateProps {
@@ -14,11 +15,11 @@ interface EmptyStateProps {
 export default function EmptyState({ icon: Icon, title, description, actionLabel, actionHref, onAction }: EmptyStateProps) {
   const button = actionLabel ? (
     actionHref ? (
-      <a href={actionHref} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ background: 'rgb(var(--primary))' }}>
+      <Link href={actionHref} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ background: 'rgb(var(--primary))' }}>
         {actionLabel}
-      </a>
+      </Link>
     ) : (
-      <button onClick={onAction} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ background: 'rgb(var(--primary))' }}>
+      <button type="button" onClick={onAction} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors" style={{ background: 'rgb(var(--primary))' }}>
         {actionLabel}
       </button>
     )

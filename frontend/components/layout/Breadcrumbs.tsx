@@ -34,16 +34,19 @@ export default function Breadcrumbs() {
 
   if (segments.length <= 1) return null // Don't show on top-level pages like /dashboard
 
+  // Check if segment looks like an ID (UUID, number, or alphanumeric hash)
+  const isIdSegment = (s: string) => /^[0-9a-f-]{8,}$|^\d+$|^[A-Z]{3}-/.test(s)
+
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm mb-4" style={{ color: 'rgb(var(--foreground-muted))' }}>
       <Link href="/dashboard" className="hover:underline flex items-center gap-1">
         <Home size={14} />
         <span>Dashboard</span>
       </Link>
-      {segments.slice(1).map((segment, i) => {
-        const href = '/' + segments.slice(0, i + 2).join('/')
-        const label = LABELS[segment] || segment
-        const isLast = i === segments.length - 2
+      {segments.map((segment, i) => {
+        const href = '/' + segments.slice(0, i + 1).join('/')
+        const label = LABELS[segment] || (isIdSegment(segment) ? 'Details' : segment)
+        const isLast = i === segments.length - 1
 
         return (
           <span key={href} className="flex items-center gap-1.5">

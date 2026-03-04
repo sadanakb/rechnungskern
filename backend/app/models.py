@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     Column, Integer, String, Float, Numeric, Date, DateTime, Text,
-    JSON, Boolean, ForeignKey, func, UniqueConstraint,
+    JSON, Boolean, ForeignKey, func, UniqueConstraint, CheckConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -155,7 +155,7 @@ class Invoice(Base):
     organization = relationship("Organization", back_populates="invoices")
 
     # Quote conversion tracking
-    quote_id = Column(Integer, ForeignKey('quotes.id'), nullable=True)
+    quote_id = Column(Integer, ForeignKey('quotes.id', use_alter=True, name='fk_invoice_quote_id'), nullable=True)
 
     # Relationships (H6)
     upload_logs = relationship("UploadLog", back_populates="invoice")
@@ -597,6 +597,14 @@ class Quote(Base):
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        UniqueConstraint('quote_number', 'organization_id', name='uq_quote_number_org'),
+        CheckConstraint(
+            "status IN ('draft','sent','accepted','rejected','expired','converted')",
+            name='ck_quote_status',
+        ),
+    )
 
 
 class PortalPaymentIntent(Base):

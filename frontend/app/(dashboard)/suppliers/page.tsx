@@ -44,9 +44,11 @@ export default function SuppliersPage() {
 
   // Delete confirmation dialog
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; item: Supplier | null }>({ open: false, item: null })
+  const [deleting, setDeleting] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
+    setError('')
     try {
       const res = await listSuppliers(0, 100)
       setSuppliers(res.items)
@@ -107,15 +109,18 @@ export default function SuppliersPage() {
   }
 
   const confirmDeleteSupplier = async () => {
-    if (!deleteConfirm.item) return
+    if (!deleteConfirm.item || deleting) return
+    setDeleting(true)
     try {
       await deleteSupplier(deleteConfirm.item.id)
       toast.success('Erfolgreich gelöscht')
       load()
+      setDeleteConfirm({ open: false, item: null })
     } catch {
       toast.error('Löschen fehlgeschlagen')
+    } finally {
+      setDeleting(false)
     }
-    setDeleteConfirm({ open: false, item: null })
   }
 
   const filtered = search
@@ -333,10 +338,10 @@ export default function SuppliersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Lieferant löschen</DialogTitle>
+            <DialogDescription>
+              Möchten Sie &bdquo;{deleteConfirm.item?.name}&ldquo; wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+            </DialogDescription>
           </DialogHeader>
-          <DialogDescription>
-            Möchten Sie &bdquo;{deleteConfirm.item?.name}&ldquo; wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
-          </DialogDescription>
           <DialogFooter>
             <button
               onClick={() => setDeleteConfirm({ open: false, item: null })}
@@ -347,9 +352,10 @@ export default function SuppliersPage() {
             </button>
             <button
               onClick={confirmDeleteSupplier}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+              disabled={deleting}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Löschen
+              {deleting ? 'Lösche...' : 'Löschen'}
             </button>
           </DialogFooter>
         </DialogContent>

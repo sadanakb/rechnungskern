@@ -1073,15 +1073,15 @@ function ApiKeysTab({ plan }: { plan: string }) {
   }
 
   const confirmRevoke = async () => {
-    if (revokeConfirm.id === null) return
+    if (revokeConfirm.id === null || revokingId !== null) return
     const id = revokeConfirm.id
-    setRevokeConfirm({ open: false, id: null })
     setRevokingId(id)
     try {
       await revokeApiKey(id)
       setKeys((prev) => prev.filter((k) => k.id !== id))
       setFeedback({ type: 'success', message: 'API-Schluessel wurde widerrufen.' })
       setTimeout(() => setFeedback(null), 4000)
+      setRevokeConfirm({ open: false, id: null })
     } catch (err) {
       setFeedback({ type: 'error', message: getErrorMessage(err, 'Widerrufen fehlgeschlagen.') })
     } finally {
@@ -1279,8 +1279,8 @@ function ApiKeysTab({ plan }: { plan: string }) {
             <Button variant="outline" onClick={() => setRevokeConfirm({ open: false, id: null })}>
               Abbrechen
             </Button>
-            <Button variant="destructive" onClick={confirmRevoke}>
-              Widerrufen
+            <Button variant="destructive" onClick={confirmRevoke} disabled={revokingId !== null}>
+              {revokingId !== null ? 'Widerrufe...' : 'Widerrufen'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -545,6 +545,7 @@ export default function TemplatesPage() {
 
   // Delete confirmation dialog
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: number | null }>({ open: false, id: null })
+  const [deleting, setDeleting] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -582,19 +583,22 @@ export default function TemplatesPage() {
   }
 
   const confirmDeleteTemplate = async () => {
-    if (deleteConfirm.id === null) return
+    if (deleteConfirm.id === null || deleting) return
+    setDeleting(true)
     try {
       await deleteTemplate(deleteConfirm.id)
       toast.success('Erfolgreich gelöscht')
       load()
+      setDeleteConfirm({ open: false, id: null })
     } catch (err: unknown) {
       const detail =
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
           : undefined
       toast.error(detail || 'Löschen fehlgeschlagen')
+    } finally {
+      setDeleting(false)
     }
-    setDeleteConfirm({ open: false, id: null })
   }
 
   const handleSetDefault = async (id: number) => {
@@ -727,9 +731,10 @@ export default function TemplatesPage() {
             </button>
             <button
               onClick={confirmDeleteTemplate}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+              disabled={deleting}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Löschen
+              {deleting ? 'Lösche...' : 'Löschen'}
             </button>
           </DialogFooter>
         </DialogContent>

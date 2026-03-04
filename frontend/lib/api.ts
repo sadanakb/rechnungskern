@@ -16,7 +16,9 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    console.error('API Error:', error?.response?.status, error?.config?.url)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('API Error:', error?.response?.status, error?.config?.url)
+    }
     const originalRequest = error.config
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
@@ -1706,8 +1708,14 @@ export const rejectQuote = async (quoteId: string): Promise<QuoteDetail> => {
   return resp.data
 }
 
-export const convertQuoteToInvoice = async (quoteId: string): Promise<any> => {
-  const resp = await api.post(`/api/quotes/${quoteId}/convert`)
+export interface ConvertQuoteResult {
+  invoice_id: string
+  invoice_number: string
+  message?: string
+}
+
+export const convertQuoteToInvoice = async (quoteId: string): Promise<ConvertQuoteResult> => {
+  const resp = await api.post<ConvertQuoteResult>(`/api/quotes/${quoteId}/convert`)
   return resp.data
 }
 

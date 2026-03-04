@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { SidebarNav } from '@/components/layout/SidebarNav'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
@@ -23,9 +23,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [loading, user, router])
 
-  // Check onboarding status after user loads
+  // Check onboarding status after user loads (only once)
+  const onboardingChecked = useRef(false)
   useEffect(() => {
-    if (!user || pathname.startsWith('/onboarding')) return
+    if (!user || onboardingChecked.current) return
+    if (pathname.startsWith('/onboarding')) {
+      onboardingChecked.current = true
+      return
+    }
     let cancelled = false
     getOnboardingStatus()
       .then((status) => {
@@ -36,8 +41,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .catch(() => {
         // Silently ignore — onboarding endpoint may not exist yet
       })
+    onboardingChecked.current = true
     return () => { cancelled = true }
-  }, [user, pathname, router])
+  }, [user, router])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

@@ -4,6 +4,7 @@ Quote (Angebot) PDF Generator — Generates a professional PDF for quotes.
 Uses weasyprint for HTML-to-PDF conversion, same pattern as zugferd_generator.
 No XML embedding (quotes don't need ZUGFeRD/XRechnung compliance).
 """
+import html
 import logging
 import os
 from typing import Dict
@@ -122,8 +123,8 @@ def generate_quote_pdf(quote_data: Dict, output_path: str) -> str:
     Returns:
         Path to generated PDF file
     """
-    html = _render_quote_html(quote_data)
-    pdf_bytes = _html_to_pdf(html)
+    html_content = _render_quote_html(quote_data)
+    pdf_bytes = _html_to_pdf(html_content)
 
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     with open(output_path, "wb") as f:
@@ -135,18 +136,19 @@ def generate_quote_pdf(quote_data: Dict, output_path: str) -> str:
 
 def _render_quote_html(data: Dict) -> str:
     """Render quote data to HTML template."""
-    currency = data.get("currency", "EUR")
+    currency = html.escape(data.get("currency", "EUR"))
 
-    # Line items HTML
+    # Line items HTML — escape all user-provided descriptions
     line_items = data.get("line_items") or []
     items_html = ""
     for i, item in enumerate(line_items, 1):
         qty = item.get("quantity", 1)
         price = item.get("unit_price", 0)
         net = item.get("net_amount", float(qty) * float(price))
+        desc = html.escape(item.get("description", "Leistung"))
         items_html += (
             f'<tr><td>{i}</td>'
-            f'<td>{item.get("description", "Leistung")}</td>'
+            f'<td>{desc}</td>'
             f'<td>{qty}</td>'
             f'<td>{float(price):.2f} {currency}</td>'
             f'<td>{float(net):.2f} {currency}</td></tr>\n'
@@ -161,30 +163,31 @@ def _render_quote_html(data: Dict) -> str:
 
     # Valid until date
     valid_until = data.get("valid_until")
-    valid_until_line = f"Gueltig bis: {valid_until}" if valid_until else ""
+    valid_until_line = f"Gueltig bis: {html.escape(str(valid_until))}" if valid_until else ""
 
     # Seller VAT
     seller_vat = data.get("seller_vat_id")
-    seller_vat_line = f"<p>USt-IdNr.: {seller_vat}</p>" if seller_vat else ""
+    seller_vat_line = f"<p>USt-IdNr.: {html.escape(seller_vat)}</p>" if seller_vat else ""
 
     # Buyer VAT
     buyer_vat = data.get("buyer_vat_id")
-    buyer_vat_line = f"<p>USt-IdNr.: {buyer_vat}</p>" if buyer_vat else ""
+    buyer_vat_line = f"<p>USt-IdNr.: {html.escape(buyer_vat)}</p>" if buyer_vat else ""
 
     # Intro text
     intro_text = data.get("intro_text")
-    intro_text_html = f'<div class="intro-text">{intro_text}</div>' if intro_text else ""
+    intro_text_html = f'<div class="intro-text">{html.escape(intro_text)}</div>' if intro_text else ""
 
     # Closing text
     closing_text = data.get("closing_text")
-    closing_text_html = f'<div class="closing-text">{closing_text}</div>' if closing_text else ""
+    closing_text_html = f'<div class="closing-text">{html.escape(closing_text)}</div>' if closing_text else ""
 
-    # Payment
-    iban = data.get("iban")
+    # Payment — escape all user-provided values
+    iban_raw = data.get("iban")
     payment_html = ""
-    if iban:
-        bic = data.get("bic", "")
-        account_name = data.get("payment_account_name", "")
+    if iban_raw:
+        iban = html.escape(iban_raw)
+        bic = html.escape(data.get("bic", ""))
+        account_name = html.escape(data.get("payment_account_name", ""))
         payment_html = f"""
         <div class="payment">
           <h3>Zahlungsinformationen</h3>
@@ -194,18 +197,23 @@ def _render_quote_html(data: Dict) -> str:
         </div>
         """
 
-    # Addresses
-    seller_addr = (data.get("seller_address") or "").replace("\n", "<br>")
-    buyer_addr = (data.get("buyer_address") or "").replace("\n", "<br>")
+    # Addresses — escape FIRST, then replace newlines
+    seller_addr = html.escape(data.get("seller_address") or "").replace("\n", "<br>")
+    buyer_addr = html.escape(data.get("buyer_address") or "").replace("\n", "<br>")
+
+    # Escape remaining user-provided fields
+    quote_number = html.escape(data.get("quote_number", ""))
+    seller_name = html.escape(data.get("seller_name", ""))
+    buyer_name = html.escape(data.get("buyer_name", ""))
 
     return _QUOTE_HTML_TEMPLATE.format(
-        quote_number=data.get("quote_number", ""),
-        quote_date=data.get("quote_date", ""),
+        quote_number=quote_number,
+        quote_date=html.escape(str(data.get("quote_date", ""))),
         valid_until_line=valid_until_line,
-        seller_name=data.get("seller_name", ""),
+        seller_name=seller_name,
         seller_address_html=seller_addr,
         seller_vat_line=seller_vat_line,
-        buyer_name=data.get("buyer_name", ""),
+        buyer_name=buyer_name,
         buyer_address_html=buyer_addr,
         buyer_vat_line=buyer_vat_line,
         intro_text_html=intro_text_html,
@@ -220,11 +228,22 @@ def _render_quote_html(data: Dict) -> str:
     )
 
 
-def _html_to_pdf(html: str) -> bytes:
+def _deny_external_fetcher(url, **kwargs):
+    """Block external URL fetches to prevent SSRF via weasyprint.
+
+    Only allow data: and file: URIs (needed for embedded resources).
+    """
+    if url.startswith('data:') or url.startswith('file:'):
+        from weasyprint import default_url_fetcher
+        return default_url_fetcher(url, **kwargs)
+    raise ValueError(f"External URL blocked: {url}")
+
+
+def _html_to_pdf(html_content: str) -> bytes:
     """Convert HTML to PDF bytes using weasyprint."""
     try:
         from weasyprint import HTML
-        return HTML(string=html).write_pdf()
+        return HTML(string=html_content, url_fetcher=_deny_external_fetcher).write_pdf()
     except ImportError:
         logger.error("weasyprint not installed — cannot generate quote PDF")
         raise ImportError(

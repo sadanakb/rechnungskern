@@ -43,7 +43,7 @@ function ResetPasswordContent() {
     if (!/[0-9]/.test(password)) {
       validationErrors.push('Passwort muss mindestens eine Zahl enthalten.')
     }
-    if (!/[!@#$%^&*(),.?":{}|<>_\-+=[\];'/~]/.test(password)) {
+    if (!/[!@#$%^&*(),.?":{}|<>_\-+=[\];'/~\\]/.test(password)) {
       validationErrors.push('Passwort muss mindestens ein Sonderzeichen enthalten.')
     }
 

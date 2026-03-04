@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -134,7 +134,7 @@ function Section({
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
-export default function AngebotNeuPage() {
+function QuoteFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
@@ -848,5 +848,13 @@ export default function AngebotNeuPage() {
         </motion.div>
       </form>
     </div>
+  )
+}
+
+export default function QuoteFormPage() {
+  return (
+    <Suspense fallback={<div className="p-8"><div className="animate-pulse h-8 w-48 rounded" style={{ background: 'rgb(var(--muted))' }} /></div>}>
+      <QuoteFormContent />
+    </Suspense>
   )
 }

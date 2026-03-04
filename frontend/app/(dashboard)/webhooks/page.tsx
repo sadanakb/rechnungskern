@@ -240,6 +240,7 @@ function CreateWebhookModal({ onClose, onCreated }: CreateModalProps) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Dialog schließen"
             className="p-1 rounded-lg transition-colors"
             style={{ color: 'rgb(var(--foreground-muted))' }}
             onMouseEnter={(e) =>
@@ -686,6 +687,7 @@ function WebhookRow({ webhook, onDeleted, onToast }: WebhookRowProps) {
               onClick={handleDelete}
               disabled={deleting}
               title="Webhook löschen"
+              aria-label={`Webhook ${webhook.url} löschen`}
               className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 borderColor: 'rgba(239,68,68,0.3)',
