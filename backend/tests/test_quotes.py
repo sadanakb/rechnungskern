@@ -4,7 +4,12 @@ Tests for Quote (Angebot) feature — CRUD, status transitions, conversion, tena
 import pytest
 from datetime import date
 
+from fastapi.testclient import TestClient
+
 from app.models import Quote, Invoice, Organization, User, OrganizationMember
+from app.auth_jwt import get_current_user
+from app.database import get_db
+from app.main import app
 
 
 # ---------------------------------------------------------------------------
@@ -43,6 +48,46 @@ def _create_user_and_member(db, org, email="user@test.de", role="owner"):
     return user
 
 
+# ---------------------------------------------------------------------------
+# Fixtures — override get_current_user so org_id is present
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="function")
+def test_org(db_session):
+    """Create a test organization and return it."""
+    org = _create_org(db_session, name="Quote Test Org", slug="quote-test-org")
+    return org
+
+
+@pytest.fixture(scope="function")
+def client(db_session, test_org):
+    """FastAPI TestClient with overridden DB dependency AND get_current_user.
+
+    The security fixes now require org_id in the JWT token (tenant isolation).
+    We override get_current_user to return the test org's ID so all quote
+    endpoints can verify org membership.
+    """
+    def _override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    async def _override_get_current_user():
+        return {
+            "user_id": "1",
+            "email": "test@quote-test.de",
+            "role": "owner",
+            "org_id": str(test_org.id),
+        }
+
+    app.dependency_overrides[get_db] = _override_get_db
+    app.dependency_overrides[get_current_user] = _override_get_current_user
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
+
+
 SAMPLE_QUOTE_DATA = {
     "quote_date": "2026-03-01",
     "valid_until": "2026-04-01",
@@ -76,9 +121,8 @@ SAMPLE_QUOTE_DATA = {
 # ---------------------------------------------------------------------------
 
 class TestCreateQuote:
-    def test_create_quote_success(self, client, db_session):
+    def test_create_quote_success(self, client, db_session, test_org):
         """POST /api/quotes/create should create a quote with calculated amounts."""
-        _create_org(db_session, slug="create-org")
         resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         assert resp.status_code == 200
         body = resp.json()
@@ -91,9 +135,8 @@ class TestCreateQuote:
         assert float(body["net_amount"]) == 2500.0
         assert float(body["gross_amount"]) == 2975.0  # 2500 + 19%
 
-    def test_create_quote_empty_line_items(self, client, db_session):
+    def test_create_quote_empty_line_items(self, client, db_session, test_org):
         """Create quote with no line items should work (zero amounts)."""
-        _create_org(db_session, slug="empty-items-org")
         data = {
             "seller_name": "Test GmbH",
             "buyer_name": "Kunde AG",
@@ -104,9 +147,8 @@ class TestCreateQuote:
         assert body["quote_id"].startswith("ANB-")
         assert float(body.get("net_amount") or 0) == 0.0
 
-    def test_create_quote_auto_date(self, client, db_session):
+    def test_create_quote_auto_date(self, client, db_session, test_org):
         """Quote without quote_date should default to today."""
-        _create_org(db_session, slug="auto-date-org")
         data = {"seller_name": "Test"}
         resp = client.post("/api/quotes/create", json=data)
         assert resp.status_code == 200
@@ -119,7 +161,7 @@ class TestCreateQuote:
 # ---------------------------------------------------------------------------
 
 class TestListQuotes:
-    def test_list_quotes_empty(self, client, db_session):
+    def test_list_quotes_empty(self, client, db_session, test_org):
         """List quotes when there are none should return empty list."""
         resp = client.get("/api/quotes/list")
         assert resp.status_code == 200
@@ -127,9 +169,8 @@ class TestListQuotes:
         assert body["quotes"] == []
         assert body["total"] == 0
 
-    def test_list_quotes_with_data(self, client, db_session):
+    def test_list_quotes_with_data(self, client, db_session, test_org):
         """List quotes should return created quotes."""
-        _create_org(db_session, slug="list-org")
         # Create two quotes
         client.post("/api/quotes/create", json={**SAMPLE_QUOTE_DATA, "buyer_name": "A"})
         client.post("/api/quotes/create", json={**SAMPLE_QUOTE_DATA, "buyer_name": "B"})
@@ -139,9 +180,8 @@ class TestListQuotes:
         body = resp.json()
         assert body["total"] == 2
 
-    def test_list_quotes_filter_status(self, client, db_session):
+    def test_list_quotes_filter_status(self, client, db_session, test_org):
         """Filter by status should work."""
-        _create_org(db_session, slug="filter-status-org")
         client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
 
         resp = client.get("/api/quotes/list?status=draft")
@@ -152,9 +192,8 @@ class TestListQuotes:
         assert resp.status_code == 200
         assert resp.json()["total"] == 0
 
-    def test_list_quotes_search(self, client, db_session):
+    def test_list_quotes_search(self, client, db_session, test_org):
         """Search by buyer_name should work."""
-        _create_org(db_session, slug="search-org")
         client.post("/api/quotes/create", json={**SAMPLE_QUOTE_DATA, "buyer_name": "UniqueCompany123"})
         client.post("/api/quotes/create", json={**SAMPLE_QUOTE_DATA, "buyer_name": "OtherFirm"})
 
@@ -168,9 +207,8 @@ class TestListQuotes:
 # ---------------------------------------------------------------------------
 
 class TestGetQuote:
-    def test_get_quote_success(self, client, db_session):
+    def test_get_quote_success(self, client, db_session, test_org):
         """GET /api/quotes/{quote_id} should return full detail."""
-        _create_org(db_session, slug="get-detail-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -184,7 +222,7 @@ class TestGetQuote:
         assert body["line_items"] is not None
         assert len(body["line_items"]) == 2
 
-    def test_get_quote_not_found(self, client, db_session):
+    def test_get_quote_not_found(self, client, db_session, test_org):
         """GET nonexistent quote should return 404."""
         resp = client.get("/api/quotes/ANB-20260301-nonexist")
         assert resp.status_code == 404
@@ -195,9 +233,8 @@ class TestGetQuote:
 # ---------------------------------------------------------------------------
 
 class TestUpdateQuote:
-    def test_update_quote(self, client, db_session):
+    def test_update_quote(self, client, db_session, test_org):
         """PUT /api/quotes/{quote_id} should update fields."""
-        _create_org(db_session, slug="update-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -210,9 +247,8 @@ class TestUpdateQuote:
         assert body["buyer_name"] == "Neuer Kaeufer GmbH"
         assert body["closing_text"] == "Updated closing"
 
-    def test_update_quote_recalculates_amounts(self, client, db_session):
+    def test_update_quote_recalculates_amounts(self, client, db_session, test_org):
         """Updating line_items should recalculate amounts."""
-        _create_org(db_session, slug="recalc-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -232,9 +268,8 @@ class TestUpdateQuote:
 # ---------------------------------------------------------------------------
 
 class TestDeleteQuote:
-    def test_delete_draft_quote(self, client, db_session):
+    def test_delete_draft_quote(self, client, db_session, test_org):
         """DELETE draft quote should succeed."""
-        _create_org(db_session, slug="delete-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -245,9 +280,8 @@ class TestDeleteQuote:
         resp = client.get(f"/api/quotes/{qid}")
         assert resp.status_code == 404
 
-    def test_delete_sent_quote_fails(self, client, db_session):
+    def test_delete_sent_quote_fails(self, client, db_session, test_org):
         """DELETE a sent quote should fail with 400."""
-        _create_org(db_session, slug="delete-sent-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -264,9 +298,8 @@ class TestDeleteQuote:
 # ---------------------------------------------------------------------------
 
 class TestStatusTransitions:
-    def test_send_quote(self, client, db_session):
+    def test_send_quote(self, client, db_session, test_org):
         """POST /api/quotes/{quote_id}/send changes status to 'sent'."""
-        _create_org(db_session, slug="send-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -274,9 +307,8 @@ class TestStatusTransitions:
         assert resp.status_code == 200
         assert resp.json()["status"] == "sent"
 
-    def test_accept_quote(self, client, db_session):
+    def test_accept_quote(self, client, db_session, test_org):
         """POST /api/quotes/{quote_id}/accept changes status to 'accepted'."""
-        _create_org(db_session, slug="accept-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -287,18 +319,16 @@ class TestStatusTransitions:
         assert resp.status_code == 200
         assert resp.json()["status"] == "accepted"
 
-    def test_accept_draft_fails(self, client, db_session):
+    def test_accept_draft_fails(self, client, db_session, test_org):
         """Accept a draft quote should fail."""
-        _create_org(db_session, slug="accept-draft-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
         resp = client.post(f"/api/quotes/{qid}/accept")
         assert resp.status_code == 400
 
-    def test_reject_quote(self, client, db_session):
+    def test_reject_quote(self, client, db_session, test_org):
         """POST /api/quotes/{quote_id}/reject changes status to 'rejected'."""
-        _create_org(db_session, slug="reject-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -309,18 +339,16 @@ class TestStatusTransitions:
         assert resp.status_code == 200
         assert resp.json()["status"] == "rejected"
 
-    def test_reject_draft_fails(self, client, db_session):
+    def test_reject_draft_fails(self, client, db_session, test_org):
         """Reject a draft quote should fail."""
-        _create_org(db_session, slug="reject-draft-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
         resp = client.post(f"/api/quotes/{qid}/reject")
         assert resp.status_code == 400
 
-    def test_send_already_sent_fails(self, client, db_session):
+    def test_send_already_sent_fails(self, client, db_session, test_org):
         """Sending an already-sent quote should fail."""
-        _create_org(db_session, slug="double-send-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -334,9 +362,8 @@ class TestStatusTransitions:
 # ---------------------------------------------------------------------------
 
 class TestConvertToInvoice:
-    def test_convert_accepted_quote(self, client, db_session):
+    def test_convert_accepted_quote(self, client, db_session, test_org):
         """Convert an accepted quote should create a new invoice."""
-        _create_org(db_session, slug="convert-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -366,29 +393,31 @@ class TestConvertToInvoice:
         assert quote.status == "converted"
         assert quote.converted_invoice_id == invoice.id
 
-    def test_convert_draft_quote(self, client, db_session):
-        """Convert a draft quote should also work."""
-        _create_org(db_session, slug="convert-draft-org")
+    def test_convert_draft_quote_fails(self, client, db_session, test_org):
+        """Convert a draft quote should fail (only accepted quotes can convert)."""
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
-        resp = client.post(f"/api/quotes/{qid}/convert")
-        assert resp.status_code == 200
-        assert resp.json()["quote_status"] == "converted"
-
-    def test_convert_already_converted_fails(self, client, db_session):
-        """Converting an already-converted quote should fail."""
-        _create_org(db_session, slug="double-convert-org")
-        create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
-        qid = create_resp.json()["quote_id"]
-
-        client.post(f"/api/quotes/{qid}/convert")
         resp = client.post(f"/api/quotes/{qid}/convert")
         assert resp.status_code == 400
 
-    def test_convert_rejected_quote_fails(self, client, db_session):
+    def test_convert_already_converted_fails(self, client, db_session, test_org):
+        """Converting an already-converted quote should fail."""
+        create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
+        qid = create_resp.json()["quote_id"]
+
+        # Must send, accept, then convert
+        client.post(f"/api/quotes/{qid}/send")
+        client.post(f"/api/quotes/{qid}/accept")
+        resp = client.post(f"/api/quotes/{qid}/convert")
+        assert resp.status_code == 200
+
+        # Second conversion should fail
+        resp = client.post(f"/api/quotes/{qid}/convert")
+        assert resp.status_code == 400
+
+    def test_convert_rejected_quote_fails(self, client, db_session, test_org):
         """Converting a rejected quote should fail."""
-        _create_org(db_session, slug="convert-rejected-org")
         create_resp = client.post("/api/quotes/create", json=SAMPLE_QUOTE_DATA)
         qid = create_resp.json()["quote_id"]
 
@@ -404,14 +433,12 @@ class TestConvertToInvoice:
 # ---------------------------------------------------------------------------
 
 class TestTenantIsolation:
-    def test_org_isolation_list(self, client, db_session):
+    def test_org_isolation_list(self, client, db_session, test_org):
         """Quotes from different orgs should not leak across tenants.
 
-        In dev mode (REQUIRE_API_KEY=false), org_id is None so all quotes
-        are visible. This test creates quotes with different org_ids directly
-        in the DB and verifies the query filter works at the model level.
+        The test client is authenticated as test_org. Quotes belonging to a
+        different org should not be visible in the list endpoint.
         """
-        org_a = _create_org(db_session, name="Org A", slug="org-a")
         org_b = _create_org(db_session, name="Org B", slug="org-b")
 
         # Insert quotes directly with specific org_ids
@@ -419,7 +446,7 @@ class TestTenantIsolation:
         q_a = Quote(
             quote_id=f"ANB-20260301-{uuid.uuid4().hex[:6]}",
             status="draft",
-            organization_id=org_a.id,
+            organization_id=test_org.id,
             buyer_name="Client A",
         )
         q_b = Quote(
@@ -431,15 +458,22 @@ class TestTenantIsolation:
         db_session.add_all([q_a, q_b])
         db_session.commit()
 
-        # Query filtered by org A
+        # Query filtered by test_org (via API — uses authenticated org_id)
+        resp = client.get("/api/quotes/list")
+        assert resp.status_code == 200
+        body = resp.json()
+        # Should only see quotes from test_org, not org_b
+        assert body["total"] == 1
+        assert body["quotes"][0]["buyer_name"] == "Client A"
+
+        # Also verify at model level
         from sqlalchemy import select
         quotes_a = db_session.query(Quote).filter(
-            Quote.organization_id == org_a.id
+            Quote.organization_id == test_org.id
         ).all()
         assert len(quotes_a) == 1
         assert quotes_a[0].buyer_name == "Client A"
 
-        # Query filtered by org B
         quotes_b = db_session.query(Quote).filter(
             Quote.organization_id == org_b.id
         ).all()
@@ -447,7 +481,7 @@ class TestTenantIsolation:
         assert quotes_b[0].buyer_name == "Client B"
 
     def test_ensure_quote_belongs_to_org(self, db_session):
-        """_ensure_quote_belongs_to_org should raise 404 for wrong org."""
+        """_ensure_quote_belongs_to_org should raise 401 for None org and 404 for wrong org."""
         from app.routers.quotes import _ensure_quote_belongs_to_org
         from fastapi import HTTPException
 
@@ -465,13 +499,15 @@ class TestTenantIsolation:
         # Same org — should not raise
         _ensure_quote_belongs_to_org(quote, str(org.id))
 
-        # Different org — should raise
+        # Different org — should raise 404
         with pytest.raises(HTTPException) as exc_info:
             _ensure_quote_belongs_to_org(quote, str(org.id + 999))
         assert exc_info.value.status_code == 404
 
-        # None org (dev mode) — should not raise
-        _ensure_quote_belongs_to_org(quote, None)
+        # None org — should raise 401 (security fix: org_id is now required)
+        with pytest.raises(HTTPException) as exc_info:
+            _ensure_quote_belongs_to_org(quote, None)
+        assert exc_info.value.status_code == 401
 
 
 # ---------------------------------------------------------------------------
