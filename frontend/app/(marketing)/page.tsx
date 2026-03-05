@@ -20,35 +20,51 @@ export const metadata: Metadata = {
 const trustBadges = [
   { label: 'XRechnung 3.0.2', sub: 'EN 16931 konform' },
   { label: 'ZUGFeRD 2.3.3', sub: 'Hybrid-PDF' },
-  { label: 'DSGVO-konform', sub: 'Hosting in DE' },
+  { label: 'DSGVO-konform', sub: 'Hosting bei Hetzner (DE)' },
   { label: 'Open Source', sub: 'AGPL-3.0' },
+  { label: 'Kein Technik-Wissen', sub: 'erforderlich' },
 ]
 
 const timelineSteps = [
-  { year: '2025', text: 'Empfangspflicht fuer alle B2B-Unternehmen', active: true },
-  { year: '2027', text: 'Sendepflicht fuer Unternehmen > 800.000 EUR Umsatz', active: false },
-  { year: '2028', text: 'Sendepflicht fuer alle B2B-Unternehmen', active: false },
+  {
+    year: '2025',
+    text: 'Empfangspflicht fuer alle B2B-Unternehmen',
+    meaning: 'Was das fuer Sie bedeutet: Sie muessen E-Rechnungen von Lieferanten entgegennehmen koennen — auch wenn Sie selbst noch keine versenden muessen.',
+    active: true,
+  },
+  {
+    year: '2027',
+    text: 'Sendepflicht fuer Unternehmen > 800.000 EUR Umsatz',
+    meaning: 'Was das fuer Sie bedeutet: Umsatz ueber 800.000 EUR? Ab dann muessen Ihre Rechnungen an andere Unternehmen als E-Rechnung versendet werden.',
+    active: false,
+  },
+  {
+    year: '2028',
+    text: 'Sendepflicht fuer alle B2B-Unternehmen',
+    meaning: 'Was das fuer Sie bedeutet: Ab 2028 gilt die Versandpflicht fuer alle — unabhaengig von der Unternehmensgroesse. Jetzt vorbereiten spart Stress spaeter.',
+    active: false,
+  },
 ]
 
 const features = [
   {
-    title: 'OCR-Erkennung',
-    description: 'PDF-Rechnungen per Tesseract OCR einlesen und automatisch in strukturierte Daten umwandeln.',
+    title: 'Rechnungen einscannen',
+    description: 'Einfach Ihren Papier-Beleg fotografieren oder als PDF hochladen. RechnungsWerk liest alle Daten automatisch aus — kein Abtippen erforderlich.',
     icon: FileText,
   },
   {
-    title: 'XRechnung & ZUGFeRD',
-    description: 'Konformer UBL-XML-Export (XRechnung 3.0.2) und ZUGFeRD 2.3.3 Hybrid-PDFs auf Knopfdruck.',
+    title: 'Gesetzeskonforme E-Rechnung',
+    description: 'RechnungsWerk erstellt automatisch die richtige E-Rechnung — egal ob XRechnung (fuer Behoerden) oder ZUGFeRD (fuer Unternehmen). Immer auf dem aktuellen Stand der Gesetzgebung.',
     icon: CheckCircle,
   },
   {
-    title: 'DATEV-Export',
-    description: 'Buchungsdaten direkt im DATEV-Format exportieren. Nahtlose Uebergabe an den Steuerberater.',
+    title: 'Steuerberater-Uebergabe',
+    description: 'Alle Buchungsdaten auf Knopfdruck im DATEV-Format exportieren. Ihr Steuerberater erhaelt alles, was er braucht — ohne manuelle Nacharbeit.',
     icon: BarChart3,
   },
   {
-    title: 'Validierung',
-    description: 'Integrierte EN 16931 Validierung prueft Rechnungen vor dem Versand auf Konformitaet.',
+    title: 'Automatische Pruefung',
+    description: 'RechnungsWerk prueft jede Rechnung vor dem Versand automatisch auf gesetzliche Konformitaet. Sie werden gewarnt, bevor etwas falsch laueft.',
     icon: Search,
   },
 ]
@@ -149,7 +165,7 @@ export default function LandingPage() {
             ============================================================ */}
         <section className="border-y" style={{ borderColor: 'rgb(var(--border))' }}>
           <div className="mx-auto max-w-6xl px-6 py-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
               {trustBadges.map((badge) => (
                 <div key={badge.label}>
                   <p className="text-sm font-bold" style={{ color: 'rgb(var(--foreground))' }}>
@@ -189,26 +205,34 @@ export default function LandingPage() {
               {timelineSteps.map((step) => (
                 <div
                   key={step.year}
-                  className="flex items-start gap-4 rounded-xl border p-5"
+                  className="rounded-xl border p-5"
                   style={{
                     backgroundColor: step.active ? 'rgb(var(--primary-light))' : 'rgb(var(--card))',
                     borderColor: step.active ? 'rgb(var(--primary-border))' : 'rgb(var(--border))',
                   }}
                 >
-                  <span
-                    className="shrink-0 rounded-lg px-3 py-1 text-sm font-bold"
-                    style={{
-                      backgroundColor: step.active ? 'rgb(var(--primary))' : 'rgb(var(--muted))',
-                      color: step.active ? 'rgb(var(--primary-foreground))' : 'rgb(var(--foreground))',
-                    }}
-                  >
-                    {step.year}
-                  </span>
+                  <div className="flex items-start gap-4">
+                    <span
+                      className="shrink-0 rounded-lg px-3 py-1 text-sm font-bold"
+                      style={{
+                        backgroundColor: step.active ? 'rgb(var(--primary))' : 'rgb(var(--muted))',
+                        color: step.active ? 'rgb(var(--primary-foreground))' : 'rgb(var(--foreground))',
+                      }}
+                    >
+                      {step.year}
+                    </span>
+                    <p
+                      className="text-sm leading-relaxed font-medium"
+                      style={{ color: 'rgb(var(--foreground))' }}
+                    >
+                      {step.text}
+                    </p>
+                  </div>
                   <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: 'rgb(var(--foreground))' }}
+                    className="mt-3 text-xs leading-relaxed pl-16"
+                    style={{ color: 'rgb(var(--foreground-muted))' }}
                   >
-                    {step.text}
+                    {step.meaning}
                   </p>
                 </div>
               ))}
@@ -472,7 +496,22 @@ export default function LandingPage() {
             '@type': 'SoftwareApplication',
             name: 'RechnungsWerk',
             applicationCategory: 'BusinessApplication',
+            applicationSubCategory: 'InvoicingApplication',
             operatingSystem: 'Web',
+            inLanguage: 'de-DE',
+            countriesSupported: 'DE',
+            featureList: [
+              'XRechnung 3.0.2 Export',
+              'ZUGFeRD 2.3.3 Export',
+              'DATEV-Export',
+              'OCR-Belegserfassung',
+              'GoBD-konforme Archivierung',
+              'EN 16931 Validierung',
+              'Mahnwesen',
+              'REST-API',
+              'Self-Hosting',
+              'Open Source (AGPL-3.0)',
+            ],
             offers: [
               { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
               { '@type': 'Offer', name: 'Starter', price: '9.90', priceCurrency: 'EUR' },

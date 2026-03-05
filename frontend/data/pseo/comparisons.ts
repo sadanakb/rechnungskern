@@ -25,6 +25,7 @@ export const comparisons: ComparisonPage[] = [
       'Laengere Marktpraesenz und groessere Nutzerbasis in Deutschland',
       'Integrierte Buchhaltungsfunktionen ueber die reine Rechnungsstellung hinaus',
       'Direkte ELSTER-Schnittstelle fuer Steuermeldungen',
+      'Kostenloser Einstieg moeglich (bis zu 3 Rechnungen/Monat)',
     ],
     features: {
       xrechnung: { rw: 'Komplett (3.0.2)', competitor: 'Basis' },
@@ -45,11 +46,11 @@ export const comparisons: ComparisonPage[] = [
     tagline: 'Desktop- und Cloud-Buchhaltung',
     pricing: 'ab 11,90 EUR/Monat',
     rwAdvantages: [
+      'XRechnung ab 0 EUR/Monat — Lexware erfordert den XL-Tarif (32,90 EUR/Monat) fuer XRechnung-Export (ab 2027 gesetzlich Pflicht)',
       'Plattformunabhaengig — laeuft auf jedem Geraet mit Browser, nicht nur Windows',
       'Moderne REST-API fuer Automatisierung und Integration',
       'Open Source unter AGPL-Lizenz — kein Vendor-Lock-in',
       'Self-Hosting moeglich — Datenhoheit garantiert',
-      'Vollstaendige XRechnung 3.0.2 Unterstuetzung ohne Aufpreis',
     ],
     theirAdvantages: [
       'Jahrzehntelange Erfahrung im deutschen Buchhaltungsmarkt',

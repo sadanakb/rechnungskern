@@ -97,7 +97,6 @@ const tiers: PricingTier[] = [
       { text: 'API-Zugang', included: true },
       { text: 'Banking-Integration', included: true },
       { text: 'Team-Verwaltung (bis 5 Nutzer)', included: true },
-      { text: 'UStVA-Voranmeldung', included: true },
       { text: 'Prioritaets-Support', included: true },
     ],
   },
@@ -295,8 +294,9 @@ export default function PreisePage() {
               className="mt-3 text-sm leading-relaxed"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              RechnungsWerk ist Open Source (AGPL-3.0). Betreiben Sie Ihre eigene Instanz
-              mit vollem Funktionsumfang — kostenlos und ohne Einschraenkungen.
+              Sie betreiben Ihre eigene IT-Infrastruktur? RechnungsWerk laeuft auf Ihrem Server.
+              Ihre Rechnungsdaten verlassen nie Ihr Haus — XRechnung-konform, DSGVO-konform,
+              GoBD-konform. Vollstaendig unter Ihrer Kontrolle. Open Source (AGPL-3.0), kostenlos.
             </p>
             <div className="mt-6">
               <a

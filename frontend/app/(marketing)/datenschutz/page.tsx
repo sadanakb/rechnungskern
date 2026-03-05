@@ -17,8 +17,8 @@ export default function DatenschutzPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">1. Verantwortlicher</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Verantwortlicher im Sinne der DSGVO ist: RechnungsWerk GmbH,
-            [Adresse], Deutschland. Kontakt: datenschutz@rechnungswerk.de
+            Verantwortlicher im Sinne der DSGVO ist: RechnungsWerk, Sadan Akbari, Frankfurt am Main,
+            Deutschland. Kontakt: datenschutz@rechnungswerk.de
           </p>
         </section>
 
@@ -46,10 +46,19 @@ export default function DatenschutzPage() {
 
         <section>
           <h2 className="text-xl font-semibold mb-3">4. Aufbewahrungsfristen</h2>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Rechnungsdaten werden gemäß § 147 AO für 10 Jahre aufbewahrt.
-            Kontodaten werden nach Account-Löschung sofort und vollständig entfernt.
-          </p>
+          <ul className="list-disc pl-5 space-y-1 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            <li>
+              <strong>Rechnungsdaten:</strong> 10 Jahre gemäß § 147 AO (steuerrechtliche Aufbewahrungspflicht).
+              Eine vorzeitige Löschung ist aufgrund gesetzlicher Pflichten nicht möglich.
+            </li>
+            <li>
+              <strong>Kontodaten (Name, E-Mail):</strong> Werden innerhalb von 30 Tagen nach Account-Löschung
+              vollständig und unwiderruflich entfernt.
+            </li>
+            <li>
+              <strong>Nutzungsprotokolle:</strong> Werden nach 90 Tagen automatisch gelöscht.
+            </li>
+          </ul>
         </section>
 
         <section>
@@ -74,11 +83,33 @@ export default function DatenschutzPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">7. Drittanbieter</h2>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Stripe (Zahlungsabwicklung), Brevo (transaktionale E-Mails),
-            Firebase (Push-Benachrichtigungen). Alle Anbieter sind DSGVO-konform
-            und verarbeiten Daten ausschließlich im Auftrag von RechnungsWerk.
+          <h2 className="text-xl font-semibold mb-3">7. Auftragsverarbeiter und Drittanbieter</h2>
+          <p className="text-sm leading-relaxed mb-3" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            Wir setzen folgende Auftragsverarbeiter ein. Alle Anbieter sind DSGVO-konform
+            und verarbeiten Daten ausschließlich im Auftrag von RechnungsWerk auf Basis
+            eines Auftragsverarbeitungsvertrags (AVV):
+          </p>
+          <ul className="list-disc pl-5 space-y-2 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            <li>
+              <strong>Hetzner Online GmbH</strong> (Gunzenhausen, Deutschland) — Server-Hosting und Datenspeicherung.
+              Rechenzentren in Deutschland. ISO-27001-zertifiziert.
+            </li>
+            <li>
+              <strong>Stripe, Inc.</strong> (San Francisco, USA / Stripe Payments Europe Ltd., Dublin, Irland) — Zahlungsabwicklung.
+              Verarbeitung ausschließlich zur Abwicklung von Zahlungsvorgängen. EU-Standardvertragsklauseln vorhanden.
+            </li>
+            <li>
+              <strong>Brevo SAS</strong> (Paris, Frankreich) — Versand transaktionaler E-Mails (Registrierung, Rechnungen, Benachrichtigungen).
+              Server in der EU. DSGVO-konform.
+            </li>
+            <li>
+              <strong>Google LLC / Firebase</strong> (Mountain View, USA) — Push-Benachrichtigungen via Firebase Cloud Messaging,
+              nur mit ausdrücklicher Einwilligung. EU-Standardvertragsklauseln vorhanden.
+            </li>
+          </ul>
+          <p className="text-sm leading-relaxed mt-3" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            Ein AVV (Auftragsverarbeitungsvertrag) gemäß Art. 28 DSGVO steht für zahlende Kunden
+            auf Anfrage zur Verfügung. Bitte wenden Sie sich an datenschutz@rechnungswerk.de.
           </p>
         </section>
 

@@ -288,6 +288,54 @@ export default function UeberUnsPage() {
       </section>
 
       {/* ================================================================
+          Nachhaltigkeit & Continuity
+          ================================================================ */}
+      <section className="py-16">
+        <div className="mx-auto max-w-3xl px-6">
+          <h2
+            className="text-2xl font-bold tracking-tight"
+            style={{ color: 'rgb(var(--foreground))' }}
+          >
+            Langfristige Zuverlaessigkeit
+          </h2>
+          <p
+            className="mt-4 text-sm leading-relaxed"
+            style={{ color: 'rgb(var(--foreground-muted))' }}
+          >
+            Wir verstehen: Wer sein Rechnungswesen auf eine Software aufbaut, moechte wissen,
+            dass sie auch in 5 Jahren noch funktioniert. Hier ist, wie wir das sicherstellen:
+          </p>
+          <ul
+            className="mt-6 space-y-4 text-sm leading-relaxed"
+            style={{ color: 'rgb(var(--foreground-muted))' }}
+          >
+            <li>
+              <strong style={{ color: 'rgb(var(--foreground))' }}>AGPL-Lizenz als Dauersicherung:</strong>{' '}
+              Der Quellcode von RechnungsWerk ist unter der AGPL-3.0 lizenziert. Das bedeutet:
+              Der Code ist fuer immer frei verfuegbar, egal was mit dem Unternehmen passiert.
+              GitHub dient als permanentes Escrow — niemand kann den Code zurueckhalten.
+            </li>
+            <li>
+              <strong style={{ color: 'rgb(var(--foreground))' }}>Hosting bei Hetzner (Deutschland):</strong>{' '}
+              RechnungsWerk laeuft ausschliesslich auf Servern der Hetzner Online GmbH in Deutschland.
+              Hetzner ist ISO-27001-zertifiziert. Ihre Daten verlassen Deutschland nicht.
+            </li>
+            <li>
+              <strong style={{ color: 'rgb(var(--foreground))' }}>Open Source Community:</strong>{' '}
+              Neben dem Kernteam tragen Entwickler aus der Community bei. Selbst wenn ein
+              Einzelner ausfaellt, lebt das Projekt weiter — wie Plausible Analytics,
+              Supabase oder Mattermost es zeigen.
+            </li>
+            <li>
+              <strong style={{ color: 'rgb(var(--foreground))' }}>Keine Vendor-Lock-in:</strong>{' '}
+              Alle Daten koennen jederzeit vollstaendig exportiert werden. Sie sind niemals
+              abhaengig von RechnungsWerk — weder technisch noch vertraglich.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* ================================================================
           CTA
           ================================================================ */}
       <section className="py-20">
