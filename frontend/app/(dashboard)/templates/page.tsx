@@ -537,6 +537,7 @@ function TemplateCard({ tmpl, onEdit, onDelete, onSetDefault }: TemplateCardProp
 // ---------------------------------------------------------------------------
 
 export default function TemplatesPage() {
+  useEffect(() => { document.title = 'Vorlagen | RechnungsWerk' }, [])
   const [templates, setTemplates] = useState<InvoiceTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -663,7 +664,7 @@ export default function TemplatesPage() {
         <EmptyState
           icon={LayoutTemplate}
           title="Noch keine Vorlagen"
-          description="Erstelle deine erste Rechnungsvorlage mit eigenen Farben und Bankdaten."
+          description="Erstellen Sie Ihre erste Rechnungsvorlage mit eigenen Farben und Bankdaten."
           actionLabel="Erste Vorlage erstellen"
           onAction={() => setShowCreate(true)}
         />

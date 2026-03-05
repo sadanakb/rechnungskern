@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Passwort vergessen</h1>
           <p className="text-sm mt-1 opacity-60">
-            Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zuruecksetzen.
+            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zuruecksetzen.
           </p>
         </div>
 
@@ -52,8 +52,8 @@ export default function ForgotPasswordPage() {
                 E-Mail wurde gesendet
               </p>
               <p className="text-sm mt-1 opacity-70">
-                Falls ein Konto mit dieser E-Mail existiert, erhaeltst du in Kuerze eine E-Mail
-                mit einem Link zum Zuruecksetzen deines Passworts.
+                Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kuerze eine E-Mail
+                mit einem Link zum Zuruecksetzen Ihres Passworts.
               </p>
             </div>
             <p className="text-center text-sm opacity-60">

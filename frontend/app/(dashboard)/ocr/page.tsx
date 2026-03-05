@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -156,6 +156,7 @@ function ConfidenceDot({ value }: { value?: number }) {
 // Page
 // ---------------------------------------------------------------------------
 export default function OCRPage() {
+  useEffect(() => { document.title = 'OCR-Erkennung | RechnungsWerk' }, [])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [processingStep, setProcessingStep] = useState(0)

@@ -410,6 +410,7 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
 // ---------------------------------------------------------------------------
 
 export default function ContactsPage() {
+  useEffect(() => { document.title = 'Kontakte | RechnungsWerk' }, [])
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
@@ -613,7 +614,7 @@ export default function ContactsPage() {
         />
       ) : filtered.length === 0 ? (
         <div className="text-center py-12" style={{ color: 'rgb(var(--foreground-muted))' }}>
-          <p className="text-sm">Keine Kontakte entsprechen deiner Suche.</p>
+          <p className="text-sm">Keine Kontakte entsprechen Ihrer Suche.</p>
         </div>
       ) : (
         <div

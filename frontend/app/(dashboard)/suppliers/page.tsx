@@ -23,6 +23,7 @@ import {
 
 
 export default function SuppliersPage() {
+  useEffect(() => { document.title = 'Lieferanten | RechnungsWerk' }, [])
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -252,7 +253,7 @@ export default function SuppliersPage() {
         <EmptyState
           icon={Package}
           title="Noch keine Lieferanten"
-          description="Erstelle deinen ersten Lieferanten, um automatische Zuordnungen zu aktivieren."
+          description="Erstellen Sie Ihren ersten Lieferanten, um automatische Zuordnungen zu aktivieren."
           actionLabel="Neuer Lieferant"
           onAction={() => {
             setEditingSupplier(null)
@@ -262,7 +263,7 @@ export default function SuppliersPage() {
         />
       ) : filtered.length === 0 ? (
         <div className="text-center py-12" style={{ color: 'rgb(var(--foreground-muted))' }}>
-          <p className="text-sm">Keine Lieferanten entsprechen deiner Suche.</p>
+          <p className="text-sm">Keine Lieferanten entsprechen Ihrer Suche.</p>
         </div>
       ) : (
         <div

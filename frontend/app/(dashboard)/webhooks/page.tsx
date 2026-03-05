@@ -171,11 +171,11 @@ function CreateWebhookModal({ onClose, onCreated }: CreateModalProps) {
 
   const handleCreate = async () => {
     if (!url.trim()) {
-      setError('Bitte gib eine URL ein.')
+      setError('Bitte geben Sie eine URL ein.')
       return
     }
     if (selectedEvents.length === 0) {
-      setError('Bitte wähle mindestens ein Event.')
+      setError('Bitte wählen Sie mindestens ein Event.')
       return
     }
     setLoading(true)
@@ -336,7 +336,7 @@ function CreateWebhookModal({ onClose, onCreated }: CreateModalProps) {
                 </label>
                 <input
                   type="url"
-                  placeholder="https://deine-app.de/webhooks/rechnungswerk"
+                  placeholder="https://ihre-app.de/webhooks/rechnungswerk"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:ring-2"
@@ -764,6 +764,7 @@ function WebhookRow({ webhook, onDeleted, onToast }: WebhookRowProps) {
 // ---------------------------------------------------------------------------
 
 export default function WebhooksPage() {
+  useEffect(() => { document.title = 'Webhooks | RechnungsWerk' }, [])
   const [webhooks, setWebhooks] = useState<WebhookSubscription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -851,7 +852,7 @@ export default function WebhooksPage() {
         }}
       >
         <p className="text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
-          Webhooks senden HTTP-POST-Anfragen an deine URL, sobald bestimmte Events in
+          Webhooks senden HTTP-POST-Anfragen an Ihre URL, sobald bestimmte Events in
           RechnungsWerk eintreten. Jede Anfrage enthält einen{' '}
           <code
             className="px-1 py-0.5 rounded text-xs font-mono"
@@ -862,7 +863,7 @@ export default function WebhooksPage() {
           >
             X-RW-Signature
           </code>{' '}
-          Header zur Verifikation mit deinem Webhook-Secret.
+          Header zur Verifikation mit Ihrem Webhook-Secret.
         </p>
       </div>
 
@@ -912,8 +913,8 @@ export default function WebhooksPage() {
                 className="text-sm mt-1 max-w-md mx-auto"
                 style={{ color: 'rgb(var(--foreground-muted))' }}
               >
-                Klicke auf &ldquo;Neuer Webhook&rdquo;, gib deine Endpunkt-URL ein und wähle
-                die Events aus, die du empfangen möchtest.
+                Klicken Sie auf &ldquo;Neuer Webhook&rdquo;, geben Sie Ihre Endpunkt-URL ein und wählen
+                Sie die Events aus, die Sie empfangen möchten.
               </p>
             </div>
             <button

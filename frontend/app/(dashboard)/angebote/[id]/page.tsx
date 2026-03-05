@@ -176,6 +176,7 @@ function InfoRow({
 // Page
 // ---------------------------------------------------------------------------
 export default function AngebotDetailPage() {
+  useEffect(() => { document.title = 'Angebotsdetails | RechnungsWerk' }, [])
   const params = useParams()
   const router = useRouter()
   const quoteId = params.id as string

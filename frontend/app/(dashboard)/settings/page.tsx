@@ -1797,7 +1797,7 @@ function GdprTab() {
         <CardHeader>
           <CardTitle>Datenexport (Art. 20 DSGVO)</CardTitle>
           <CardDescription>
-            Lade alle deine gespeicherten Daten als ZIP-Datei herunter (Rechnungen, Kontakte, Profil).
+            Laden Sie alle Ihre gespeicherten Daten als ZIP-Datei herunter (Rechnungen, Kontakte, Profil).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1816,18 +1816,18 @@ function GdprTab() {
         <CardHeader>
           <CardTitle>Account löschen (Art. 17 DSGVO)</CardTitle>
           <CardDescription>
-            Lösche deinen Account und alle Daten unwiderruflich. Du erhältst eine Bestätigungs-E-Mail.
+            Löschen Sie Ihren Account und alle Daten unwiderruflich. Sie erhalten eine Bestätigungs-E-Mail.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {deleteRequested ? (
             <p className="text-sm" style={{ color: 'rgb(var(--primary))' }}>
-              Bestätigungs-E-Mail wurde gesendet. Bitte prüfe dein Postfach (gilt 24 Stunden).
+              Bestätigungs-E-Mail wurde gesendet. Bitte prüfen Sie Ihr Postfach (gilt 24 Stunden).
             </p>
           ) : showDeleteConfirm ? (
             <div className="space-y-3">
               <p className="text-sm font-medium" style={{ color: 'rgb(var(--destructive))' }}>
-                Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden.
+                Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden.
               </p>
               <div className="flex gap-2">
                 <button
@@ -1946,7 +1946,7 @@ function PaymentSettingsTab() {
         <CardHeader>
           <CardTitle className="text-base">Online-Zahlung via Stripe</CardTitle>
           <CardDescription>
-            Verbinde dein Stripe-Konto, damit Kunden Rechnungen direkt im Portal bezahlen können (Karte, SEPA, Sofort, iDEAL).
+            Verbinden Sie Ihr Stripe-Konto, damit Kunden Rechnungen direkt im Portal bezahlen können (Karte, SEPA, Sofort, iDEAL).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1999,7 +1999,7 @@ function PaymentSettingsTab() {
         <CardHeader>
           <CardTitle className="text-base">PayPal-Link (optional)</CardTitle>
           <CardDescription>
-            Trage deine PayPal.me-URL ein. Kunden sehen im Portal einen „Per PayPal zahlen"-Button.
+            Tragen Sie Ihre PayPal.me-URL ein. Kunden sehen im Portal einen „Per PayPal zahlen"-Button.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -2039,6 +2039,7 @@ function PaymentSettingsTab() {
 // Main Settings Page
 // ---------------------------------------------------------------------------
 export default function SettingsPage() {
+  useEffect(() => { document.title = 'Einstellungen | RechnungsWerk' }, [])
   const { user, loading } = useAuth()
   const plan = user?.organization?.plan ?? 'free'
 

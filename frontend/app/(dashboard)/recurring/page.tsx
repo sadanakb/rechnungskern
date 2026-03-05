@@ -191,6 +191,7 @@ const DEFAULT_FORM: FormState = {
 // ---------------------------------------------------------------------------
 
 export default function RecurringPage() {
+  useEffect(() => { document.title = 'Wiederkehrend | RechnungsWerk' }, [])
   const [templates, setTemplates] = useState<RecurringTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)

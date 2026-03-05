@@ -465,6 +465,7 @@ function DeleteDialog({
 // ---------------------------------------------------------------------------
 
 export default function InvoiceDetailPage() {
+  useEffect(() => { document.title = 'Rechnungsdetails | RechnungsWerk' }, [])
   const params = useParams()
   const router = useRouter()
   const invoiceId = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '')
@@ -519,7 +520,7 @@ export default function InvoiceDetailPage() {
       setShareLink(`https://rechnungswerk.io${result.url}`)
       setShowShareModal(true)
     } catch (err) {
-      console.error('Share link error:', err)
+      if (process.env.NODE_ENV === 'development') console.error('Share link error:', err)
     }
   }
 
@@ -530,7 +531,7 @@ export default function InvoiceDetailPage() {
       await sendInvoiceEmail(invoice.invoice_id, emailTo)
       setEmailSent(true)
     } catch (err) {
-      console.error('Send email error:', err)
+      if (process.env.NODE_ENV === 'development') console.error('Send email error:', err)
     } finally {
       setEmailSending(false)
     }

@@ -113,7 +113,7 @@ function ResetPasswordContent() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Neues Passwort setzen</h1>
           <p className="text-sm mt-1 opacity-60">
-            Gib dein neues Passwort ein.
+            Geben Sie Ihr neues Passwort ein.
           </p>
         </div>
 
@@ -130,7 +130,7 @@ function ResetPasswordContent() {
                 Passwort erfolgreich geaendert
               </p>
               <p className="text-sm mt-1 opacity-70">
-                Du kannst dich jetzt mit deinem neuen Passwort anmelden.
+                Sie können sich jetzt mit Ihrem neuen Passwort anmelden.
               </p>
             </div>
             <p className="text-center">

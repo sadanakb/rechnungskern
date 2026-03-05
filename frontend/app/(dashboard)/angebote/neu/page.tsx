@@ -135,6 +135,7 @@ function Section({
 // Page
 // ---------------------------------------------------------------------------
 function QuoteFormContent() {
+  useEffect(() => { document.title = 'Neues Angebot | RechnungsWerk' }, [])
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')

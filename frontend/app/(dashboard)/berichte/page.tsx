@@ -409,8 +409,9 @@ function DATEVExportSection() {
     setError(null)
     try {
       await exportDatevZip(fromMonth, toMonth)
-    } catch (e: any) {
-      const detail = e?.response?.data?.detail || 'Export fehlgeschlagen. Bitte erneut versuchen.'
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      const detail = err?.response?.data?.detail || 'Export fehlgeschlagen. Bitte erneut versuchen.'
       setError(detail)
     } finally {
       setLoading(false)
@@ -425,8 +426,9 @@ function DATEVExportSection() {
       await sendDatevEmail(fromMonth, toMonth)
       setEmailSuccess(true)
       setTimeout(() => setEmailSuccess(false), 3000)
-    } catch (e: any) {
-      const detail = e?.response?.data?.detail || 'E-Mail fehlgeschlagen.'
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      const detail = err?.response?.data?.detail || 'E-Mail fehlgeschlagen.'
       setError(detail)
     } finally {
       setEmailing(false)
@@ -520,6 +522,7 @@ function DATEVExportSection() {
 // ---------------------------------------------------------------------------
 
 export default function BerichtePage() {
+  useEffect(() => { document.title = 'Berichte | RechnungsWerk' }, [])
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, DragEvent, ChangeEvent } from 'react'
+import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
 import { Upload, Download, FileText, CheckCircle, AlertCircle, SkipForward, RefreshCw, Info } from 'lucide-react'
 import { importCsv, downloadImportTemplate, ImportResult } from '@/lib/api'
 
@@ -28,6 +28,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function ImportPage() {
+  useEffect(() => { document.title = 'Import | RechnungsWerk' }, [])
   const [activeTab, setActiveTab] = useState<Tab>('import')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)

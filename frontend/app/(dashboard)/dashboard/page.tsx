@@ -168,6 +168,7 @@ function ChartTooltip({
 // Page Component
 // ---------------------------------------------------------------------------
 export default function Dashboard() {
+  useEffect(() => { document.title = 'Dashboard | RechnungsWerk' }, [])
   const router = useRouter()
 
   const [health, setHealth] = useState<HealthData | null>(null)

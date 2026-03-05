@@ -51,7 +51,7 @@ export default function LoginPage() {
           </a>
           <h1 className="text-2xl font-bold">Anmelden</h1>
           <p className="text-sm mt-1 opacity-60">
-            Melde dich bei RechnungsWerk an
+            Melden Sie sich bei RechnungsWerk an
           </p>
         </div>
 
