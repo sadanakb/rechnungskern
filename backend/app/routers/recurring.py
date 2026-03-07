@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import RecurringInvoice, Invoice
 from app.auth_jwt import get_current_user
+from app.feature_gate import require_feature
 from app.recurring.scheduler import RecurringScheduler
 
 logger = logging.getLogger(__name__)
@@ -215,7 +216,7 @@ def list_recurring(
 def create_recurring(
     data: RecurringCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("mahnwesen")),
 ):
     """Neue Rechnungsvorlage anlegen."""
     org_id = current_user.get("org_id")
@@ -270,7 +271,7 @@ def update_recurring(
     data: RecurringUpdate,
     template_id: str = Path(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("mahnwesen")),
 ):
     """Vorlage aktualisieren."""
     tmpl = _get_or_404(db, template_id)
@@ -300,7 +301,7 @@ def update_recurring(
 def delete_recurring(
     template_id: str = Path(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("mahnwesen")),
 ):
     """Vorlage loeschen."""
     tmpl = _get_or_404(db, template_id)
@@ -317,7 +318,7 @@ def delete_recurring(
 def toggle_recurring(
     template_id: str = Path(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("mahnwesen")),
 ):
     """Vorlage aktivieren oder pausieren."""
     tmpl = _get_or_404(db, template_id)
@@ -336,7 +337,7 @@ def toggle_recurring(
 def trigger_recurring(
     template_id: str = Path(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("mahnwesen")),
 ):
     """
     Jetzt eine Rechnung aus der Vorlage generieren.

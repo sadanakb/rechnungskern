@@ -29,6 +29,7 @@ from app.fraud.detector import FraudDetector
 from app.archive.gobd_archive import GoBDArchive
 from app.ai.categorizer import InvoiceCategorizer
 from app.auth_jwt import oauth2_scheme, decode_token, get_current_user, ensure_invoice_belongs_to_org
+from app.feature_gate import check_plan_limit
 from app.invoice_number_service import generate_next_invoice_number
 from app.config import settings
 from app.webhook_service import publish_event
@@ -108,6 +109,15 @@ async def upload_pdf_for_ocr(
     3. Parse invoice fields using regex
     4. Return extracted data for user review
     """
+    # Enforce monthly invoice limit for Free plan
+    org_id_for_limit = current_user.get("org_id")
+    if org_id_for_limit:
+        month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        invoice_count = db.query(Invoice).filter(
+            Invoice.organization_id == int(org_id_for_limit),
+            Invoice.created_at >= month_start,
+        ).count()
+        check_plan_limit(db, int(current_user["user_id"]), "max_invoices_per_month", invoice_count)
     # Validate file type (K3 — None-safe) + sanitize filename (M4)
     raw_name = file.filename or ""
     safe_name = re.sub(r"[^\w.\-]", "_", os.path.basename(raw_name))
@@ -261,6 +271,16 @@ async def create_invoice(
 
     User provides all invoice fields via form.
     """
+    # Enforce monthly invoice limit for Free plan
+    org_id_for_limit = current_user.get("org_id")
+    if org_id_for_limit:
+        month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        invoice_count = db.query(Invoice).filter(
+            Invoice.organization_id == int(org_id_for_limit),
+            Invoice.created_at >= month_start,
+        ).count()
+        check_plan_limit(db, int(current_user["user_id"]), "max_invoices_per_month", invoice_count)
+
     # Generate invoice ID
     invoice_id = f"INV-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
 

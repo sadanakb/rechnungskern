@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import ApiKey, OrganizationMember
 from app.auth_jwt import get_current_user, hash_password
+from app.feature_gate import require_feature
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ def _get_org_id(current_user: dict, db: Session) -> int:
 
 @router.get("", response_model=List[ApiKeyResponse])
 def list_api_keys(
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("api_access")),
     db: Session = Depends(get_db),
 ):
     """List all active API keys for the caller's organisation.
@@ -109,7 +110,7 @@ def list_api_keys(
 @router.post("", response_model=ApiKeyCreateResponse, status_code=status.HTTP_201_CREATED)
 def create_api_key(
     payload: ApiKeyCreate,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("api_access")),
     db: Session = Depends(get_db),
 ):
     """Create a new API key.
@@ -176,7 +177,7 @@ def create_api_key(
 @router.delete("/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
 def revoke_api_key(
     key_id: int,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("api_access")),
     db: Session = Depends(get_db),
 ):
     """Soft-delete (revoke) an API key.

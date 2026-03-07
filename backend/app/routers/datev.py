@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.auth_jwt import get_current_user
+from app.feature_gate import require_feature
 from app.database import get_db
 from app.models import Invoice, Organization, OrganizationMember
 
@@ -55,7 +56,7 @@ def _parse_month(month_str: str, is_start: bool) -> date:
 async def export_datev(
     from_month: str = Query(..., description="Von-Monat im Format YYYY-MM"),
     to_month: str = Query(..., description="Bis-Monat im Format YYYY-MM"),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("datev_export")),
     db: Session = Depends(get_db),
 ):
     """
@@ -145,7 +146,7 @@ class SendEmailRequest(BaseModel):
 async def send_datev_email(
     body: SendEmailRequest,
     request: Request,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_feature("datev_export")),
     db: Session = Depends(get_db),
 ):
     """

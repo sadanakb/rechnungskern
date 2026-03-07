@@ -98,3 +98,41 @@ def require_feature(feature_name: str):
         return current_user
 
     return dependency
+
+
+def check_plan_limit(
+    db: Session,
+    user_id: int,
+    limit_key: str,
+    current_count: int,
+) -> None:
+    """Raise 403 if current_count >= plan limit for the given limit_key.
+
+    In self-hosted mode (cloud_mode=False), limits are not enforced.
+    limit_key must map to a numeric value in PLAN_LIMITS (e.g. max_contacts).
+    A value of -1 means unlimited.
+    """
+    if not settings.cloud_mode:
+        return
+
+    member = db.query(OrganizationMember).filter(
+        OrganizationMember.user_id == user_id
+    ).first()
+    if not member:
+        raise HTTPException(status_code=403, detail="Keine Organisation gefunden")
+
+    org = db.query(Organization).filter(
+        Organization.id == member.organization_id
+    ).first()
+    plan = org.plan if org else "free"
+    plan_limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    limit = plan_limits.get(limit_key, 0)
+
+    if limit == -1:
+        return  # unlimited
+
+    if current_count >= limit:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Limit erreicht ({limit}). Bitte upgraden Sie Ihren Plan.",
+        )

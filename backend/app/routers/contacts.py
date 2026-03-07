@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Contact, OrganizationMember
 from app.auth_jwt import get_current_user
+from app.feature_gate import check_plan_limit
 
 router = APIRouter(prefix="/api/contacts", tags=["contacts"])
 
@@ -128,6 +129,12 @@ def create_contact(
     if body.type not in ("customer", "supplier"):
         raise HTTPException(400, "type muss 'customer' oder 'supplier' sein")
     org_id = _resolve_org_id(current_user, db)
+    # Enforce contact limit for Free plan
+    active_count = db.query(Contact).filter(
+        Contact.org_id == org_id,
+        Contact.is_active == True,  # noqa: E712
+    ).count()
+    check_plan_limit(db, int(current_user["user_id"]), "max_contacts", active_count)
     contact = Contact(org_id=org_id, **body.model_dump())
     db.add(contact)
     db.commit()

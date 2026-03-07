@@ -1,35 +1,33 @@
-# Checkpoint — 2026-03-02 18:50
+# Checkpoint — 2026-03-07
 
 ## Ziel
-Phase 16: Security Deep Fix + Stability — 10 neue Security-Findings schliessen
+Execute Task 1 (Preisseite bereinigen) + Task 2 (Feature-Gating vervollstaendigen) from the launch-blocker plan.
 
 ## Erledigt
-- [x] Step 1: Shared SSRF validator (Dateien: backend/app/utils/network.py, backend/app/utils/__init__.py, backend/app/routers/email.py)
-- [x] Step 2: Webhook SSRF CRITICAL fix (Dateien: backend/app/routers/webhooks.py, backend/app/webhook_service.py)
-- [x] Step 3: Team invite email binding CRITICAL (Dateien: backend/app/routers/teams.py:319-325)
-- [x] Step 4: API-Key scope format fix HIGH (Dateien: backend/app/routers/api_keys.py, backend/app/auth_jwt.py)
-- [x] Step 5: Pin bcrypt deps HIGH (Dateien: backend/requirements.txt, backend/app/auth_jwt.py)
-- [x] Step 6: Health endpoint split HIGH (Dateien: backend/app/routers/health.py — /health/live, /health/ready, /health)
-- [x] Step 7: Batch OCR limits MEDIUM (Dateien: backend/app/routers/invoices.py — 20 files, 50MB total)
-- [x] Step 8: Password policy MEDIUM (Dateien: backend/app/schemas_auth.py, backend/app/routers/auth.py)
-- [x] Step 9: Webhook rate limits MEDIUM (Dateien: backend/app/routers/webhooks.py — 5/min create+test)
-- [x] Step 10: WebSocket token deprecation MEDIUM (Dateien: backend/app/main.py, frontend/contexts/WebSocketContext.tsx)
-- [x] Test fixes: test_api_keys.py scope format, test_webhooks.py SSRF mock + rate limiter
-- [x] Frontend Tests: 77/77 passed
-- [x] Frontend ESLint: 0 errors, 15 warnings (pre-existing)
+- [x] Task 1: Preisseite bereinigt — Banking-Integration und UStVA-Voranmeldung als "(geplant)" markiert und included:false gesetzt (Datei: frontend/app/(marketing)/preise/page.tsx)
+- [x] Task 2a: DATEV-Export gated mit require_feature("datev_export") auf beide Endpoints (Datei: backend/app/routers/datev.py)
+- [x] Task 2b: API-Keys gated mit require_feature("api_access") auf alle 3 Endpoints (Datei: backend/app/routers/api_keys.py)
+- [x] Task 2c: Kontakt-Limit (max 10 fuer Free) implementiert mit check_plan_limit() (Datei: backend/app/routers/contacts.py)
+- [x] Task 2d: Rechnungs-Limit (max 5/Monat fuer Free) implementiert mit check_plan_limit() (Datei: backend/app/routers/invoices.py)
+- [x] check_plan_limit() Hilfsfunktion in feature_gate.py hinzugefuegt (Datei: backend/app/feature_gate.py)
+- [x] 8 neue Tests geschrieben und bestanden (Datei: backend/tests/test_feature_gate_enforcement.py)
+- [x] Frontend Build erfolgreich
+- [x] 46 Tests bestanden (alle relevanten Testdateien)
 
 ## Offen
-- [ ] Full backend test suite (running)
+- [ ] Commit erstellen
+- [ ] Optional: recurring.py und webhooks.py gaten (api_access feature?)
 
 ## Entscheidungen
-- Webhook limiter switched from local to shared app.rate_limiter.limiter
-- Empty scopes on keys created after 2026-03-01 = deny (old keys = warn + allow)
-- WebSocket: first-message auth as default, query-param as deprecated fallback
-- Health: tesseract version, model names, invoice counts removed from response
+- Banking-Integration und UStVA-Voranmeldung als "(geplant)" + included:false statt komplett entfernt
+- datev.py und api_keys.py: require_feature() als Depends ersetzt get_current_user (boolean gate)
+- contacts.py und invoices.py: check_plan_limit() inline im Endpoint (count-based limit)
+- recurring.py und webhooks.py nicht gegated — kein klares Feature-Flag
 
 ## Build/Test-Status
-- Frontend: 77/77 tests, 0 errors lint
-- Backend: Full suite running (previously 499 passed + 5 webhook fixes)
+- Build: OK (Frontend + Backend)
+- Tests: 46/46 bestanden (feature_gate, contacts, datev, api_keys, invoices_api)
+- Letzter Commit: c5a8299
 
 ## Naechster Schritt
-Wait for full test suite, then commit
+Commit erstellen
