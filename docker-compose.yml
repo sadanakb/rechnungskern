@@ -35,8 +35,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/api/health"]
       interval: 30s
@@ -48,8 +48,22 @@ services:
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: https://api.rechnungswerk.de
+    expose:
+      - "3001"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - backend
+      - frontend
 
   uptime-kuma:
     image: louislam/uptime-kuma:1
@@ -62,3 +76,5 @@ services:
 volumes:
   pgdata:
   uptime-data:
+  caddy-data:
+  caddy-config:
