@@ -73,6 +73,7 @@ class Settings(BaseSettings):
     aws_region: str = "eu-central-1"
     aws_access_key_id: str = ""
     aws_secret_access_key: str = ""
+    s3_endpoint_url: str = ""  # For Hetzner Object Storage
 
     # Stripe (placeholders for Task 12)
     stripe_secret_key: str = ""

@@ -7,11 +7,12 @@ downloads them, and routes them to the OCR pipeline.
 import email
 import imaplib
 import logging
-import os
 import tempfile
 from datetime import datetime, timezone
 from email.header import decode_header
 from typing import Dict, List, Optional
+
+from app.storage import get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class InboxProcessor:
         self,
         since_date: Optional[str] = None,
         max_emails: int = 50,
-        output_dir: str = "data/uploads",
+        org_id: Optional[str] = None,
     ) -> List[Dict]:
         """
         Fetch PDF attachments from inbox.
@@ -47,12 +48,11 @@ class InboxProcessor:
         Args:
             since_date: Only fetch emails since this date (YYYY-MM-DD)
             max_emails: Maximum number of emails to process
-            output_dir: Directory to save PDF files
+            org_id: Organization ID for tenant-isolated storage paths
 
         Returns:
-            List of dicts with: filename, file_path, sender, subject, date, file_size
+            List of dicts with: filename, storage_path, sender, subject, date, file_size
         """
-        os.makedirs(output_dir, exist_ok=True)
         results: List[Dict] = []
 
         try:
@@ -90,7 +90,7 @@ class InboxProcessor:
             # Process limited number of emails
             for msg_id in ids[:max_emails]:
                 try:
-                    email_result = self._process_email(mail, msg_id, output_dir)
+                    email_result = self._process_email(mail, msg_id, org_id)
                     results.extend(email_result)
                 except Exception as e:
                     logger.warning("Failed to process email %s: %s", msg_id, e)
@@ -108,7 +108,7 @@ class InboxProcessor:
         return results
 
     def _process_email(
-        self, mail: imaplib.IMAP4, msg_id: bytes, output_dir: str
+        self, mail: imaplib.IMAP4, msg_id: bytes, org_id: Optional[str] = None
     ) -> List[Dict]:
         """Process a single email and extract PDF attachments."""
         results = []
@@ -123,6 +123,8 @@ class InboxProcessor:
         subject = self._decode_header(msg.get("Subject", ""))
         sender = self._decode_header(msg.get("From", ""))
         date_str = msg.get("Date", "")
+
+        storage = get_storage()
 
         # Walk through MIME parts
         for part in msg.walk():
@@ -145,14 +147,14 @@ class InboxProcessor:
                     continue
 
                 timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-                file_path = os.path.join(output_dir, f"email_{timestamp}_{safe_name}")
-
-                with open(file_path, "wb") as f:
-                    f.write(pdf_content)
+                storage_filename = f"email_{timestamp}_{safe_name}"
+                prefix = f"{org_id}" if org_id else "shared"
+                storage_path = f"{prefix}/uploads/{storage_filename}"
+                storage.save(storage_path, pdf_content)
 
                 results.append({
                     "filename": safe_name,
-                    "file_path": file_path,
+                    "storage_path": storage_path,
                     "sender": sender,
                     "subject": subject,
                     "date": date_str,

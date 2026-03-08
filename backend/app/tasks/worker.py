@@ -32,7 +32,9 @@ async def generate_zugferd_task(ctx: Dict, invoice_id: str):
     from app.models import Invoice
     from app.xrechnung_generator import XRechnungGenerator
     from app.zugferd_generator import ZUGFeRDGenerator
+    from app.storage import get_storage
     import os
+    import tempfile
 
     db = SessionLocal()
     try:
@@ -61,10 +63,21 @@ async def generate_zugferd_task(ctx: Dict, invoice_id: str):
         }
 
         xml_content = XRechnungGenerator().generate_xml(invoice_data)
-        pdf_path = os.path.join("data/zugferd_output", f"{invoice_id}_zugferd.pdf")
-        ZUGFeRDGenerator().generate(invoice_data, xml_content, pdf_path)
+        pdf_filename = f"{invoice_id}_zugferd.pdf"
+        org_id = getattr(invoice, "organization_id", None)
+        storage = get_storage()
 
-        invoice.zugferd_pdf_path = pdf_path
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = os.path.join(tmp_dir, pdf_filename)
+            ZUGFeRDGenerator().generate(invoice_data, xml_content, tmp_path)
+            with open(tmp_path, "rb") as f:
+                pdf_bytes = f.read()
+
+        prefix = f"{org_id}" if org_id else "shared"
+        storage_path = f"{prefix}/zugferd/{pdf_filename}"
+        storage.save(storage_path, pdf_bytes)
+
+        invoice.zugferd_pdf_path = storage_path
         db.commit()
 
         logger.info("ZUGFeRD generated for %s", invoice_id)

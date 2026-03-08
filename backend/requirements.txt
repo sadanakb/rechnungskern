@@ -74,6 +74,9 @@ reportlab>=4.2.0
 # Push Notifications (Phase 11)
 firebase-admin>=6.2.0
 
+# S3-compatible storage (Hetzner Object Storage, AWS S3, MinIO)
+boto3>=1.34.0
+
 # Development & Testing
 pytest==8.3.0
 pytest-asyncio==0.24.0

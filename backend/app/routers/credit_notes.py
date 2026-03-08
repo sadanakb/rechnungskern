@@ -6,6 +6,7 @@ import uuid
 import os
 import io
 import re
+import tempfile
 from datetime import datetime, date
 from typing import Optional
 
@@ -28,6 +29,7 @@ from app.xrechnung_generator import XRechnungGenerator
 from app.zugferd_generator import ZUGFeRDGenerator
 from app.auth_jwt import get_current_user
 from app.rate_limiter import limiter
+from app.storage import get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +37,11 @@ router = APIRouter()
 xrechnung_gen = XRechnungGenerator()
 zugferd_gen = ZUGFeRDGenerator()
 
-# Storage directories
-XML_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "generated_xml")
-PDF_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "generated_pdf")
-os.makedirs(XML_DIR, exist_ok=True)
-os.makedirs(PDF_DIR, exist_ok=True)
-_XML_BASE = os.path.realpath(XML_DIR)
-_PDF_BASE = os.path.realpath(PDF_DIR)
+
+def _storage_path(org_id, category: str, filename: str) -> str:
+    if org_id:
+        return f"{org_id}/{category}/{filename}"
+    return f"shared/{category}/{filename}"
 
 
 def _next_credit_note_number(db: Session, org_id: int) -> str:
@@ -166,10 +166,10 @@ async def create_credit_note(
     try:
         xml_content = xrechnung_gen.generate_credit_note_xml(credit_note_data)
         xml_filename = f"{credit_note_id}_gutschrift.xml"
-        xml_path = os.path.join(XML_DIR, xml_filename)
-        with open(xml_path, "w", encoding="utf-8") as f:
-            f.write(xml_content)
-        cn.xrechnung_xml_path = xml_path
+        storage = get_storage()
+        path = _storage_path(org_id, "xml", xml_filename)
+        storage.save(path, xml_content.encode("utf-8"))
+        cn.xrechnung_xml_path = path
         logger.info("XRechnung XML generated for credit note %s", credit_note_id)
     except Exception as e:
         logger.warning("XRechnung XML generation failed for credit note %s: %s", credit_note_id, e)
@@ -179,9 +179,15 @@ async def create_credit_note(
         xml_for_pdf = xml_content if cn.xrechnung_xml_path else None
         if xml_for_pdf:
             pdf_filename = f"{credit_note_id}_gutschrift.pdf"
-            pdf_path = os.path.join(PDF_DIR, pdf_filename)
-            zugferd_gen.generate_credit_note(credit_note_data, xml_for_pdf, pdf_path)
-            cn.zugferd_pdf_path = pdf_path
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmp_path = os.path.join(tmp_dir, pdf_filename)
+                zugferd_gen.generate_credit_note(credit_note_data, xml_for_pdf, tmp_path)
+                with open(tmp_path, "rb") as f:
+                    pdf_bytes = f.read()
+            storage = get_storage()
+            path = _storage_path(org_id, "zugferd", pdf_filename)
+            storage.save(path, pdf_bytes)
+            cn.zugferd_pdf_path = path
             logger.info("ZUGFeRD PDF generated for credit note %s", credit_note_id)
     except Exception as e:
         logger.warning("ZUGFeRD PDF generation failed for credit note %s: %s", credit_note_id, e)
@@ -283,23 +289,14 @@ async def download_credit_note_xml(
             detail="XRechnung XML wurde nicht generiert.",
         )
 
-    # K2: Path Traversal Protection
-    xml_file_path = os.path.realpath(cn.xrechnung_xml_path)
-    if not xml_file_path.startswith(_XML_BASE):
-        logger.warning(
-            "Path traversal attempt blocked: credit_note_id=%s, path=%s",
-            credit_note_id, cn.xrechnung_xml_path,
-        )
-        raise HTTPException(status_code=403, detail="Zugriff verweigert")
-
-    if not os.path.isfile(xml_file_path):
-        logger.error("XML-Datei nicht gefunden: %s", xml_file_path)
+    storage = get_storage()
+    try:
+        xml_bytes = storage.read(cn.xrechnung_xml_path)
+    except Exception:
+        logger.error("XML-Datei nicht gefunden: %s", cn.xrechnung_xml_path)
         raise HTTPException(status_code=404, detail="XRechnung XML-Datei nicht gefunden")
 
-    with open(xml_file_path, "rb") as f:
-        xml_bytes = f.read()
-
-    filename = os.path.basename(xml_file_path)
+    filename = os.path.basename(cn.xrechnung_xml_path)
 
     return StreamingResponse(
         io.BytesIO(xml_bytes),
@@ -335,23 +332,14 @@ async def download_credit_note_pdf(
             detail="ZUGFeRD PDF wurde nicht generiert.",
         )
 
-    # K2: Path Traversal Protection
-    pdf_file_path = os.path.realpath(cn.zugferd_pdf_path)
-    if not pdf_file_path.startswith(_PDF_BASE):
-        logger.warning(
-            "Path traversal attempt blocked: credit_note_id=%s, path=%s",
-            credit_note_id, cn.zugferd_pdf_path,
-        )
-        raise HTTPException(status_code=403, detail="Zugriff verweigert")
-
-    if not os.path.isfile(pdf_file_path):
-        logger.error("PDF-Datei nicht gefunden: %s", pdf_file_path)
+    storage = get_storage()
+    try:
+        pdf_bytes = storage.read(cn.zugferd_pdf_path)
+    except Exception:
+        logger.error("PDF-Datei nicht gefunden: %s", cn.zugferd_pdf_path)
         raise HTTPException(status_code=404, detail="ZUGFeRD PDF-Datei nicht gefunden")
 
-    with open(pdf_file_path, "rb") as f:
-        pdf_bytes = f.read()
-
-    filename = os.path.basename(pdf_file_path)
+    filename = os.path.basename(cn.zugferd_pdf_path)
 
     return StreamingResponse(
         io.BytesIO(pdf_bytes),

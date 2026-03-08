@@ -116,5 +116,6 @@ def get_storage() -> StorageBackend:
             region=settings.aws_region,
             access_key=settings.aws_access_key_id,
             secret_key=settings.aws_secret_access_key,
+            endpoint_url=settings.s3_endpoint_url or None,
         )
     return LocalStorage(base_dir="data")

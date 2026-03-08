@@ -35,6 +35,7 @@ from app.config import settings
 from app.webhook_service import publish_event
 from app.audit_service import log_action
 from app.notification_service import create_notification
+from app.storage import get_storage
 import uuid
 import os
 import io
@@ -78,18 +79,15 @@ datev_exporter = DATEVExporter()
 fraud_detector = FraudDetector()
 gobd_archive = GoBDArchive()
 
-# Storage directories
-UPLOAD_DIR = "data/uploads"
-XML_DIR = "data/xml_output"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(XML_DIR, exist_ok=True)
-
-# Resolved base paths for path traversal protection (K2)
-_UPLOAD_BASE = os.path.realpath(UPLOAD_DIR)
-_XML_BASE = os.path.realpath(XML_DIR)
-
 # Max upload size in bytes (K3)
 _MAX_UPLOAD_BYTES = settings.max_upload_size_mb * 1024 * 1024
+
+
+def _storage_path(org_id, category: str, filename: str) -> str:
+    """Build tenant-isolated storage path: {org_id}/{category}/{filename}"""
+    if org_id:
+        return f"{org_id}/{category}/{filename}"
+    return f"shared/{category}/{filename}"
 
 
 @router.post("/upload-ocr", response_model=OCRResult)
@@ -129,7 +127,7 @@ async def upload_pdf_for_ocr(
     invoice_id = f"INV-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
 
     # Save uploaded file with size validation (K3)
-    file_path = os.path.join(UPLOAD_DIR, f"{upload_id}.pdf")
+    org_id = current_user.get("org_id")
     try:
         contents = await file.read()
         if len(contents) > _MAX_UPLOAD_BYTES:
@@ -137,8 +135,9 @@ async def upload_pdf_for_ocr(
                 status_code=413,
                 detail=f"Datei zu groß (max. {settings.max_upload_size_mb} MB)"
             )
-        with open(file_path, "wb") as f:
-            f.write(contents)
+        storage = get_storage()
+        storage_key = _storage_path(org_id, "uploads", f"{upload_id}.pdf")
+        storage.save(storage_key, contents)
     except HTTPException:
         raise
     except Exception as e:
@@ -159,6 +158,11 @@ async def upload_pdf_for_ocr(
 
     # Extract invoice fields – Pipeline V2: PaddleOCR + Ollama (structured JSON) + Confidence
     try:
+        # OCR pipeline needs a local file path — write to a temp file
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
+            tmp_pdf.write(contents)
+            file_path = tmp_pdf.name
+
         logger.info("Starting OCR Pipeline V2 for upload_id=%s", upload_id)
         result = ocr_pipeline_v2.process(file_path)
 
@@ -425,18 +429,26 @@ async def bulk_delete_invoices(
             skipped += 1
             continue
 
-        # Clean up XML file
+        # Clean up files via storage abstraction
+        storage = get_storage()
         if invoice.xrechnung_xml_path:
-            xml_real = os.path.realpath(invoice.xrechnung_xml_path)
-            if xml_real.startswith(_XML_BASE) and os.path.isfile(xml_real):
-                os.remove(xml_real)
+            try:
+                storage.delete(invoice.xrechnung_xml_path)
+            except Exception:
+                pass
+        if invoice.zugferd_pdf_path:
+            try:
+                storage.delete(invoice.zugferd_pdf_path)
+            except Exception:
+                pass
 
         # Clean up uploaded PDF
+        inv_org_id = invoice.organization_id
         for log in db.query(UploadLog).filter(UploadLog.invoice_id == invoice.invoice_id).all():
-            pdf_path = os.path.join(UPLOAD_DIR, f"{log.upload_id}.pdf")
-            pdf_real = os.path.realpath(pdf_path)
-            if pdf_real.startswith(_UPLOAD_BASE) and os.path.isfile(pdf_real):
-                os.remove(pdf_real)
+            try:
+                storage.delete(_storage_path(inv_org_id, "uploads", f"{log.upload_id}.pdf"))
+            except Exception:
+                pass
             db.delete(log)
 
         db.delete(invoice)
@@ -516,8 +528,8 @@ async def bulk_validate_invoices(
         if not invoice.xrechnung_xml_path:
             errors.append("XRechnung XML wurde noch nicht generiert")
         else:
-            xml_real = os.path.realpath(invoice.xrechnung_xml_path)
-            if not xml_real.startswith(_XML_BASE) or not os.path.isfile(xml_real):
+            storage = get_storage()
+            if not storage.exists(invoice.xrechnung_xml_path):
                 errors.append("XRechnung XML-Datei nicht vorhanden")
 
         results.append({
@@ -579,14 +591,15 @@ async def generate_xrechnung(
     try:
         xml_content = xrechnung_gen.generate_xml(invoice_data)
 
-        # Save XML file
+        # Save XML file via storage abstraction
+        org_id = current_user.get("org_id")
         xml_filename = f"{invoice_id}_xrechnung.xml"
-        xml_path = os.path.join(XML_DIR, xml_filename)
-        with open(xml_path, 'w', encoding='utf-8') as f:
-            f.write(xml_content)
+        storage = get_storage()
+        path = _storage_path(org_id, "xml", xml_filename)
+        storage.save(path, xml_content.encode("utf-8"))
 
         # Update invoice record
-        invoice.xrechnung_xml_path = xml_path
+        invoice.xrechnung_xml_path = path
         invoice.validation_status = "xrechnung_generated"
         db.commit()
 
@@ -1129,18 +1142,26 @@ async def delete_invoice(
         "gross_amount": float(invoice.gross_amount or 0),
     }
 
-    # Clean up XML file
+    # Clean up files via storage abstraction
+    storage = get_storage()
     if invoice.xrechnung_xml_path:
-        xml_real = os.path.realpath(invoice.xrechnung_xml_path)
-        if xml_real.startswith(_XML_BASE) and os.path.isfile(xml_real):
-            os.remove(xml_real)
+        try:
+            storage.delete(invoice.xrechnung_xml_path)
+        except Exception:
+            pass
+    if invoice.zugferd_pdf_path:
+        try:
+            storage.delete(invoice.zugferd_pdf_path)
+        except Exception:
+            pass
 
     # Clean up uploaded PDF (look for matching upload log)
+    inv_org_id = invoice.organization_id
     for log in db.query(UploadLog).filter(UploadLog.invoice_id == invoice_id).all():
-        pdf_path = os.path.join(UPLOAD_DIR, f"{log.upload_id}.pdf")
-        pdf_real = os.path.realpath(pdf_path)
-        if pdf_real.startswith(_UPLOAD_BASE) and os.path.isfile(pdf_real):
-            os.remove(pdf_real)
+        try:
+            storage.delete(_storage_path(inv_org_id, "uploads", f"{log.upload_id}.pdf"))
+        except Exception:
+            pass
         db.delete(log)
 
     db.delete(invoice)
@@ -1189,23 +1210,15 @@ async def download_xrechnung(
                    "Zuerst POST /api/invoices/{invoice_id}/generate-xrechnung aufrufen."
         )
 
-    # K2: Path Traversal Protection — Pfad gegen erlaubtes Verzeichnis validieren
-    xml_file_path = os.path.realpath(invoice.xrechnung_xml_path)
-    if not xml_file_path.startswith(_XML_BASE):
-        logger.warning(
-            "Path traversal attempt blocked: invoice_id=%s, path=%s",
-            invoice_id, invoice.xrechnung_xml_path
-        )
-        raise HTTPException(status_code=403, detail="Zugriff verweigert")
-
-    if not os.path.isfile(xml_file_path):
-        logger.error("XML-Datei nicht gefunden: %s", xml_file_path)
+    storage = get_storage()
+    try:
+        xml_bytes = storage.read(invoice.xrechnung_xml_path)
+    except FileNotFoundError:
+        logger.error("XML-Datei nicht gefunden: %s", invoice.xrechnung_xml_path)
         raise HTTPException(status_code=404, detail="XRechnung XML-Datei nicht gefunden")
 
-    with open(xml_file_path, "rb") as f:
-        xml_bytes = f.read()
-
-    filename = os.path.basename(xml_file_path)
+    # Derive filename from the storage key
+    filename = invoice.xrechnung_xml_path.rsplit("/", 1)[-1]
 
     return StreamingResponse(
         io.BytesIO(xml_bytes),
@@ -1256,11 +1269,11 @@ async def upload_batch_for_ocr(
     MAX_BATCH_TOTAL_BYTES = 50 * 1024 * 1024
 
     # Save all files
+    storage = get_storage()
     file_paths = []
     batch_total_bytes = 0
     for i, f in enumerate(files):
         upload_id = f"upload-{uuid.uuid4().hex[:8]}"
-        file_path = os.path.join(UPLOAD_DIR, f"{upload_id}.pdf")
 
         contents = await f.read()
         batch_total_bytes += len(contents)
@@ -1275,10 +1288,14 @@ async def upload_batch_for_ocr(
                 detail=f"Datei '{filenames[i]}' zu gross (max. {settings.max_upload_size_mb} MB)",
             )
 
-        with open(file_path, "wb") as fp:
-            fp.write(contents)
+        storage_key = _storage_path(org_id, "uploads", f"{upload_id}.pdf")
+        storage.save(storage_key, contents)
 
-        file_paths.append(file_path)
+        # OCR pipeline needs a local file path — write to a temp file
+        tmp_pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+        tmp_pdf.write(contents)
+        tmp_pdf.close()
+        file_paths.append(tmp_pdf.name)
 
         # Log upload
         invoice_id = f"INV-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
@@ -1373,11 +1390,6 @@ async def get_batch_status(
 # Phase 3: ZUGFeRD, Validator, DATEV, Fraud Detection
 # ---------------------------------------------------------------------------
 
-ZUGFERD_DIR = "data/zugferd_output"
-os.makedirs(ZUGFERD_DIR, exist_ok=True)
-_ZUGFERD_BASE = os.path.realpath(ZUGFERD_DIR)
-
-
 @router.post("/invoices/{invoice_id}/generate-zugferd")
 @limiter.limit("10/minute")
 async def generate_zugferd(
@@ -1422,29 +1434,35 @@ async def generate_zugferd(
     try:
         # Generate XRechnung XML first
         xml_content = xrechnung_gen.generate_xml(invoice_data)
+        org_id = current_user.get("org_id")
+        storage = get_storage()
 
-        # Generate ZUGFeRD PDF
+        # Generate ZUGFeRD PDF via tempfile (zugferd_gen writes to a local path)
         pdf_filename = f"{invoice_id}_zugferd.pdf"
-        pdf_path = os.path.join(ZUGFERD_DIR, pdf_filename)
-        zugferd_gen.generate(invoice_data, xml_content, pdf_path)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = os.path.join(tmp_dir, pdf_filename)
+            zugferd_gen.generate(invoice_data, xml_content, tmp_path)
+            with open(tmp_path, "rb") as f:
+                pdf_bytes = f.read()
+
+        pdf_storage_path = _storage_path(org_id, "zugferd", pdf_filename)
+        storage.save(pdf_storage_path, pdf_bytes)
 
         # Update invoice record
-        invoice.zugferd_pdf_path = pdf_path
+        invoice.zugferd_pdf_path = pdf_storage_path
         if not invoice.xrechnung_xml_path:
-            xml_path = os.path.join(XML_DIR, f"{invoice_id}_xrechnung.xml")
-            with open(xml_path, "w", encoding="utf-8") as f:
-                f.write(xml_content)
-            invoice.xrechnung_xml_path = xml_path
+            xml_storage_path = _storage_path(org_id, "xml", f"{invoice_id}_xrechnung.xml")
+            storage.save(xml_storage_path, xml_content.encode("utf-8"))
+            invoice.xrechnung_xml_path = xml_storage_path
 
         invoice.validation_status = "zugferd_generated"
         db.commit()
 
         # Archive for GoBD compliance
         try:
-            with open(pdf_path, "rb") as f:
-                gobd_archive.archive_document(
-                    f.read(), "zugferd_pdf", invoice_id,
-                )
+            gobd_archive.archive_document(
+                pdf_bytes, "zugferd_pdf", invoice_id,
+            )
         except Exception as arch_err:
             logger.warning("GoBD archiving failed: %s", arch_err)
 
@@ -1480,11 +1498,10 @@ async def download_zugferd(
 
     # --- Try to serve from cached file first ---
     if invoice.zugferd_pdf_path:
-        pdf_path = os.path.realpath(invoice.zugferd_pdf_path)
-        if pdf_path.startswith(_ZUGFERD_BASE) and os.path.isfile(pdf_path):
-            with open(pdf_path, "rb") as f:
-                pdf_bytes = f.read()
-            filename = invoice.invoice_number or os.path.basename(pdf_path)
+        storage = get_storage()
+        try:
+            pdf_bytes = storage.read(invoice.zugferd_pdf_path)
+            filename = invoice.invoice_number or invoice.zugferd_pdf_path.rsplit("/", 1)[-1]
             return StreamingResponse(
                 io.BytesIO(pdf_bytes),
                 media_type="application/pdf",
@@ -1493,6 +1510,8 @@ async def download_zugferd(
                     "Content-Length": str(len(pdf_bytes)),
                 },
             )
+        except FileNotFoundError:
+            pass  # Fall through to on-the-fly generation
 
     # --- Generate on-the-fly ---
     invoice_data = {
@@ -1565,12 +1584,12 @@ async def validate_invoice(
             detail="XRechnung XML muss zuerst generiert werden",
         )
 
-    xml_path = os.path.realpath(invoice.xrechnung_xml_path)
-    if not xml_path.startswith(_XML_BASE) or not os.path.isfile(xml_path):
+    storage = get_storage()
+    try:
+        xml_bytes = storage.read(invoice.xrechnung_xml_path)
+        xml_content = xml_bytes.decode("utf-8")
+    except FileNotFoundError:
         raise HTTPException(status_code=404, detail="XML-Datei nicht gefunden")
-
-    with open(xml_path, "r", encoding="utf-8") as f:
-        xml_content = f.read()
 
     try:
         result = await kosit_validator.validate(xml_content)

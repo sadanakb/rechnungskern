@@ -1,9 +1,11 @@
 """
 Quote (Angebot) endpoints — CRUD, status transitions, PDF generation, and conversion to invoice.
 """
+import io
 import logging
 import os
 import re
+import tempfile
 import uuid
 from datetime import datetime, date
 from decimal import Decimal
@@ -25,14 +27,17 @@ from app.schemas_quotes import (
 )
 from app.auth_jwt import get_current_user
 from app.quote_number_service import generate_next_quote_number
+from app.storage import get_storage
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Storage directory for quote PDFs
-QUOTE_PDF_DIR = "data/quote_pdfs"
-os.makedirs(QUOTE_PDF_DIR, exist_ok=True)
+
+def _storage_path(org_id, category: str, filename: str) -> str:
+    if org_id:
+        return f"{org_id}/{category}/{filename}"
+    return f"shared/{category}/{filename}"
 
 
 def _ensure_quote_belongs_to_org(quote: Quote, org_id: Optional[str]) -> None:
@@ -279,10 +284,11 @@ async def delete_quote(
         )
 
     # Clean up PDF if exists
-    if quote.pdf_path and os.path.isfile(quote.pdf_path):
+    if quote.pdf_path:
         try:
-            os.remove(quote.pdf_path)
-        except OSError:
+            storage = get_storage()
+            storage.delete(quote.pdf_path)
+        except Exception:
             pass
 
     db.delete(quote)
@@ -482,20 +488,27 @@ async def get_quote_pdf(
     # Generate PDF
     try:
         from app.quote_pdf_generator import generate_quote_pdf
-        pdf_path = os.path.join(QUOTE_PDF_DIR, f"{quote.quote_id}.pdf")
-        generate_quote_pdf(quote_data, pdf_path)
+
+        org_id = current_user.get("org_id")
+        pdf_filename = f"{quote.quote_id}.pdf"
+        storage = get_storage()
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = os.path.join(tmp_dir, pdf_filename)
+            generate_quote_pdf(quote_data, tmp_path)
+            with open(tmp_path, "rb") as f:
+                pdf_bytes = f.read()
+
+        path = _storage_path(org_id, "quote_pdfs", pdf_filename)
+        storage.save(path, pdf_bytes)
 
         # Update pdf_path on quote
-        quote.pdf_path = pdf_path
+        quote.pdf_path = path
         db.commit()
-
-        import io
-        with open(pdf_path, "rb") as f:
-            pdf_content = f.read()
 
         safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', quote.quote_number or quote.quote_id)
         return StreamingResponse(
-            io.BytesIO(pdf_content),
+            io.BytesIO(pdf_bytes),
             media_type="application/pdf",
             headers={
                 "Content-Disposition": f'attachment; filename="Angebot_{safe_name}.pdf"'

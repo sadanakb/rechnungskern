@@ -4,21 +4,27 @@ Public portal router — no authentication required.
 Customer-facing endpoints accessed via share token.
 Rate limited to prevent abuse.
 """
+import io
 import os
+import tempfile
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Invoice, InvoiceShareLink, Organization, PortalPaymentIntent
 from app.rate_limiter import limiter
+from app.storage import get_storage
 from app import stripe_service
 
 router = APIRouter()
 
-# Base directory for ZUGFeRD PDFs — all served paths must resolve within this.
-_ZUGFERD_PDF_BASE = os.path.realpath("data/zugferd_output")
+
+def _storage_path(org_id, category: str, filename: str) -> str:
+    if org_id:
+        return f"{org_id}/{category}/{filename}"
+    return f"shared/{category}/{filename}"
 
 
 def _get_invoice_by_token(token: str, db: Session) -> tuple:
@@ -133,16 +139,20 @@ async def download_pdf(
     """Serve ZUGFeRD PDF for download."""
     invoice, _link, _org = _get_invoice_by_token(token, db)
 
+    storage = get_storage()
+
     if invoice.zugferd_pdf_path:
-        resolved = os.path.realpath(invoice.zugferd_pdf_path)
-        if not resolved.startswith(_ZUGFERD_PDF_BASE):
-            raise HTTPException(status_code=403, detail="Zugriff auf diese Datei nicht erlaubt")
-        if os.path.isfile(resolved):
-            return FileResponse(
-                path=resolved,
+        try:
+            data = storage.read(invoice.zugferd_pdf_path)
+            return StreamingResponse(
+                io.BytesIO(data),
                 media_type="application/pdf",
-                filename=f"Rechnung_{invoice.invoice_number}.pdf",
+                headers={
+                    "Content-Disposition": f'attachment; filename="Rechnung_{invoice.invoice_number}.pdf"'
+                },
             )
+        except Exception:
+            pass  # Fall through to on-the-fly generation
 
     # Generate on-the-fly
     from app.xrechnung_generator import XRechnungGenerator
@@ -170,18 +180,23 @@ async def download_pdf(
     }
 
     xml_content = XRechnungGenerator().generate_xml(invoice_data)
-    pdf_path = f"data/zugferd_output/{invoice.invoice_id}_portal.pdf"
-    os.makedirs("data/zugferd_output", exist_ok=True)
-    ZUGFeRDGenerator().generate(invoice_data, xml_content, pdf_path)
+    pdf_filename = f"{invoice.invoice_id}_portal.pdf"
 
-    resolved_pdf = os.path.realpath(pdf_path)
-    if not resolved_pdf.startswith(_ZUGFERD_PDF_BASE):
-        raise HTTPException(status_code=403, detail="Zugriff auf diese Datei nicht erlaubt")
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = os.path.join(tmp_dir, pdf_filename)
+        ZUGFeRDGenerator().generate(invoice_data, xml_content, tmp_path)
+        with open(tmp_path, "rb") as f:
+            pdf_bytes = f.read()
 
-    return FileResponse(
-        path=resolved_pdf,
+    path = _storage_path(invoice.organization_id, "zugferd", pdf_filename)
+    storage.save(path, pdf_bytes)
+
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
         media_type="application/pdf",
-        filename=f"Rechnung_{invoice.invoice_number}.pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="Rechnung_{invoice.invoice_number}.pdf"'
+        },
     )
 
 

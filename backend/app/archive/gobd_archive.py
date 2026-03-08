@@ -10,10 +10,12 @@ Buechern, Aufzeichnungen und Unterlagen in elektronischer Form) erfordert:
 4. Verfuegbarkeit (jederzeitiger Zugriff)
 """
 import hashlib
+import json
 import logging
-import os
 from datetime import datetime, timezone
 from typing import Dict, Optional
+
+from app.storage import get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +23,8 @@ logger = logging.getLogger(__name__)
 class GoBDArchive:
     """GoBD-compliant document archiving with integrity verification."""
 
-    def __init__(self, archive_dir: str = "data/archive"):
-        self.archive_dir = archive_dir
-        os.makedirs(archive_dir, exist_ok=True)
+    def __init__(self, archive_prefix: str = "archive"):
+        self.archive_prefix = archive_prefix
 
     def archive_document(
         self,
@@ -51,6 +52,8 @@ class GoBDArchive:
                 "file_size": int,
             }
         """
+        storage = get_storage()
+
         # Calculate SHA-256 hash for integrity
         sha256_hash = hashlib.sha256(document_content).hexdigest()
 
@@ -59,29 +62,21 @@ class GoBDArchive:
 
         # Archive path: archive/{year}/{month}/{invoice_id}_{type}_{hash[:8]}
         now = datetime.now(timezone.utc)
-        year_dir = os.path.join(self.archive_dir, str(now.year))
-        month_dir = os.path.join(year_dir, f"{now.month:02d}")
-        os.makedirs(month_dir, exist_ok=True)
-
         ext = ".xml" if "xml" in document_type else ".pdf"
         filename = f"{invoice_id}_{document_type}_{sha256_hash[:8]}{ext}"
-        archive_path = os.path.join(month_dir, filename)
+        archive_path = f"{self.archive_prefix}/{now.year}/{now.month:02d}/{filename}"
 
         # Write file (immutable — no overwrite)
-        if os.path.exists(archive_path):
+        if storage.exists(archive_path):
             logger.warning("Archive file already exists: %s", archive_path)
         else:
-            with open(archive_path, "wb") as f:
-                f.write(document_content)
-            # Make read-only (immutable)
-            os.chmod(archive_path, 0o444)
+            storage.save(archive_path, document_content)
 
         archive_id = f"arch-{sha256_hash[:12]}"
 
         # Write metadata sidecar file
         meta_path = archive_path + ".meta"
-        if not os.path.exists(meta_path):
-            import json
+        if not storage.exists(meta_path):
             meta = {
                 "archive_id": archive_id,
                 "invoice_id": invoice_id,
@@ -92,9 +87,7 @@ class GoBDArchive:
                 "filename": filename,
                 **(metadata or {}),
             }
-            with open(meta_path, "w") as f:
-                json.dump(meta, f, indent=2, ensure_ascii=False)
-            os.chmod(meta_path, 0o444)
+            storage.save(meta_path, json.dumps(meta, indent=2, ensure_ascii=False).encode("utf-8"))
 
         logger.info(
             "Archived %s for %s: hash=%s, size=%d",
@@ -117,18 +110,17 @@ class GoBDArchive:
         Returns:
             {"valid": bool, "expected_hash": str, "actual_hash": str}
         """
-        import json
+        storage = get_storage()
 
         meta_path = archive_path + ".meta"
-        if not os.path.exists(meta_path):
+        if not storage.exists(meta_path):
             return {"valid": False, "error": "Metadaten-Datei nicht gefunden"}
 
-        with open(meta_path, "r") as f:
-            meta = json.load(f)
+        meta = json.loads(storage.read(meta_path))
 
         expected_hash = meta.get("sha256_hash", "")
 
-        if not os.path.exists(archive_path):
+        if not storage.exists(archive_path):
             return {
                 "valid": False,
                 "expected_hash": expected_hash,
@@ -136,8 +128,7 @@ class GoBDArchive:
                 "error": "Archivdatei nicht gefunden",
             }
 
-        with open(archive_path, "rb") as f:
-            actual_hash = hashlib.sha256(f.read()).hexdigest()
+        actual_hash = hashlib.sha256(storage.read(archive_path)).hexdigest()
 
         is_valid = actual_hash == expected_hash
 

@@ -2,11 +2,10 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-import os
-
 from app.database import get_db
 from app.models import Organization, OrganizationMember
 from app.auth_jwt import get_current_user
+from app.storage import get_storage
 
 router = APIRouter(prefix="/api/onboarding", tags=["onboarding"])
 
@@ -155,16 +154,15 @@ async def upload_logo(
         )
 
     ext = CONTENT_TYPE_TO_EXT.get(file.content_type, "png")
-    save_dir = "static/logos"
-    os.makedirs(save_dir, exist_ok=True)
 
     org = _get_org(current_user, db)
     filename = f"{org.id}.{ext}"
-    path = os.path.join(save_dir, filename)
-    with open(path, "wb") as f:
-        f.write(contents)
 
-    logo_url = f"/static/logos/{filename}"
+    storage = get_storage()
+    storage_path = f"{org.id}/logos/{filename}"
+    storage.save(storage_path, contents)
+    logo_url = storage.url(storage_path)
+
     org.logo_url = logo_url
     db.commit()
 
