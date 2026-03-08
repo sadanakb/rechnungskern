@@ -4,6 +4,7 @@ RechnungsWerk FastAPI Main Application
 import asyncio
 import json
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -17,8 +18,34 @@ from app.rate_limiter import limiter
 
 from app.config import settings
 from app.middleware.security import SecurityHeadersMiddleware
+from app.middleware.request_id import RequestIDMiddleware
 from app.database import init_db
 from app.routers import health, invoices, suppliers, external_api, recurring, email, auth as auth_router, billing, mahnwesen, onboarding, newsletter, gobd, users, teams, webhooks, api_keys, audit, templates, notifications, contacts, invoice_sequences, import_invoices, contact as contact_router, portal as portal_router, ai as ai_router, datev as datev_router, push as push_router, gdpr as gdpr_router, quotes, credit_notes as credit_notes_router
+
+def _setup_logging():
+    """Configure structured logging: JSON for production, readable for development."""
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+
+    handler = logging.StreamHandler(sys.stderr)
+    if settings.debug:
+        # Human-readable format for development
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)-8s [%(name)s] %(message)s",
+            datefmt="%H:%M:%S",
+        ))
+    else:
+        # JSON format for production (structured logging)
+        from pythonjsonlogger import jsonlogger
+        handler.setFormatter(jsonlogger.JsonFormatter(
+            "%(asctime)s %(levelname)s %(name)s %(message)s",
+            rename_fields={"asctime": "timestamp", "levelname": "level"},
+        ))
+
+    root.handlers = [handler]
+
+
+_setup_logging()
 
 logger = logging.getLogger(__name__)
 
@@ -75,11 +102,29 @@ app.add_middleware(
     allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key", "X-Request-ID"],
+    expose_headers=["X-Request-ID"],
 )
+
+# Request ID middleware (outermost — runs first, before security and CORS)
+app.add_middleware(RequestIDMiddleware)
 
 # Security headers middleware (added after CORS so it runs first in request pipeline)
 app.add_middleware(SecurityHeadersMiddleware)
+
+# Global exception handler — catches unhandled errors, returns request_id (no stack trace)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    request_id = getattr(request.state, "request_id", "unknown")
+    logger.error("Unhandled error [%s]: %s", request_id, str(exc), exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Ein interner Fehler ist aufgetreten.",
+            "request_id": request_id,
+        },
+    )
+
 
 # Include routers
 app.include_router(health.router, prefix="/api", tags=["Health"])
