@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 const getMainDomainUrl = (path: string) => {
   if (typeof window !== 'undefined' && window.location.hostname.startsWith('app.')) {
@@ -53,22 +52,32 @@ export default function RegisterPage() {
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: 'rgb(var(--background))' }}
-    >
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <a href={getMainDomainUrl('/')} className="inline-block mb-4 text-lg font-bold tracking-tight" style={{ color: 'rgb(var(--primary))' }}>
-            &larr; RechnungsWerk
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="text-center mb-8">
+          <a
+            href={getMainDomainUrl('/')}
+            className="inline-flex items-center gap-2 mb-6 text-xl font-bold tracking-tight"
+            style={{ color: 'rgb(var(--primary))' }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+              <path d="M10 9H8" />
+            </svg>
+            RechnungsWerk
           </a>
-          <h1 className="text-2xl font-bold">Konto erstellen</h1>
-          <p className="text-sm mt-1 opacity-60">
+          <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
+            Konto erstellen
+          </h1>
+          <p className="text-sm mt-2" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
             Starte kostenlos mit RechnungsWerk
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             id="full_name"
             label="Vollstaendiger Name"
@@ -91,32 +100,30 @@ export default function RegisterPage() {
             onChange={update('email')}
             required
           />
-          <div>
-            <Input
-              id="password"
-              type="password"
-              label="Passwort"
-              value={form.password}
-              onChange={update('password')}
-              required
-              hint="Mindestens 10 Zeichen, 1 Grossbuchstabe, 1 Kleinbuchstabe, 1 Zahl, 1 Sonderzeichen (!@#$...)"
-            />
-          </div>
+          <Input
+            id="password"
+            type="password"
+            label="Passwort"
+            value={form.password}
+            onChange={update('password')}
+            required
+            hint="Mindestens 10 Zeichen, 1 Grossbuchstabe, 1 Kleinbuchstabe, 1 Zahl, 1 Sonderzeichen (!@#$...)"
+          />
           {error && <p className="text-sm text-red-500">{error}</p>}
-          <Button
+          <button
             type="submit"
-            className="w-full"
             disabled={loading}
+            className="auth-submit-btn"
           >
             {loading ? 'Wird erstellt...' : 'Registrieren'}
-          </Button>
+          </button>
         </form>
 
-        <p className="text-center text-sm opacity-60">
+        <p className="text-center text-sm mt-8" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
           Bereits ein Konto?{' '}
           <Link
             href="/login"
-            className="font-medium"
+            className="font-medium transition-colors hover:opacity-80"
             style={{ color: 'rgb(var(--primary))' }}
           >
             Anmelden

@@ -5,11 +5,16 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p>Laden...</p></div>}>
+    <Suspense fallback={
+      <div className="auth-page">
+        <div className="auth-card text-center">
+          <p style={{ color: 'rgb(var(--foreground) / 0.5)' }}>Laden...</p>
+        </div>
+      </div>
+    }>
       <ResetPasswordContent />
     </Suspense>
   )
@@ -81,62 +86,86 @@ function ResetPasswordContent() {
 
   if (!token) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center px-4"
-        style={{ backgroundColor: 'rgb(var(--background))' }}
-      >
-        <div className="w-full max-w-sm space-y-6 text-center">
-          <h1 className="text-2xl font-bold">Ungueltiger Link</h1>
-          <p className="text-sm opacity-60">
-            Dieser Link zum Zuruecksetzen des Passworts ist ungueltig.
+      <div className="auth-page">
+        <div className="auth-card text-center">
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 mb-6 text-xl font-bold tracking-tight"
+            style={{ color: 'rgb(var(--primary))' }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+              <path d="M10 9H8" />
+            </svg>
+            RechnungsWerk
+          </Link>
+          <h1 className="text-2xl font-bold mb-3" style={{ color: 'rgb(var(--foreground))' }}>
+            Ungültiger Link
+          </h1>
+          <p className="text-sm mb-6" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
+            Dieser Link zum Zurücksetzen des Passworts ist ungültig.
           </p>
-          <p>
-            <Link
-              href="/passwort-vergessen"
-              className="font-medium"
-              style={{ color: 'rgb(var(--primary))' }}
-            >
-              Neuen Link anfordern
-            </Link>
-          </p>
+          <Link
+            href="/passwort-vergessen"
+            className="font-medium transition-colors hover:opacity-80"
+            style={{ color: 'rgb(var(--primary))' }}
+          >
+            Neuen Link anfordern
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: 'rgb(var(--background))' }}
-    >
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Neues Passwort setzen</h1>
-          <p className="text-sm mt-1 opacity-60">
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="text-center mb-8">
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 mb-6 text-xl font-bold tracking-tight"
+            style={{ color: 'rgb(var(--primary))' }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+              <path d="M10 9H8" />
+            </svg>
+            RechnungsWerk
+          </Link>
+          <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
+            Neues Passwort setzen
+          </h1>
+          <p className="text-sm mt-2" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
             Geben Sie Ihr neues Passwort ein.
           </p>
         </div>
 
         {success ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div
-              className="rounded-lg p-4 text-center"
+              className="rounded-xl p-5 text-center"
               style={{
                 backgroundColor: 'rgba(var(--primary), 0.1)',
                 border: '1px solid rgba(var(--primary), 0.2)',
               }}
             >
-              <p className="font-medium" style={{ color: 'rgb(var(--primary))' }}>
-                Passwort erfolgreich geaendert
+              <p className="font-medium" style={{ color: 'rgb(var(--primary-hover))' }}>
+                Passwort erfolgreich geändert
               </p>
-              <p className="text-sm mt-1 opacity-70">
+              <p className="text-sm mt-2" style={{ color: 'rgb(var(--foreground) / 0.6)' }}>
                 Sie können sich jetzt mit Ihrem neuen Passwort anmelden.
               </p>
             </div>
             <p className="text-center">
               <Link
                 href="/login"
-                className="font-medium"
+                className="font-medium transition-colors hover:opacity-80"
                 style={{ color: 'rgb(var(--primary))' }}
               >
                 Zur Anmeldung
@@ -145,7 +174,7 @@ function ResetPasswordContent() {
           </div>
         ) : (
           <>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <Input
                 id="new_password"
                 type="password"
@@ -158,7 +187,7 @@ function ResetPasswordContent() {
               <Input
                 id="confirm_password"
                 type="password"
-                label="Passwort bestaetigen"
+                label="Passwort bestätigen"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -170,22 +199,22 @@ function ResetPasswordContent() {
                   ))}
                 </div>
               )}
-              <Button
+              <button
                 type="submit"
-                className="w-full"
                 disabled={loading}
+                className="auth-submit-btn"
               >
-                {loading ? 'Wird gespeichert...' : 'Passwort aendern'}
-              </Button>
+                {loading ? 'Wird gespeichert...' : 'Passwort ändern'}
+              </button>
             </form>
 
-            <p className="text-center text-sm opacity-60">
+            <p className="text-center text-sm mt-8" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
               <Link
                 href="/login"
-                className="font-medium"
+                className="font-medium transition-colors hover:opacity-80"
                 style={{ color: 'rgb(var(--primary))' }}
               >
-                Zurueck zur Anmeldung
+                Zurück zur Anmeldung
               </Link>
             </p>
           </>

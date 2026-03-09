@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { api } from '@/lib/api'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -27,48 +26,61 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: 'rgb(var(--background))' }}
-    >
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Passwort vergessen</h1>
-          <p className="text-sm mt-1 opacity-60">
-            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zuruecksetzen.
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="text-center mb-8">
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 mb-6 text-xl font-bold tracking-tight"
+            style={{ color: 'rgb(var(--primary))' }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+              <path d="M10 9H8" />
+            </svg>
+            RechnungsWerk
+          </Link>
+          <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
+            Passwort vergessen
+          </h1>
+          <p className="text-sm mt-2" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
+            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen.
           </p>
         </div>
 
         {sent ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div
-              className="rounded-lg p-4 text-center"
+              className="rounded-xl p-5 text-center"
               style={{
                 backgroundColor: 'rgba(var(--primary), 0.1)',
                 border: '1px solid rgba(var(--primary), 0.2)',
               }}
             >
-              <p className="font-medium" style={{ color: 'rgb(var(--primary))' }}>
+              <p className="font-medium" style={{ color: 'rgb(var(--primary-hover))' }}>
                 E-Mail wurde gesendet
               </p>
-              <p className="text-sm mt-1 opacity-70">
-                Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kuerze eine E-Mail
-                mit einem Link zum Zuruecksetzen Ihres Passworts.
+              <p className="text-sm mt-2" style={{ color: 'rgb(var(--foreground) / 0.6)' }}>
+                Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail
+                mit einem Link zum Zurücksetzen Ihres Passworts.
               </p>
             </div>
-            <p className="text-center text-sm opacity-60">
+            <p className="text-center text-sm">
               <Link
                 href="/login"
-                className="font-medium"
+                className="font-medium transition-colors hover:opacity-80"
                 style={{ color: 'rgb(var(--primary))' }}
               >
-                Zurueck zur Anmeldung
+                Zurück zur Anmeldung
               </Link>
             </p>
           </div>
         ) : (
           <>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <Input
                 id="email"
                 type="email"
@@ -78,22 +90,22 @@ export default function ForgotPasswordPage() {
                 required
               />
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button
+              <button
                 type="submit"
-                className="w-full"
                 disabled={loading}
+                className="auth-submit-btn"
               >
                 {loading ? 'Wird gesendet...' : 'Link senden'}
-              </Button>
+              </button>
             </form>
 
-            <p className="text-center text-sm opacity-60">
+            <p className="text-center text-sm mt-8" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
               <Link
                 href="/login"
-                className="font-medium"
+                className="font-medium transition-colors hover:opacity-80"
                 style={{ color: 'rgb(var(--primary))' }}
               >
-                Zurueck zur Anmeldung
+                Zurück zur Anmeldung
               </Link>
             </p>
           </>

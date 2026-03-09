@@ -369,3 +369,71 @@ textarea {
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
+
+/* ==========================================================================
+   Auth Pages — Login, Register, Password Reset
+   ========================================================================== */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: rgb(var(--background));
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 26rem;
+  background-color: rgb(var(--card));
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem;
+  transition:
+    background-color var(--transition-slow),
+    border-color var(--transition-slow),
+    box-shadow var(--transition-base);
+}
+
+@media (min-width: 640px) {
+  .auth-card {
+    padding: 3rem;
+  }
+}
+
+.auth-submit-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--primary-foreground));
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+  background-color: rgb(var(--primary-hover));
+  box-shadow: 0 2px 8px rgb(var(--primary) / 0.3);
+}
+
+.auth-submit-btn:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
