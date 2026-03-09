@@ -5,29 +5,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
-  Upload,
+  FilePlus,
   FileText,
-  List,
-  CheckCircle,
-  BarChart3,
   Sun,
   Moon,
   PanelLeftClose,
   PanelLeft,
   Monitor,
-  Users,
   Users2,
-  UsersRound,
-  Repeat,
-  AlertTriangle,
   Settings,
-  ClipboardList,
-  LayoutTemplate,
-  Webhook,
-  FileInput,
   MoreHorizontal,
   X,
-  ScrollText,
   ReceiptText,
 } from 'lucide-react'
 import { useTheme } from '@/components/design-system/theme-provider'
@@ -37,34 +25,24 @@ interface NavItem {
   href: string
   label: string
   icon: React.ElementType
-  comingSoon?: boolean
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/ocr', label: 'OCR Upload', icon: Upload },
-  { href: '/import', label: 'Import', icon: FileInput },
-  { href: '/manual', label: 'Manuelle Eingabe', icon: FileText },
-  { href: '/invoices', label: 'Rechnungen', icon: List },
-  { href: '/angebote', label: 'Angebote', icon: ScrollText },
+  { href: '/manual', label: 'Neue Rechnung', icon: FilePlus },
+  { href: '/invoices', label: 'Rechnungen', icon: FileText },
   { href: '/gutschriften', label: 'Gutschriften', icon: ReceiptText },
-  { href: '/validator', label: 'Validator', icon: CheckCircle },
-  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/suppliers', label: 'Lieferanten', icon: Users },
   { href: '/contacts', label: 'Kontakte', icon: Users2 },
-  { href: '/templates', label: 'Vorlagen', icon: LayoutTemplate },
-  { href: '/recurring', label: 'Wiederkehrend', icon: Repeat },
-  { href: '/mahnwesen', label: 'Mahnwesen', icon: AlertTriangle },
-  { href: '/team', label: 'Team', icon: UsersRound },
-  { href: '/berichte', label: 'Berichte', icon: BarChart3 },
-  { href: '/audit', label: 'Protokoll', icon: ClipboardList },
-  { href: '/webhooks', label: 'Webhooks', icon: Webhook },
-  { href: '/settings', label: 'Einstellungen', icon: Settings },
 ]
 
-const APP_VERSION = '1.2.0'
+const SETTINGS_ITEM: NavItem = { href: '/settings', label: 'Einstellungen', icon: Settings }
 
-const MOBILE_NAV_ITEMS = NAV_ITEMS.slice(0, 4)
+const MOBILE_NAV_ITEMS: NavItem[] = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/manual', label: 'Neue Rechnung', icon: FilePlus },
+  { href: '/invoices', label: 'Rechnungen', icon: FileText },
+  { href: '/contacts', label: 'Kontakte', icon: Users2 },
+]
 
 export function SidebarNav() {
   const pathname = usePathname()
@@ -98,8 +76,73 @@ export function SidebarNav() {
     return pathname.startsWith(href)
   }
 
+  const renderNavLink = (item: NavItem, options?: { onClick?: () => void }) => {
+    const active = isActive(item.href)
+    const Icon = item.icon
+    return (
+      <div key={item.href} className="relative group">
+        <Link
+          href={item.href}
+          className={cn(
+            'flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors duration-150',
+            collapsed ? 'justify-center' : '',
+            active ? '' : 'hover:opacity-100'
+          )}
+          style={{
+            backgroundColor: active
+              ? 'rgb(var(--sidebar-item-active-bg))'
+              : 'transparent',
+            color: active
+              ? 'rgb(var(--sidebar-item-active-text))'
+              : 'rgb(var(--sidebar-text))',
+          }}
+          title={collapsed ? item.label : undefined}
+          onClick={options?.onClick}
+          onMouseEnter={(e) => {
+            if (!active) {
+              e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-item-hover))'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!active) {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }
+          }}
+        >
+          <Icon
+            size={20}
+            className="shrink-0"
+            style={{
+              color: active
+                ? 'rgb(var(--sidebar-item-active-text))'
+                : 'rgb(var(--sidebar-icon))',
+            }}
+          />
+          {!collapsed && (
+            <span className="text-sm font-medium truncate">
+              {item.label}
+            </span>
+          )}
+        </Link>
+
+        {/* Tooltip for collapsed mode */}
+        {collapsed && (
+          <div
+            className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap
+              invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 z-50"
+            style={{
+              backgroundColor: 'rgb(var(--foreground))',
+              color: 'rgb(var(--background))',
+            }}
+          >
+            {item.label}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   if (!mounted) {
-    // Render a minimal placeholder to avoid layout shift
     return (
       <aside className="hidden lg:flex flex-col w-[220px] border-r shrink-0"
         style={{
@@ -128,7 +171,6 @@ export function SidebarNav() {
           className="flex items-center gap-2.5 px-4 h-14 border-b shrink-0"
           style={{ borderColor: 'rgb(var(--sidebar-border))' }}
         >
-          {/* Logo mark */}
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 font-bold text-sm text-white"
             style={{ backgroundColor: 'rgb(var(--primary))' }}
@@ -137,23 +179,12 @@ export function SidebarNav() {
           </div>
 
           {!collapsed && (
-            <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-              <span
-                className="font-bold text-sm tracking-tight truncate"
-                style={{ color: 'rgb(var(--sidebar-brand))' }}
-              >
-                RechnungsWerk
-              </span>
-              <span
-                className="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: 'rgb(var(--primary-light))',
-                  color: 'rgb(var(--primary))',
-                }}
-              >
-                {APP_VERSION}
-              </span>
-            </div>
+            <span
+              className="font-bold text-sm tracking-tight truncate"
+              style={{ color: 'rgb(var(--sidebar-brand))' }}
+            >
+              RechnungsWerk
+            </span>
           )}
         </div>
 
@@ -180,125 +211,20 @@ export function SidebarNav() {
 
         {/* Nav items */}
         <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto overflow-x-hidden">
-          {!collapsed && (
-            <p
-              className="text-[10px] font-semibold uppercase tracking-wider px-2 mb-2"
-              style={{ color: 'rgb(var(--foreground-muted))' }}
-            >
-              Navigation
-            </p>
-          )}
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item.href)
-            const Icon = item.icon
-            return (
-              <div key={item.href} className="relative group">
-                {item.comingSoon ? (
-                  <div
-                    className={cn(
-                      'flex items-center gap-3 px-2 py-2 rounded-lg cursor-not-allowed opacity-50 select-none',
-                      collapsed ? 'justify-center' : ''
-                    )}
-                    title={collapsed ? item.label : undefined}
-                  >
-                    <Icon
-                      size={18}
-                      className="shrink-0"
-                      style={{ color: 'rgb(var(--sidebar-icon))' }}
-                    />
-                    {!collapsed && (
-                      <>
-                        <span
-                          className="text-sm font-medium truncate flex-1"
-                          style={{ color: 'rgb(var(--sidebar-text))' }}
-                        >
-                          {item.label}
-                        </span>
-                        <span
-                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
-                          style={{
-                            backgroundColor: 'rgb(var(--muted))',
-                            color: 'rgb(var(--foreground-muted))',
-                          }}
-                        >
-                          bald
-                        </span>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 px-2 py-2 rounded-lg transition-colors duration-150',
-                      collapsed ? 'justify-center' : '',
-                      active ? '' : 'hover:opacity-100'
-                    )}
-                    style={{
-                      backgroundColor: active
-                        ? 'rgb(var(--sidebar-item-active-bg))'
-                        : 'transparent',
-                      color: active
-                        ? 'rgb(var(--sidebar-item-active-text))'
-                        : 'rgb(var(--sidebar-text))',
-                    }}
-                    title={collapsed ? item.label : undefined}
-                    onMouseEnter={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-item-hover))'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                      }
-                    }}
-                  >
-                    <Icon
-                      size={18}
-                      className="shrink-0"
-                      style={{
-                        color: active
-                          ? 'rgb(var(--sidebar-item-active-text))'
-                          : 'rgb(var(--sidebar-icon))',
-                      }}
-                    />
-                    {!collapsed && (
-                      <span className="text-sm font-medium truncate">
-                        {item.label}
-                      </span>
-                    )}
-                  </Link>
-                )}
-
-                {/* Tooltip for collapsed mode */}
-                {collapsed && (
-                  <div
-                    className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap
-                      invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 z-50"
-                    style={{
-                      backgroundColor: 'rgb(var(--foreground))',
-                      color: 'rgb(var(--background))',
-                    }}
-                  >
-                    {item.label}
-                    {item.comingSoon && ' (bald)'}
-                  </div>
-                )}
-              </div>
-            )
-          })}
+          {NAV_ITEMS.map((item) => renderNavLink(item))}
         </nav>
 
-        {/* Footer: Theme toggle */}
+        {/* Footer: Settings + Theme toggle */}
         <div
-          className="px-2 py-3 border-t shrink-0"
+          className="px-2 py-3 border-t shrink-0 space-y-0.5"
           style={{ borderColor: 'rgb(var(--sidebar-border))' }}
         >
+          {renderNavLink(SETTINGS_ITEM)}
+
           <button
             onClick={cycleTheme}
             className={cn(
-              'w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors duration-150',
+              'w-full flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors duration-150',
               collapsed ? 'justify-center' : ''
             )}
             style={{ color: 'rgb(var(--sidebar-text))' }}
@@ -317,7 +243,7 @@ export function SidebarNav() {
             }
           >
             <ThemeIcon
-              size={18}
+              size={20}
               className="shrink-0"
               style={{ color: 'rgb(var(--sidebar-icon))' }}
             />
@@ -331,15 +257,6 @@ export function SidebarNav() {
               </span>
             )}
           </button>
-
-          {!collapsed && (
-            <p
-              className="mt-3 text-[10px] px-2 leading-relaxed"
-              style={{ color: 'rgb(var(--foreground-muted))' }}
-            >
-              RechnungsWerk v{APP_VERSION} · EN 16931
-            </p>
-          )}
         </div>
       </aside>
 
@@ -359,17 +276,13 @@ export function SidebarNav() {
             return (
               <Link
                 key={item.href}
-                href={item.comingSoon ? '#' : item.href}
-                className={cn(
-                  'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150',
-                  item.comingSoon ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''
-                )}
+                href={item.href}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150"
                 style={{
                   color: active
                     ? 'rgb(var(--sidebar-item-active-text))'
                     : 'rgb(var(--sidebar-icon))',
                 }}
-                onClick={(e) => item.comingSoon && e.preventDefault()}
               >
                 <Icon size={20} />
                 <span className="text-[10px] font-medium leading-none">
@@ -430,23 +343,16 @@ export function SidebarNav() {
                 </button>
               </div>
               <nav className="px-2 py-2 space-y-0.5">
-                {NAV_ITEMS.map((item) => {
+                {[...NAV_ITEMS, SETTINGS_ITEM].map((item) => {
                   const active = isActive(item.href)
                   const Icon = item.icon
                   return (
                     <Link
                       key={item.href}
-                      href={item.comingSoon ? '#' : item.href}
-                      onClick={(e) => {
-                        if (item.comingSoon) {
-                          e.preventDefault()
-                          return
-                        }
-                        setMobileDrawerOpen(false)
-                      }}
+                      href={item.href}
+                      onClick={() => setMobileDrawerOpen(false)}
                       className={cn(
                         'flex items-center gap-3 px-3 rounded-lg transition-colors duration-150',
-                        item.comingSoon ? 'opacity-40 cursor-not-allowed' : '',
                         active ? '' : 'hover:opacity-80'
                       )}
                       style={{
@@ -457,19 +363,8 @@ export function SidebarNav() {
                         color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--foreground))',
                       }}
                     >
-                      <Icon size={18} style={{ color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--sidebar-icon))' }} />
+                      <Icon size={20} style={{ color: active ? 'rgb(var(--sidebar-item-active-text))' : 'rgb(var(--sidebar-icon))' }} />
                       <span className="text-sm font-medium">{item.label}</span>
-                      {item.comingSoon && (
-                        <span
-                          className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-                          style={{
-                            backgroundColor: 'rgb(var(--muted))',
-                            color: 'rgb(var(--foreground-muted))',
-                          }}
-                        >
-                          bald
-                        </span>
-                      )}
                     </Link>
                   )
                 })}
@@ -484,7 +379,7 @@ export function SidebarNav() {
                     color: 'rgb(var(--foreground))',
                   }}
                 >
-                  <ThemeIcon size={18} style={{ color: 'rgb(var(--sidebar-icon))' }} />
+                  <ThemeIcon size={20} style={{ color: 'rgb(var(--sidebar-icon))' }} />
                   <span className="text-sm font-medium">
                     Design: {theme === 'light' ? 'Hell' : theme === 'dark' ? 'Dunkel' : 'System'}
                   </span>

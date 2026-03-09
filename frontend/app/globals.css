@@ -7,39 +7,39 @@
 
 :root {
   /* --- Background & Foreground --- */
-  --background: 248 250 252;        /* slate-50 */
-  --foreground: 15 23 42;           /* slate-900 */
-  --foreground-muted: 100 116 139;  /* slate-500 */
+  --background: 250 250 248;        /* warm off-white */
+  --foreground: 23 23 23;           /* neutral-900 — warm near-black */
+  --foreground-muted: 115 115 115;  /* neutral-500 */
 
   /* --- Card / Surface --- */
-  --card: 255 255 255;              /* white */
-  --card-foreground: 15 23 42;      /* slate-900 */
+  --card: 255 255 255;
+  --card-foreground: 23 23 23;      /* neutral-900 */
 
   /* --- Popover --- */
   --popover: 255 255 255;
-  --popover-foreground: 15 23 42;
+  --popover-foreground: 23 23 23;
 
-  /* --- Primary (Teal) --- */
-  --primary: 20 184 166;            /* teal-500 */
-  --primary-foreground: 255 255 255;
-  --primary-hover: 13 148 136;      /* teal-600 */
-  --primary-light: 240 253 250;     /* teal-50 */
-  --primary-border: 153 246 228;    /* teal-200 */
+  /* --- Primary (Lime — fresh, modern) --- */
+  --primary: 132 204 22;            /* lime-500 */
+  --primary-foreground: 23 23 23;   /* dark text on lime */
+  --primary-hover: 101 163 13;      /* lime-600 */
+  --primary-light: 247 254 231;     /* lime-50 */
+  --primary-border: 190 242 100;    /* lime-300 */
 
   /* --- Secondary --- */
-  --secondary: 241 245 249;         /* slate-100 */
-  --secondary-foreground: 51 65 85; /* slate-700 */
-  --secondary-hover: 226 232 240;   /* slate-200 */
+  --secondary: 245 245 244;         /* stone-100 — warm */
+  --secondary-foreground: 41 37 36; /* stone-800 */
+  --secondary-hover: 231 229 228;   /* stone-200 */
 
   /* --- Muted --- */
-  --muted: 248 250 252;             /* slate-50 */
-  --muted-foreground: 100 116 139;  /* slate-500 */
+  --muted: 250 250 249;             /* stone-50 */
+  --muted-foreground: 120 113 108;  /* stone-500 */
 
-  /* --- Accent (Slate-100 for light surfaces, Emerald kept for money/success via status) --- */
-  --accent: 241 245 249;            /* slate-100 */
-  --accent-foreground: 15 23 42;    /* slate-900 */
-  --accent-light: 236 253 245;      /* emerald-50 — money/success signal */
-  --accent-border: 167 243 208;     /* emerald-200 */
+  /* --- Accent (lime-tinted for light surfaces, emerald kept for money/success via status) --- */
+  --accent: 245 245 244;            /* stone-100 */
+  --accent-foreground: 23 23 23;    /* neutral-900 */
+  --accent-light: 247 254 231;      /* lime-50 — fresh accent signal */
+  --accent-border: 190 242 100;     /* lime-300 */
 
   /* --- Destructive --- */
   --destructive: 244 63 94;         /* rose-500 */
@@ -53,41 +53,41 @@
   --warning-border: 252 211 77;     /* amber-300 */
 
   /* --- Border & Input --- */
-  --border: 226 232 240;            /* slate-200 */
-  --border-strong: 203 213 225;     /* slate-300 */
+  --border: 231 229 228;            /* stone-200 — warm */
+  --border-strong: 214 211 209;     /* stone-300 */
   --input: 255 255 255;
-  --input-border: 203 213 225;      /* slate-300 */
-  --ring: 20 184 166;               /* teal-500 */
+  --input-border: 214 211 209;      /* stone-300 */
+  --ring: 132 204 22;               /* lime-500 */
   --ring-offset: 255 255 255;
 
   /* --- Sidebar --- */
   --sidebar-bg: 255 255 255;
-  --sidebar-border: 226 232 240;    /* slate-200 */
-  --sidebar-item-hover: 241 245 249; /* slate-100 */
-  --sidebar-item-active-bg: 240 253 250; /* teal-50 */
-  --sidebar-item-active-text: 20 184 166; /* teal-500 */
-  --sidebar-icon: 100 116 139;      /* slate-500 */
-  --sidebar-text: 51 65 85;         /* slate-700 */
-  --sidebar-brand: 15 23 42;        /* slate-900 */
+  --sidebar-border: 231 229 228;    /* stone-200 */
+  --sidebar-item-hover: 245 245 244; /* stone-100 */
+  --sidebar-item-active-bg: 247 254 231; /* lime-50 */
+  --sidebar-item-active-text: 77 124 15; /* lime-700 — dark for readability */
+  --sidebar-icon: 120 113 108;      /* stone-500 */
+  --sidebar-text: 68 64 60;         /* stone-700 */
+  --sidebar-brand: 23 23 23;        /* neutral-900 */
 
   /* --- Status colors --- */
-  --status-success: 5 150 105;
+  --status-success: 22 163 74;      /* green-600 */
   --status-warning: 245 158 11;
   --status-error: 244 63 94;
-  --status-info: 20 184 166;
-  --status-neutral: 100 116 139;
+  --status-info: 132 204 22;        /* lime-500 */
+  --status-neutral: 115 115 115;
 
   /* --- Chart colors --- */
-  --chart-1: 20 184 166;
-  --chart-2: 5 150 105;
-  --chart-3: 124 58 237;
-  --chart-4: 245 158 11;
-  --chart-5: 244 63 94;
+  --chart-1: 132 204 22;            /* lime-500 */
+  --chart-2: 22 163 74;             /* green-600 */
+  --chart-3: 124 58 237;            /* violet-600 */
+  --chart-4: 245 158 11;            /* amber-500 */
+  --chart-5: 244 63 94;             /* rose-500 */
 
-  /* --- Radius --- */
-  --radius: 0.75rem;
-  --radius-sm: 0.375rem;
-  --radius-lg: 1rem;
+  /* --- Radius (larger = softer = Apple-feel) --- */
+  --radius: 1rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1.25rem;
   --radius-full: 9999px;
 
   /* --- Transition --- */
@@ -95,11 +95,11 @@
   --transition-base: 200ms ease;
   --transition-slow: 300ms ease;
 
-  /* --- Shadows --- */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  /* --- Shadows (softer, subtler) --- */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.08);
+  --shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.1);
 }
 
 /* ==========================================================================
@@ -108,39 +108,39 @@
 
 [data-theme="dark"] {
   /* --- Background & Foreground --- */
-  --background: 15 23 42;           /* slate-900 (navy) */
-  --foreground: 241 245 249;        /* slate-100 */
-  --foreground-muted: 148 163 184;  /* slate-400 */
+  --background: 28 25 23;           /* stone-900 — warm dark */
+  --foreground: 245 245 244;        /* stone-100 */
+  --foreground-muted: 168 162 158;  /* stone-400 */
 
   /* --- Card / Surface --- */
-  --card: 30 41 59;                 /* slate-800 */
-  --card-foreground: 241 245 249;   /* slate-100 */
+  --card: 41 37 36;                 /* stone-800 */
+  --card-foreground: 245 245 244;   /* stone-100 */
 
   /* --- Popover --- */
-  --popover: 30 41 59;              /* slate-800 */
-  --popover-foreground: 241 245 249;
+  --popover: 41 37 36;              /* stone-800 */
+  --popover-foreground: 245 245 244;
 
-  /* --- Primary (Teal) --- */
-  --primary: 20 184 166;            /* teal-500 */
-  --primary-foreground: 15 23 42;   /* slate-900 */
-  --primary-hover: 45 212 191;      /* teal-400 */
-  --primary-light: 19 78 74;        /* teal-900 */
-  --primary-border: 17 94 89;       /* teal-800 */
+  /* --- Primary (Lime) --- */
+  --primary: 132 204 22;            /* lime-500 */
+  --primary-foreground: 28 25 23;   /* stone-900 */
+  --primary-hover: 163 230 53;      /* lime-400 */
+  --primary-light: 26 46 5;         /* lime-950 */
+  --primary-border: 63 98 18;       /* lime-800 */
 
   /* --- Secondary --- */
-  --secondary: 30 41 59;            /* slate-800 */
-  --secondary-foreground: 203 213 225; /* slate-300 */
-  --secondary-hover: 51 65 85;      /* slate-700 */
+  --secondary: 41 37 36;            /* stone-800 */
+  --secondary-foreground: 214 211 209; /* stone-300 */
+  --secondary-hover: 68 64 60;      /* stone-700 */
 
   /* --- Muted --- */
-  --muted: 30 41 59;                /* slate-800 */
-  --muted-foreground: 148 163 184;  /* slate-400 */
+  --muted: 41 37 36;                /* stone-800 */
+  --muted-foreground: 168 162 158;  /* stone-400 */
 
   /* --- Accent --- */
-  --accent: 51 65 85;               /* slate-700 */
-  --accent-foreground: 241 245 249; /* slate-100 */
-  --accent-light: 2 44 34;          /* dark emerald — money/success signal */
-  --accent-border: 6 78 59;         /* emerald-900 */
+  --accent: 68 64 60;               /* stone-700 */
+  --accent-foreground: 245 245 244; /* stone-100 */
+  --accent-light: 26 46 5;          /* lime-950 */
+  --accent-border: 63 98 18;        /* lime-800 */
 
   /* --- Destructive --- */
   --destructive: 244 63 94;         /* rose-500 */
@@ -154,42 +154,42 @@
   --warning-border: 120 53 15;      /* amber-900 */
 
   /* --- Border & Input --- */
-  --border: 51 65 85;               /* slate-700 */
-  --border-strong: 71 85 105;       /* slate-600 */
-  --input: 30 41 59;                /* slate-800 */
-  --input-border: 51 65 85;         /* slate-700 */
-  --ring: 20 184 166;               /* teal-500 */
-  --ring-offset: 15 23 42;          /* slate-900 */
+  --border: 68 64 60;               /* stone-700 */
+  --border-strong: 87 83 78;        /* stone-600 */
+  --input: 41 37 36;                /* stone-800 */
+  --input-border: 68 64 60;         /* stone-700 */
+  --ring: 132 204 22;               /* lime-500 */
+  --ring-offset: 28 25 23;          /* stone-900 */
 
   /* --- Sidebar --- */
-  --sidebar-bg: 30 41 59;           /* slate-800 */
-  --sidebar-border: 51 65 85;       /* slate-700 */
-  --sidebar-item-hover: 51 65 85;   /* slate-700 */
-  --sidebar-item-active-bg: 19 78 74; /* teal-900 */
-  --sidebar-item-active-text: 45 212 191; /* teal-400 */
-  --sidebar-icon: 148 163 184;      /* slate-400 */
-  --sidebar-text: 203 213 225;      /* slate-300 */
-  --sidebar-brand: 241 245 249;     /* slate-100 */
+  --sidebar-bg: 28 25 23;           /* stone-900 */
+  --sidebar-border: 68 64 60;       /* stone-700 */
+  --sidebar-item-hover: 68 64 60;   /* stone-700 */
+  --sidebar-item-active-bg: 26 46 5; /* lime-950 */
+  --sidebar-item-active-text: 163 230 53; /* lime-400 */
+  --sidebar-icon: 168 162 158;      /* stone-400 */
+  --sidebar-text: 214 211 209;      /* stone-300 */
+  --sidebar-brand: 245 245 244;     /* stone-100 */
 
   /* --- Status colors --- */
-  --status-success: 16 185 129;
-  --status-warning: 245 158 11;
-  --status-error: 244 63 94;
-  --status-info: 20 184 166;
-  --status-neutral: 148 163 184;
+  --status-success: 74 222 128;     /* green-400 */
+  --status-warning: 251 191 36;     /* amber-400 */
+  --status-error: 251 113 133;      /* rose-400 */
+  --status-info: 163 230 53;        /* lime-400 */
+  --status-neutral: 168 162 158;    /* stone-400 */
 
   /* --- Chart colors --- */
-  --chart-1: 20 184 166;
-  --chart-2: 16 185 129;
-  --chart-3: 167 139 250;
-  --chart-4: 251 191 36;
-  --chart-5: 251 113 133;
+  --chart-1: 163 230 53;            /* lime-400 */
+  --chart-2: 74 222 128;            /* green-400 */
+  --chart-3: 167 139 250;           /* violet-400 */
+  --chart-4: 251 191 36;            /* amber-400 */
+  --chart-5: 251 113 133;           /* rose-400 */
 
-  /* --- Shadows (more subtle on dark bg) --- */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  /* --- Shadows (subtle on dark bg) --- */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.35);
+  --shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.4);
 }
 
 /* ==========================================================================
