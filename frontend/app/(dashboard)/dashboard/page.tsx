@@ -17,10 +17,11 @@ import {
   Clock,
   Plus,
 } from 'lucide-react'
-import { listInvoices, getDashboardStats, type Invoice, type DashboardStats } from '@/lib/api'
+import { listInvoices, getDashboardStats, getOnboardingChecklist, type Invoice, type DashboardStats, type OnboardingChecklist as OnboardingChecklistData } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import DATEVExportDialog from '@/components/DATEVExportDialog'
+import OnboardingChecklist from '@/components/OnboardingChecklist'
 
 const LazyBarChart = dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), { ssr: false })
 const LazyBar = dynamic(() => import('recharts').then(mod => ({ default: mod.Bar })), { ssr: false })
@@ -136,20 +137,26 @@ export default function Dashboard() {
   const [invoicesLoading, setInvoicesLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [datevOpen, setDatevOpen] = useState(false)
+  const [checklist, setChecklist] = useState<OnboardingChecklistData | null>(null)
+  const [checklistLoading, setChecklistLoading] = useState(true)
 
   const fetchData = useCallback(async () => {
     setInvoicesLoading(true)
+    setChecklistLoading(true)
     try {
-      const [data, statsData] = await Promise.all([
+      const [data, statsData, checklistData] = await Promise.all([
         listInvoices(0, 100),
         getDashboardStats(),
+        getOnboardingChecklist().catch(() => null),
       ])
       setInvoices(data.items)
       setStats(statsData)
+      setChecklist(checklistData)
     } catch {
       setInvoices([])
     } finally {
       setInvoicesLoading(false)
+      setChecklistLoading(false)
     }
   }, [])
 
@@ -222,6 +229,13 @@ export default function Dashboard() {
           )}
         </p>
       </motion.div>
+
+      {/* ===== Onboarding Checklist ===== */}
+      {(!checklist?.all_done || checklistLoading) && (
+        <div className="mb-8">
+          <OnboardingChecklist data={checklist} loading={checklistLoading} />
+        </div>
+      )}
 
       {/* ===== Quick Actions ===== */}
       <motion.div

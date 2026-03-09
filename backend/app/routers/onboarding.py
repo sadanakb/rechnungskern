@@ -2,8 +2,9 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.database import get_db
-from app.models import Organization, OrganizationMember
+from app.models import Organization, OrganizationMember, Contact, Invoice
 from app.auth_jwt import get_current_user
 from app.storage import get_storage
 
@@ -235,4 +236,102 @@ def update_datev_settings(
         datev_berater_nr=org.datev_berater_nr,
         datev_mandant_nr=org.datev_mandant_nr,
         steuerberater_email=org.steuerberater_email,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Onboarding Checklist (dynamic)
+# ---------------------------------------------------------------------------
+
+class ChecklistStep(BaseModel):
+    key: str
+    done: bool
+    label: str
+    description: str
+    href: str
+
+class ChecklistResponse(BaseModel):
+    completed: int
+    total: int
+    all_done: bool
+    steps: list[ChecklistStep]
+
+
+@router.get("/checklist", response_model=ChecklistResponse)
+def get_onboarding_checklist(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return dynamic onboarding checklist computed from real data."""
+    org = _get_org(current_user, db)
+
+    # Check company data completeness
+    company_data_done = bool(org.name and org.name.strip() and org.address and org.address.strip() and org.vat_id and org.vat_id.strip())
+
+    # Count contacts
+    contact_count = db.query(func.count(Contact.id)).filter(Contact.org_id == org.id).scalar() or 0
+    first_contact_done = contact_count >= 1
+
+    # Invoice checks — single query for all invoice-related steps
+    # Count non-cancelled invoices, invoices with xrechnung, invoices with zugferd pdf
+    invoice_stats = db.query(
+        func.count(Invoice.id).filter(Invoice.payment_status != 'cancelled'),
+        func.count(Invoice.id).filter(
+            Invoice.xrechnung_xml_path.isnot(None),
+            Invoice.xrechnung_xml_path != '',
+        ),
+        func.count(Invoice.id).filter(
+            Invoice.zugferd_pdf_path.isnot(None),
+            Invoice.zugferd_pdf_path != '',
+        ),
+    ).filter(Invoice.organization_id == org.id).first()
+
+    first_invoice_done = (invoice_stats[0] or 0) >= 1
+    first_xrechnung_done = (invoice_stats[1] or 0) >= 1
+    first_download_done = (invoice_stats[2] or 0) >= 1
+
+    steps = [
+        ChecklistStep(
+            key="company_data",
+            done=company_data_done,
+            label="Firmendaten vervollständigen",
+            description="Name, Adresse und USt-IdNr. hinterlegen",
+            href="/settings",
+        ),
+        ChecklistStep(
+            key="first_contact",
+            done=first_contact_done,
+            label="Ersten Kontakt anlegen",
+            description="Einen Kunden oder Geschäftspartner hinzufügen",
+            href="/contacts",
+        ),
+        ChecklistStep(
+            key="first_invoice",
+            done=first_invoice_done,
+            label="Erste Rechnung erstellen",
+            description="Ihre erste Rechnung schreiben",
+            href="/manual",
+        ),
+        ChecklistStep(
+            key="first_xrechnung",
+            done=first_xrechnung_done,
+            label="XRechnung generieren",
+            description="Eine E-Rechnung im XRechnung-Format erzeugen",
+            href="/invoices",
+        ),
+        ChecklistStep(
+            key="first_download",
+            done=first_download_done,
+            label="ZUGFeRD-PDF herunterladen",
+            description="Eine Rechnung als PDF mit eingebetteten XML-Daten herunterladen",
+            href="/invoices",
+        ),
+    ]
+
+    completed = sum(1 for s in steps if s.done)
+    return ChecklistResponse(
+        completed=completed,
+        total=len(steps),
+        all_done=completed == len(steps),
+        steps=steps,
     )

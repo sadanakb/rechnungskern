@@ -1802,3 +1802,27 @@ export const getCreditNote = async (id: string): Promise<CreditNoteDetail> => {
 export const getCreditNoteXmlUrl = (id: string): string => `${API_BASE}/api/credit-notes/${id}/xml`
 
 export const getCreditNotePdfUrl = (id: string): string => `${API_BASE}/api/credit-notes/${id}/pdf`
+
+// ---------------------------------------------------------------------------
+// Onboarding Checklist
+// ---------------------------------------------------------------------------
+
+export interface OnboardingStep {
+  key: string
+  done: boolean
+  label: string
+  description: string
+  href: string
+}
+
+export interface OnboardingChecklist {
+  completed: number
+  total: number
+  all_done: boolean
+  steps: OnboardingStep[]
+}
+
+export async function getOnboardingChecklist(): Promise<OnboardingChecklist> {
+  const resp = await api.get<OnboardingChecklist>('/api/onboarding/checklist')
+  return resp.data
+}
