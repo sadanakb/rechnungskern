@@ -138,7 +138,7 @@ function collectErrorMessages(errors: Record<string, unknown>): string[] {
 // Page
 // ---------------------------------------------------------------------------
 export default function ManualPage() {
-  useEffect(() => { document.title = 'Manuelle Erfassung | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Manuelle Erfassung | RechnungsKern' }, [])
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState<{ invoiceId: string; downloadUrl: string } | null>(null)
   const [apiError, setApiError] = useState<string | null>(null)

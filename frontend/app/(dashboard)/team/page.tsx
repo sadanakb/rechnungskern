@@ -262,7 +262,7 @@ function UpgradePrompt() {
 // ---------------------------------------------------------------------------
 
 export default function TeamPage() {
-  useEffect(() => { document.title = 'Team | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Team | RechnungsKern' }, [])
   const { user, loading: authLoading } = useAuth()
   const plan = user?.organization?.plan ?? 'free'
   const isProfessional = plan?.toLowerCase() === 'professional'

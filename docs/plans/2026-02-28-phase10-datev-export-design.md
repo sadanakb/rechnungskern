@@ -8,7 +8,7 @@
 
 ## Ziel
 
-DATEV EXTF Buchungsstapel-Export (v700) direkt aus RechnungsWerk heraus — auf Basis der Phase-9-SKR03-Kategorisierung. Steuerberater können die ZIP-Datei direkt in DATEV Kanzlei-Rechnungswesen importieren.
+DATEV EXTF Buchungsstapel-Export (v700) direkt aus RechnungsKern heraus — auf Basis der Phase-9-SKR03-Kategorisierung. Steuerberater können die ZIP-Datei direkt in DATEV Kanzlei-Rechnungswesen importieren.
 
 ---
 

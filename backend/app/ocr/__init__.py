@@ -1,5 +1,5 @@
 """
-OCR package for RechnungsWerk.
+OCR package for RechnungsKern.
 
 Provides PaddleOCR-based text extraction, Ollama LLM field extraction,
 confidence scoring, and batch processing capabilities.

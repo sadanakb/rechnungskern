@@ -4,7 +4,7 @@ import matter from 'gray-matter'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Blog — RechnungsWerk',
+  title: 'Blog — RechnungsKern',
   description: 'Artikel zu E-Rechnungen, XRechnung, ZUGFeRD und der E-Rechnungspflicht in Deutschland.',
 }
 
@@ -30,7 +30,7 @@ function getPosts(): PostMeta[] {
       title: data.title || '',
       description: data.description || '',
       date: data.date || '',
-      author: data.author || 'RechnungsWerk Team',
+      author: data.author || 'RechnungsKern Team',
     }
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }

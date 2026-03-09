@@ -412,7 +412,7 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
 // ---------------------------------------------------------------------------
 
 export default function ContactsPage() {
-  useEffect(() => { document.title = 'Kontakte | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Kontakte | RechnungsKern' }, [])
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')

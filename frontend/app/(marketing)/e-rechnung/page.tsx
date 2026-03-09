@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { FaqAccordion } from './FaqAccordion'
 
 export const metadata: Metadata = {
-  title: 'E-Rechnung Software 2025 | XRechnung & ZUGFeRD | RechnungsWerk',
+  title: 'E-Rechnung Software 2025 | XRechnung & ZUGFeRD | RechnungsKern',
   description:
     'E-Rechnungen erstellen, validieren und versenden. EN 16931 konform. XRechnung 3.0.2 und ZUGFeRD 2.3.3. Kostenlos testen.',
   openGraph: {
-    title: 'E-Rechnung Software 2025 | XRechnung & ZUGFeRD | RechnungsWerk',
+    title: 'E-Rechnung Software 2025 | XRechnung & ZUGFeRD | RechnungsKern',
     description:
       'E-Rechnungen erstellen, validieren und versenden. EN 16931 konform. Kostenlos testen.',
     type: 'website',
@@ -48,37 +48,37 @@ const milestones = [
 const comparisonRows = [
   {
     feature: 'XRechnung erstellen',
-    rechnungswerk: 'Automatisch',
+    rechnungskern: 'Automatisch',
     manuell: 'Komplexe Vorlage nötig',
     rwOk: true,
   },
   {
     feature: 'ZUGFeRD PDF',
-    rechnungswerk: 'Auf Klick',
+    rechnungskern: 'Auf Klick',
     manuell: 'Nicht möglich',
     rwOk: true,
   },
   {
     feature: 'KoSIT-Validierung',
-    rechnungswerk: 'Integriert',
+    rechnungskern: 'Integriert',
     manuell: 'Separates Tool erforderlich',
     rwOk: true,
   },
   {
     feature: 'DATEV-Export',
-    rechnungswerk: 'Ein Klick',
+    rechnungskern: 'Ein Klick',
     manuell: 'Manueller Aufwand',
     rwOk: true,
   },
   {
     feature: 'GoBD-Archivierung',
-    rechnungswerk: 'Automatisch',
+    rechnungskern: 'Automatisch',
     manuell: 'Eigene Lösung nötig',
     rwOk: true,
   },
   {
     feature: 'Mahnwesen',
-    rechnungswerk: 'Integriert',
+    rechnungskern: 'Integriert',
     manuell: 'Externes Tool',
     rwOk: true,
   },
@@ -91,27 +91,27 @@ const faqs = [
   {
     question: 'Was bedeutet die E-Rechnungspflicht für mein Unternehmen?',
     answer:
-      'Seit dem 01.01.2025 sind alle deutschen Unternehmen im B2B-Bereich verpflichtet, elektronische Rechnungen nach EN 16931 empfangen zu können. Die Sendepflicht folgt schrittweise: ab 2027 für Großunternehmen (Umsatz > 800.000 EUR/Jahr), ab 2028 für alle. RechnungsWerk bereitet Sie auf alle Phasen vor.',
+      'Seit dem 01.01.2025 sind alle deutschen Unternehmen im B2B-Bereich verpflichtet, elektronische Rechnungen nach EN 16931 empfangen zu können. Die Sendepflicht folgt schrittweise: ab 2027 für Großunternehmen (Umsatz > 800.000 EUR/Jahr), ab 2028 für alle. RechnungsKern bereitet Sie auf alle Phasen vor.',
   },
   {
-    question: 'Ist RechnungsWerk kostenlos?',
+    question: 'Ist RechnungsKern kostenlos?',
     answer:
       'Ja. Der Free-Plan erlaubt 5 Rechnungen pro Monat mit vollem XRechnung- und ZUGFeRD-Support — ohne Kreditkarte. Für unbegrenzte Rechnungen, DATEV-Export und Mahnwesen gibt es Starter ab 9,90 EUR/Monat.',
   },
   {
-    question: 'Kann ich RechnungsWerk mit DATEV nutzen?',
+    question: 'Kann ich RechnungsKern mit DATEV nutzen?',
     answer:
-      'Ja. RechnungsWerk exportiert Buchungsdaten direkt im DATEV-Format (DATEV ASCII / Buchungsstapel). So können Sie alle Rechnungen problemlos an Ihren Steuerberater übergeben.',
+      'Ja. RechnungsKern exportiert Buchungsdaten direkt im DATEV-Format (DATEV ASCII / Buchungsstapel). So können Sie alle Rechnungen problemlos an Ihren Steuerberater übergeben.',
   },
   {
     question: 'Was ist der Unterschied zwischen XRechnung und ZUGFeRD?',
     answer:
-      'XRechnung ist ein reines XML-Format (UBL 2.1 / CII D16B) und das Pflichtformat für Rechnungen an Bundesbehörden. ZUGFeRD ist ein Hybridformat: eine normale PDF-Rechnung mit eingebettetem XML — ideal für B2B-Rechnungen, da sie sowohl menschenlesbar als auch maschinell verarbeitbar ist. RechnungsWerk unterstützt beide Formate.',
+      'XRechnung ist ein reines XML-Format (UBL 2.1 / CII D16B) und das Pflichtformat für Rechnungen an Bundesbehörden. ZUGFeRD ist ein Hybridformat: eine normale PDF-Rechnung mit eingebettetem XML — ideal für B2B-Rechnungen, da sie sowohl menschenlesbar als auch maschinell verarbeitbar ist. RechnungsKern unterstützt beide Formate.',
   },
   {
-    question: 'Ist RechnungsWerk selbst hostbar?',
+    question: 'Ist RechnungsKern selbst hostbar?',
     answer:
-      'Ja. RechnungsWerk ist vollständig Open Source unter AGPL-3.0. Den Quellcode finden Sie auf GitHub. Sie können eine eigene Instanz betreiben — mit vollem Funktionsumfang, ohne Lizenzkosten.',
+      'Ja. RechnungsKern ist vollständig Open Source unter AGPL-3.0. Den Quellcode finden Sie auf GitHub. Sie können eine eigene Instanz betreiben — mit vollem Funktionsumfang, ohne Lizenzkosten.',
   },
 ]
 
@@ -470,7 +470,7 @@ export default function ERechnungPage() {
               className="text-2xl sm:text-3xl font-bold tracking-tight text-center mb-10"
               style={{ color: 'rgb(var(--foreground))' }}
             >
-              RechnungsWerk vs. manuelle Prozesse
+              RechnungsKern vs. manuelle Prozesse
             </h2>
 
             <div
@@ -490,7 +490,7 @@ export default function ERechnungPage() {
                       className="px-5 py-3.5 text-center font-semibold"
                       style={{ color: 'rgb(var(--primary))' }}
                     >
-                      RechnungsWerk
+                      RechnungsKern
                     </th>
                     <th
                       className="px-5 py-3.5 text-center font-semibold"
@@ -527,7 +527,7 @@ export default function ERechnungPage() {
                             &#10003;
                           </span>
                           <span style={{ color: 'rgb(var(--foreground))' }}>
-                            {row.rechnungswerk}
+                            {row.rechnungskern}
                           </span>
                         </span>
                       </td>

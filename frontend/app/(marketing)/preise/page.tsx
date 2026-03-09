@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Preise — RechnungsWerk | E-Rechnungen ab 0 EUR',
+  title: 'Preise — RechnungsKern | E-Rechnungen ab 0 EUR',
   description:
-    'RechnungsWerk Preise: Kostenlos starten mit 5 Rechnungen/Monat. Starter ab 9,90 EUR. Professional ab 19,90 EUR. XRechnung, ZUGFeRD, DATEV-Export.',
+    'RechnungsKern Preise: Kostenlos starten mit 5 Rechnungen/Monat. Starter ab 9,90 EUR. Professional ab 19,90 EUR. XRechnung, ZUGFeRD, DATEV-Export.',
   openGraph: {
-    title: 'Preise — RechnungsWerk',
+    title: 'Preise — RechnungsKern',
     description: 'E-Rechnungen ab 0 EUR/Monat. XRechnung & ZUGFeRD konform.',
     type: 'website',
     locale: 'de_DE',
@@ -108,14 +108,14 @@ const tiers: PricingTier[] = [
    ----------------------------------------------------------------------- */
 const faqs = [
   {
-    question: 'Kann ich RechnungsWerk kostenlos nutzen?',
+    question: 'Kann ich RechnungsKern kostenlos nutzen?',
     answer:
       'Ja. Der Free-Plan erlaubt 5 Rechnungen pro Monat mit vollem XRechnung- und ZUGFeRD-Support. Keine Kreditkarte erforderlich.',
   },
   {
     question: 'Was ist der Unterschied zwischen XRechnung und ZUGFeRD?',
     answer:
-      'XRechnung ist ein reines XML-Format (UBL), das fuer oeffentliche Auftraggeber vorgeschrieben ist. ZUGFeRD kombiniert eine menschenlesbare PDF mit eingebetteten XML-Daten. RechnungsWerk unterstuetzt beide Formate.',
+      'XRechnung ist ein reines XML-Format (UBL), das fuer oeffentliche Auftraggeber vorgeschrieben ist. ZUGFeRD kombiniert eine menschenlesbare PDF mit eingebetteten XML-Daten. RechnungsKern unterstuetzt beide Formate.',
   },
   {
     question: 'Bin ich von der E-Rechnungspflicht betroffen?',
@@ -128,14 +128,14 @@ const faqs = [
       'Ja. Sie koennen jederzeit zwischen den Plaenen wechseln. Kuendigungen sind zum Monatsende moeglich, ohne Mindestlaufzeit.',
   },
   {
-    question: 'Ist RechnungsWerk GoBD-konform?',
+    question: 'Ist RechnungsKern GoBD-konform?',
     answer:
-      'Ja. RechnungsWerk speichert Rechnungen revisionssicher und unterstuetzt den DATEV-Export fuer die Zusammenarbeit mit Ihrem Steuerberater.',
+      'Ja. RechnungsKern speichert Rechnungen revisionssicher und unterstuetzt den DATEV-Export fuer die Zusammenarbeit mit Ihrem Steuerberater.',
   },
   {
-    question: 'Kann ich RechnungsWerk selbst hosten?',
+    question: 'Kann ich RechnungsKern selbst hosten?',
     answer:
-      'Ja. RechnungsWerk ist Open Source (AGPL-3.0). Sie koennen den Quellcode auf GitHub einsehen und eine eigene Instanz betreiben.',
+      'Ja. RechnungsKern ist Open Source (AGPL-3.0). Sie koennen den Quellcode auf GitHub einsehen und eine eigene Instanz betreiben.',
   },
 ]
 
@@ -295,7 +295,7 @@ export default function PreisePage() {
               className="mt-3 text-sm leading-relaxed"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              RechnungsWerk ist Open Source (AGPL-3.0). Betreiben Sie Ihre eigene Instanz
+              RechnungsKern ist Open Source (AGPL-3.0). Betreiben Sie Ihre eigene Instanz
               mit vollem Funktionsumfang — kostenlos und ohne Einschraenkungen.
             </p>
             <div className="mt-6">

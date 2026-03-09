@@ -18,7 +18,7 @@ function formatDate(dateStr: string | null | undefined): string {
 }
 
 export default function GutschriftenPage() {
-  useEffect(() => { document.title = 'Gutschriften | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Gutschriften | RechnungsKern' }, [])
   const router = useRouter()
   const [data, setData] = useState<CreditNoteListResponse | null>(null)
   const [loading, setLoading] = useState(true)

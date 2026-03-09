@@ -54,7 +54,7 @@ function StatCard({
 }
 
 export default function AnalyticsPage() {
-  useEffect(() => { document.title = 'Statistiken | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Statistiken | RechnungsKern' }, [])
   const [data, setData] = useState<AnalyticsSummary | null>(null)
   const [topSuppliers, setTopSuppliers] = useState<TopSupplier[]>([])
   const [categoryData, setCategoryData] = useState<CategoryBreakdown[]>([])

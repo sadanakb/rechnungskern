@@ -28,7 +28,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function ImportPage() {
-  useEffect(() => { document.title = 'Import | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Import | RechnungsKern' }, [])
   const [activeTab, setActiveTab] = useState<Tab>('import')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)

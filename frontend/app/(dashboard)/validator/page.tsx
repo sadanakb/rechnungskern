@@ -451,7 +451,7 @@ function XMLMode() {
 // ---------------------------------------------------------------------------
 
 export default function ValidatorPage() {
-  useEffect(() => { document.title = 'E-Rechnung Validator | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'E-Rechnung Validator | RechnungsKern' }, [])
   const [mode, setMode] = useState<Mode>('invoice')
 
   const tabStyle = (active: boolean) => ({

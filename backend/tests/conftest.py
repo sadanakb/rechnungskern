@@ -1,5 +1,5 @@
 """
-Shared test fixtures for RechnungsWerk backend tests.
+Shared test fixtures for RechnungsKern backend tests.
 
 Uses an in-memory SQLite database so tests run fast and independently.
 """

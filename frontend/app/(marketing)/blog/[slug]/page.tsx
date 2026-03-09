@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props) {
   const post = getPost(slug)
   if (!post) return {}
   return {
-    title: `${post.meta.title} — RechnungsWerk Blog`,
+    title: `${post.meta.title} — RechnungsKern Blog`,
     description: post.meta.description,
   }
 }
@@ -57,7 +57,7 @@ export default async function BlogPost({ params }: Props) {
           </time>
           <h1 className="text-3xl font-bold mt-2">{post.meta.title}</h1>
           <p className="mt-2 opacity-60">{post.meta.description}</p>
-          <p className="mt-1 text-sm opacity-50">Von {post.meta.author || 'RechnungsWerk Team'}</p>
+          <p className="mt-1 text-sm opacity-50">Von {post.meta.author || 'RechnungsKern Team'}</p>
         </header>
 
         <div className="prose prose-lg max-w-none space-y-4">
@@ -95,7 +95,7 @@ export default async function BlogPost({ params }: Props) {
             headline: post.meta.title,
             description: post.meta.description,
             datePublished: post.meta.date,
-            author: { '@type': 'Organization', name: 'RechnungsWerk' },
+            author: { '@type': 'Organization', name: 'RechnungsKern' },
           }),
         }}
       />

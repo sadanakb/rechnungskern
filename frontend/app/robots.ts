@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/dashboard', '/login', '/register', '/onboarding', '/settings', '/api/'],
       },
     ],
-    sitemap: 'https://rechnungswerk.de/sitemap.xml',
+    sitemap: 'https://rechnungskern.de/sitemap.xml',
   }
 }

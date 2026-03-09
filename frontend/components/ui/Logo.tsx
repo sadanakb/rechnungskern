@@ -8,7 +8,7 @@ interface LogoProps {
   alt?: string
 }
 
-export function Logo({ variant, className, alt = 'RechnungsWerk' }: LogoProps) {
+export function Logo({ variant, className, alt = 'RechnungsKern' }: LogoProps) {
   const { resolved } = useTheme()
   const suffix = resolved === 'dark' ? '-dark' : ''
   return <img src={`/logo-${variant}${suffix}.png`} alt={alt} className={className} />

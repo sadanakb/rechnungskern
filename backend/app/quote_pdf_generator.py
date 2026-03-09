@@ -105,7 +105,7 @@ _QUOTE_HTML_TEMPLATE = """\
   {payment_html}
 
   <div class="footer">
-    Erstellt mit RechnungsWerk &middot; Dieses Angebot ist freibleibend.
+    Erstellt mit RechnungsKern &middot; Dieses Angebot ist freibleibend.
   </div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 """
-Alembic migration environment for RechnungsWerk.
+Alembic migration environment for RechnungsKern.
 """
 from logging.config import fileConfig
 

@@ -5,7 +5,7 @@ from PIL import Image
 import os
 import numpy as np
 
-BASE = "/Users/sadanakb/rechnungswerk/frontend/public"
+BASE = "/Users/sadanakb/rechnungskern/frontend/public"
 
 
 def make_transparent(img):
@@ -43,16 +43,8 @@ def create_dark_variant(img):
 # Step 1: Main logos - make transparent
 print("=== Step 1: Making logos transparent ===")
 
-# logo-horizontal.jpg -> logo-horizontal.png
-path = os.path.join(BASE, "logo-horizontal.jpg")
-img = Image.open(path)
-img_t = make_transparent(img)
-out = os.path.join(BASE, "logo-horizontal.png")
-img_t.save(out, "PNG")
-print(f"  Saved: {out}")
-
-# logo-icon.png
-for name in ["logo-icon.png", "logo-stacked.png"]:
+# All PNG logos
+for name in ["logo-horizontal.png", "logo-icon.png", "logo-stacked.png"]:
     path = os.path.join(BASE, name)
     img = Image.open(path)
     img_t = make_transparent(img)

@@ -108,7 +108,7 @@ _INVOICE_HTML_TEMPLATE = """\
   {payment_html}
 
   <div class="footer">
-    Erstellt mit RechnungsWerk &middot; EN 16931 / XRechnung 3.0.2 konform &middot; ZUGFeRD 2.2 PDF/A-3
+    Erstellt mit RechnungsKern &middot; EN 16931 / XRechnung 3.0.2 konform &middot; ZUGFeRD 2.2 PDF/A-3
   </div>
 </body>
 </html>
@@ -206,7 +206,7 @@ _CREDIT_NOTE_HTML_TEMPLATE = """\
   {payment_html}
 
   <div class="footer">
-    Erstellt mit RechnungsWerk &middot; EN 16931 / XRechnung 3.0.2 konform &middot; ZUGFeRD 2.2 PDF/A-3
+    Erstellt mit RechnungsKern &middot; EN 16931 / XRechnung 3.0.2 konform &middot; ZUGFeRD 2.2 PDF/A-3
   </div>
 </body>
 </html>

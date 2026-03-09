@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Navigation', () => {
   test('homepage loads with key elements', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/RechnungsWerk/)
+    await expect(page).toHaveTitle(/RechnungsKern/)
     // Sidebar or navigation should be visible
     await expect(page.locator('nav, aside')).toBeVisible()
   })

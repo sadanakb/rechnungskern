@@ -3,12 +3,12 @@ import { test, expect } from '@playwright/test'
 test.describe('Marketing Pages', () => {
   test('homepage loads with title', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/RechnungsWerk/)
+    await expect(page).toHaveTitle(/RechnungsKern/)
   })
 
   test('pricing page loads', async ({ page }) => {
     await page.goto('/preise')
-    await expect(page).toHaveTitle(/Preis|RechnungsWerk/)
+    await expect(page).toHaveTitle(/Preis|RechnungsKern/)
   })
 
   test('blog page loads', async ({ page }) => {

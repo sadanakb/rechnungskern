@@ -130,7 +130,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 // Page Component
 // ---------------------------------------------------------------------------
 export default function Dashboard() {
-  useEffect(() => { document.title = 'Dashboard | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Dashboard | RechnungsKern' }, [])
   const { user } = useAuth()
 
   const [invoices, setInvoices] = useState<Invoice[]>([])

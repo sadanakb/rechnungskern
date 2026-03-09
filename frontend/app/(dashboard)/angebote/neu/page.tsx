@@ -135,7 +135,7 @@ function Section({
 // Page
 // ---------------------------------------------------------------------------
 function QuoteFormContent() {
-  useEffect(() => { document.title = 'Neues Angebot | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Neues Angebot | RechnungsKern' }, [])
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')

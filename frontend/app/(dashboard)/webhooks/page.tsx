@@ -338,7 +338,7 @@ function CreateWebhookModal({ onClose, onCreated }: CreateModalProps) {
                 </label>
                 <input
                   type="url"
-                  placeholder="https://ihre-app.de/webhooks/rechnungswerk"
+                  placeholder="https://ihre-app.de/webhooks/rechnungskern"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:ring-2"
@@ -766,7 +766,7 @@ function WebhookRow({ webhook, onDeleted, onToast }: WebhookRowProps) {
 // ---------------------------------------------------------------------------
 
 export default function WebhooksPage() {
-  useEffect(() => { document.title = 'Webhooks | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Webhooks | RechnungsKern' }, [])
   const [webhooks, setWebhooks] = useState<WebhookSubscription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -855,7 +855,7 @@ export default function WebhooksPage() {
       >
         <p className="text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
           Webhooks senden HTTP-POST-Anfragen an Ihre URL, sobald bestimmte Events in
-          RechnungsWerk eintreten. Jede Anfrage enthält einen{' '}
+          RechnungsKern eintreten. Jede Anfrage enthält einen{' '}
           <code
             className="px-1 py-0.5 rounded text-xs font-mono"
             style={{

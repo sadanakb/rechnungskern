@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate PWA icons and favicon for RechnungsWerk.
+Generate PWA icons and favicon for RechnungsKern.
 Creates:
   - public/icon-192.png  (192x192)
   - public/icon-512.png  (512x512)
@@ -77,11 +77,11 @@ def create_icon(size: int) -> Image.Image:
         fill=TEAL,
     )
 
-    # Draw "RW" text (skip on very small sizes where font rendering fails)
+    # Draw "RK" text (skip on very small sizes where font rendering fails)
     font_size = max(int(size * 0.38), 8)
     if size >= 32:
         font = find_font(font_size)
-        text = "RW"
+        text = "RK"
         bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
@@ -128,7 +128,7 @@ def create_favicon(sizes=None) -> None:
 
 
 def main():
-    print("Generating RechnungsWerk PWA icons...")
+    print("Generating RechnungsKern PWA icons...")
 
     # Generate main icons
     for size in [192, 512]:

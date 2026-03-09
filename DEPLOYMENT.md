@@ -1,4 +1,4 @@
-# RechnungsWerk — Deployment-Anleitung
+# RechnungsKern — Deployment-Anleitung
 
 ## 1. Hetzner VPS bestellen
 
@@ -29,8 +29,8 @@ ufw enable
 ## 3. Repository klonen
 
 ```bash
-git clone https://github.com/DEIN-USER/rechnungswerk.git /opt/rechnungswerk
-cd /opt/rechnungswerk
+git clone https://github.com/DEIN-USER/rechnungskern.git /opt/rechnungskern
+cd /opt/rechnungskern
 ```
 
 ## 4. Umgebungsvariablen konfigurieren
@@ -59,17 +59,17 @@ Beim Domain-Anbieter einen **A-Record** setzen:
 
 | Typ | Name | Ziel |
 |-----|------|------|
-| A | rechnungswerk.de | `DEINE_SERVER_IP` |
-| A | www.rechnungswerk.de | `DEINE_SERVER_IP` |
+| A | rechnungskern.de | `DEINE_SERVER_IP` |
+| A | www.rechnungskern.de | `DEINE_SERVER_IP` |
 
 DNS-Propagation pruefen:
 ```bash
-dig rechnungswerk.de +short
+dig rechnungskern.de +short
 ```
 
 ## 6. Caddyfile anpassen
 
-Die Datei `Caddyfile` enthaelt bereits die Konfiguration fuer `rechnungswerk.de`.
+Die Datei `Caddyfile` enthaelt bereits die Konfiguration fuer `rechnungskern.de`.
 Caddy holt automatisch ein Let's-Encrypt-Zertifikat.
 
 Falls du eine andere Domain nutzt, passe die erste Zeile an:
@@ -82,7 +82,7 @@ deine-domain.de {
 ## 7. Starten
 
 ```bash
-cd /opt/rechnungswerk
+cd /opt/rechnungskern
 docker compose up -d
 ```
 
@@ -107,7 +107,7 @@ crontab -e
 
 Folgende Zeile hinzufuegen (taeglich um 03:00 Uhr):
 ```
-0 3 * * * cd /opt/rechnungswerk && ./scripts/backup.sh >> /var/log/rechnungswerk-backup.log 2>&1
+0 3 * * * cd /opt/rechnungskern && ./scripts/backup.sh >> /var/log/rechnungskern-backup.log 2>&1
 ```
 
 Optionaler S3-Upload (Hetzner Object Storage oder AWS):
@@ -115,7 +115,7 @@ Optionaler S3-Upload (Hetzner Object Storage oder AWS):
 # In .env oder als System-Umgebungsvariablen:
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
-export BACKUP_BUCKET=rechnungswerk-backups
+export BACKUP_BUCKET=rechnungskern-backups
 ```
 
 ## 9. Uptime Kuma konfigurieren
@@ -132,7 +132,7 @@ Uptime Kuma laeuft auf Port 3002. Beim ersten Aufruf:
 ## Updates deployen
 
 ```bash
-cd /opt/rechnungswerk
+cd /opt/rechnungskern
 ./scripts/deploy.sh
 ```
 
@@ -148,7 +148,7 @@ docker compose up -d
 ### Restore
 
 ```bash
-gunzip < backup.sql.gz | docker compose exec -T db psql -U rw rechnungswerk
+gunzip < backup.sql.gz | docker compose exec -T db psql -U rw rechnungskern
 ```
 
 ### Restore testen

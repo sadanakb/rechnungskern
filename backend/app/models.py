@@ -1,5 +1,5 @@
 """
-Database models for RechnungsWerk
+Database models for RechnungsKern
 """
 from datetime import datetime, timezone
 

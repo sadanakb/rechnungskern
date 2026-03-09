@@ -20,7 +20,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
           <Link href="/" className="flex items-center gap-2">
             <Logo variant="icon" className="h-8 w-8" />
             <span className="text-xl font-bold tracking-tight" style={{ color: 'rgb(var(--foreground))' }}>
-              Rechnungs<span style={{ color: '#84CC16' }}>Werk</span>
+              Rechnungs<span style={{ color: '#84CC16' }}>Kern</span>
             </span>
           </Link>
           <div className="flex items-center gap-8">
@@ -112,7 +112,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               opacity: 0.7,
             }}
           >
-            &copy; 2026 RechnungsWerk — Made with care in Germany.
+            &copy; 2026 RechnungsKern — Made with care in Germany.
           </div>
         </div>
       </footer>

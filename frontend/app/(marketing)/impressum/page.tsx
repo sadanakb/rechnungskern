@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Impressum — RechnungsWerk',
+  title: 'Impressum — RechnungsKern',
   description: 'Impressum und Anbieterkennzeichnung gemaess § 5 TMG',
 }
 
@@ -12,7 +12,7 @@ export default function ImpressumPage() {
         <section>
           <h2 className="text-xl font-semibold mb-2">Angaben gemaess § 5 TMG</h2>
           <p>
-            RechnungsWerk<br />
+            RechnungsKern<br />
             {process.env.NEXT_PUBLIC_COMPANY_NAME || '[Nicht konfiguriert]'}<br />
             {process.env.NEXT_PUBLIC_COMPANY_STREET || '[Nicht konfiguriert]'}<br />
             {process.env.NEXT_PUBLIC_COMPANY_CITY || '[Nicht konfiguriert]'}<br />
@@ -23,7 +23,7 @@ export default function ImpressumPage() {
         <section>
           <h2 className="text-xl font-semibold mb-2">Kontakt</h2>
           <p>
-            E-Mail: kontakt@rechnungswerk.de<br />
+            E-Mail: kontakt@rechnungskern.de<br />
             Telefon: {process.env.NEXT_PUBLIC_COMPANY_PHONE || '[Nicht konfiguriert]'}
           </p>
         </section>

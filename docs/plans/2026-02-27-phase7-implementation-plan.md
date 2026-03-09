@@ -248,16 +248,16 @@ Frontend: Update dashboard/page.tsx to call `getDashboardStats()` instead of `li
 **What to build:**
 
 **`/kontakt` page:**
-- Metadata: "Kontakt – RechnungsWerk"
+- Metadata: "Kontakt – RechnungsKern"
 - Contact form: Name, E-Mail, Betreff (dropdown: Allgemeine Anfrage / Support / Partnerschaft / Presse), Nachricht
 - 'use client' for form state
 - On submit: POST to `/api/contact` (see below) OR `mailto:` fallback
 - Add `POST /api/contact` backend endpoint in a new `backend/app/routers/contact.py` that calls `email_service.send_contact_email(name, email, subject, message)` — add that email function
-- Also show: contact@rechnungswerk.de, GitHub Issues link, Response time: "Wir antworten innerhalb von 24 Stunden"
+- Also show: contact@rechnungskern.de, GitHub Issues link, Response time: "Wir antworten innerhalb von 24 Stunden"
 - JSON-LD: Organization schema with contactPoint
 
 **`/ueber-uns` page:**
-- Metadata: "Über uns – RechnungsWerk"
+- Metadata: "Über uns – RechnungsKern"
 - Mission statement: "Wir machen E-Rechnungen für deutsche Unternehmen einfach"
 - Story: Founded to solve E-Rechnungspflicht complexity
 - Values: Open Source, Privacy-first, German compliance

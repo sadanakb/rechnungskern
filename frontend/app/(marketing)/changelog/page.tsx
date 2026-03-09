@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Changelog | RechnungsWerk',
+  title: 'Changelog | RechnungsKern',
   description:
-    'Alle Updates und Releases von RechnungsWerk im Ueberblick. Neue Features, Verbesserungen und Bugfixes.',
+    'Alle Updates und Releases von RechnungsKern im Ueberblick. Neue Features, Verbesserungen und Bugfixes.',
   openGraph: {
-    title: 'Changelog | RechnungsWerk',
-    description: 'Alle Updates und Releases von RechnungsWerk im Ueberblick.',
+    title: 'Changelog | RechnungsKern',
+    description: 'Alle Updates und Releases von RechnungsKern im Ueberblick.',
     type: 'website',
     locale: 'de_DE',
   },
@@ -311,7 +311,7 @@ export default function ChangelogPage() {
             className="mt-4 text-lg max-w-2xl mx-auto leading-relaxed"
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
-            Alle Updates, neuen Features und Verbesserungen von RechnungsWerk auf einen Blick.
+            Alle Updates, neuen Features und Verbesserungen von RechnungsKern auf einen Blick.
           </p>
         </div>
       </section>

@@ -9,11 +9,11 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { CookieBanner } from '@/components/CookieBanner'
 
 export const metadata: Metadata = {
-  title: 'RechnungsWerk — Rechnungssoftware für Deutschland',
+  title: 'RechnungsKern — Rechnungssoftware für Deutschland',
   description:
     'Professionelle Rechnungen, Angebote und Buchhaltung für Selbständige und KMU. ZUGFeRD & XRechnung konform. Made in Germany.',
   keywords: ['Rechnungssoftware', 'Rechnung erstellen', 'ZUGFeRD', 'XRechnung', 'Buchhaltung', 'Angebote', 'SaaS', 'Deutschland'],
-  authors: [{ name: 'RechnungsWerk' }],
+  authors: [{ name: 'RechnungsKern' }],
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
@@ -25,17 +25,17 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'RechnungsWerk — Rechnungssoftware für Deutschland',
+    title: 'RechnungsKern — Rechnungssoftware für Deutschland',
     description: 'Professionelle Rechnungen, Angebote und Buchhaltung für Selbständige und KMU. ZUGFeRD & XRechnung konform.',
-    url: 'https://rechnungswerk.de',
-    siteName: 'RechnungsWerk',
+    url: 'https://rechnungskern.de',
+    siteName: 'RechnungsKern',
     locale: 'de_DE',
     type: 'website',
-    images: [{ url: '/logo-stacked.png', width: 512, height: 512, alt: 'RechnungsWerk Logo' }],
+    images: [{ url: '/logo-stacked.png', width: 512, height: 512, alt: 'RechnungsKern Logo' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RechnungsWerk — Rechnungssoftware für Deutschland',
+    title: 'RechnungsKern — Rechnungssoftware für Deutschland',
     description: 'Professionelle Rechnungen, Angebote und Buchhaltung. ZUGFeRD & XRechnung konform.',
   },
   robots: {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: 'https://rechnungswerk.de',
+    canonical: 'https://rechnungskern.de',
   },
 }
 

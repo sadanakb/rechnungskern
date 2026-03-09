@@ -25,10 +25,10 @@ export async function generateMetadata({
   if (!industry) return {}
 
   return {
-    title: `E-Rechnung fuer ${industry.name} | RechnungsWerk`,
+    title: `E-Rechnung fuer ${industry.name} | RechnungsKern`,
     description: `E-Rechnungen fuer ${industry.name}: XRechnung & ZUGFeRD konform erstellen. ${industry.invoiceVolume}. GoBD-konform, DATEV-Export, Open Source.`,
     openGraph: {
-      title: `E-Rechnung fuer ${industry.name} | RechnungsWerk`,
+      title: `E-Rechnung fuer ${industry.name} | RechnungsKern`,
       description: `Konforme E-Rechnungen fuer ${industry.name}. XRechnung 3.0.2, ZUGFeRD 2.3.3, DATEV-Export.`,
       type: 'website',
       locale: 'de_DE',
@@ -47,8 +47,8 @@ interface FAQ {
 function getIndustryFAQs(slug: string, name: string): FAQ[] {
   const baseFAQs: FAQ[] = [
     {
-      question: `Ist RechnungsWerk fuer ${name} geeignet?`,
-      answer: `Ja. RechnungsWerk wurde speziell fuer die Anforderungen verschiedener Branchen entwickelt, darunter ${name}. Alle E-Rechnungen entsprechen den Standards XRechnung 3.0.2 und ZUGFeRD 2.3.3 und sind somit konform mit der EN 16931.`,
+      question: `Ist RechnungsKern fuer ${name} geeignet?`,
+      answer: `Ja. RechnungsKern wurde speziell fuer die Anforderungen verschiedener Branchen entwickelt, darunter ${name}. Alle E-Rechnungen entsprechen den Standards XRechnung 3.0.2 und ZUGFeRD 2.3.3 und sind somit konform mit der EN 16931.`,
     },
     {
       question: `Wie schnell kann ich als ${name}-Unternehmen starten?`,
@@ -64,54 +64,54 @@ function getIndustryFAQs(slug: string, name: string): FAQ[] {
 
   const industrySpecificFAQs: Record<string, FAQ> = {
     handwerk: {
-      question: 'Unterstuetzt RechnungsWerk Abschlagsrechnungen nach VOB?',
+      question: 'Unterstuetzt RechnungsKern Abschlagsrechnungen nach VOB?',
       answer:
-        'Ja. RechnungsWerk bildet Abschlagsrechnungen und Schlussrechnungen korrekt ab und verknuepft diese miteinander. Bei oeffentlichen Auftraegen wird die XRechnung automatisch mit der korrekten Leitweg-ID erstellt.',
+        'Ja. RechnungsKern bildet Abschlagsrechnungen und Schlussrechnungen korrekt ab und verknuepft diese miteinander. Bei oeffentlichen Auftraegen wird die XRechnung automatisch mit der korrekten Leitweg-ID erstellt.',
     },
     'it-dienstleister': {
-      question: 'Wie funktioniert Reverse Charge mit RechnungsWerk?',
+      question: 'Wie funktioniert Reverse Charge mit RechnungsKern?',
       answer:
-        'RechnungsWerk erkennt automatisch, wenn ein Geschaeftspartner in einem anderen EU-Land ansaessig ist, und wendet das Reverse-Charge-Verfahren nach § 13b UStG korrekt an. Der entsprechende Hinweis wird automatisch auf der Rechnung vermerkt.',
+        'RechnungsKern erkennt automatisch, wenn ein Geschaeftspartner in einem anderen EU-Land ansaessig ist, und wendet das Reverse-Charge-Verfahren nach § 13b UStG korrekt an. Der entsprechende Hinweis wird automatisch auf der Rechnung vermerkt.',
     },
     gastronomie: {
-      question: 'Ist RechnungsWerk mit meinem Kassensystem kompatibel?',
+      question: 'Ist RechnungsKern mit meinem Kassensystem kompatibel?',
       answer:
-        'RechnungsWerk bietet eine REST-API, ueber die Kassensysteme Rechnungsdaten automatisch uebermitteln koennen. Die TSE-Anbindung erfolgt ueber Ihr bestehendes Kassensystem — RechnungsWerk uebernimmt die konforme E-Rechnungserstellung.',
+        'RechnungsKern bietet eine REST-API, ueber die Kassensysteme Rechnungsdaten automatisch uebermitteln koennen. Die TSE-Anbindung erfolgt ueber Ihr bestehendes Kassensystem — RechnungsKern uebernimmt die konforme E-Rechnungserstellung.',
     },
     einzelhandel: {
-      question: 'Kann RechnungsWerk hohe Rechnungsvolumina verarbeiten?',
+      question: 'Kann RechnungsKern hohe Rechnungsvolumina verarbeiten?',
       answer:
         'Ja. Mit der API-Schnittstelle koennen Sie tausende Rechnungen automatisiert erstellen. Der Starter-Plan bietet bereits unbegrenzte Rechnungen, ideal fuer den Einzelhandel mit hohem Volumen.',
     },
     freiberufler: {
-      question: 'Was kostet RechnungsWerk fuer Freiberufler?',
+      question: 'Was kostet RechnungsKern fuer Freiberufler?',
       answer:
         'Freiberufler koennen den kostenlosen Free-Plan nutzen, der 5 Rechnungen pro Monat umfasst — inklusive XRechnung und ZUGFeRD. Fuer ein hoeheres Volumen bietet der Starter-Plan ab 9,90 EUR/Monat unbegrenzte Rechnungen.',
     },
     immobilien: {
       question: 'Kann ich wiederkehrende Mieterrechnungen automatisieren?',
       answer:
-        'Ja. RechnungsWerk erstellt wiederkehrende Rechnungen automatisch und versendet diese zum gewuenschten Zeitpunkt. Ideal fuer monatliche Mieterrechnungen und jaehrliche Nebenkostenabrechnungen.',
+        'Ja. RechnungsKern erstellt wiederkehrende Rechnungen automatisch und versendet diese zum gewuenschten Zeitpunkt. Ideal fuer monatliche Mieterrechnungen und jaehrliche Nebenkostenabrechnungen.',
     },
     logistik: {
-      question: 'Unterstuetzt RechnungsWerk internationale Rechnungen?',
+      question: 'Unterstuetzt RechnungsKern internationale Rechnungen?',
       answer:
-        'Ja. RechnungsWerk unterstuetzt Waehrungsumrechnung, laenderspezifische MwSt.-Saetze und das Reverse-Charge-Verfahren fuer EU-Geschaefte. Rechnungen koennen in mehreren Sprachen erstellt werden.',
+        'Ja. RechnungsKern unterstuetzt Waehrungsumrechnung, laenderspezifische MwSt.-Saetze und das Reverse-Charge-Verfahren fuer EU-Geschaefte. Rechnungen koennen in mehreren Sprachen erstellt werden.',
     },
     gesundheitswesen: {
       question: 'Werden Patientendaten DSGVO-konform gespeichert?',
       answer:
-        'Ja. RechnungsWerk speichert alle Daten DSGVO-konform auf Servern in Deutschland. Die Verarbeitung von Gesundheitsdaten erfolgt unter Einhaltung aller datenschutzrechtlichen Anforderungen nach Art. 9 DSGVO.',
+        'Ja. RechnungsKern speichert alle Daten DSGVO-konform auf Servern in Deutschland. Die Verarbeitung von Gesundheitsdaten erfolgt unter Einhaltung aller datenschutzrechtlichen Anforderungen nach Art. 9 DSGVO.',
     },
     beratung: {
       question: 'Kann ich Reisekosten auf Projektrechnungen ausweisen?',
       answer:
-        'Ja. RechnungsWerk ermoeglicht die detaillierte Aufstellung von Reisekosten innerhalb einer Projektrechnung, inklusive steuerfreier Pauschalen nach Reisekostenrecht.',
+        'Ja. RechnungsKern ermoeglicht die detaillierte Aufstellung von Reisekosten innerhalb einer Projektrechnung, inklusive steuerfreier Pauschalen nach Reisekostenrecht.',
     },
     'e-commerce': {
       question: 'Gibt es eine Integration fuer Shopify oder WooCommerce?',
       answer:
-        'RechnungsWerk bietet eine REST-API, ueber die Shop-Systeme wie Shopify und WooCommerce Rechnungen automatisch erstellen koennen. So werden bei jeder Bestellung konforme E-Rechnungen generiert.',
+        'RechnungsKern bietet eine REST-API, ueber die Shop-Systeme wie Shopify und WooCommerce Rechnungen automatisch erstellen koennen. So werden bei jeder Bestellung konforme E-Rechnungen generiert.',
     },
   }
 
@@ -249,7 +249,7 @@ export default async function IndustryPage({
                 className="mt-3 text-base max-w-xl mx-auto"
                 style={{ color: 'rgb(var(--foreground-muted))' }}
               >
-                Diese typischen Probleme bei der Rechnungsstellung loest RechnungsWerk fuer Sie.
+                Diese typischen Probleme bei der Rechnungsstellung loest RechnungsKern fuer Sie.
               </p>
             </div>
 
@@ -297,7 +297,7 @@ export default async function IndustryPage({
                 className="text-3xl font-bold tracking-tight"
                 style={{ color: 'rgb(var(--foreground))' }}
               >
-                So hilft RechnungsWerk im {industry.name}
+                So hilft RechnungsKern im {industry.name}
               </h2>
               <p
                 className="mt-3 text-base max-w-xl mx-auto"
@@ -482,7 +482,7 @@ export default async function IndustryPage({
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'SoftwareApplication',
-            name: 'RechnungsWerk',
+            name: 'RechnungsKern',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
             description: `E-Rechnungssoftware fuer ${industry.name}. XRechnung 3.0.2 und ZUGFeRD 2.3.3 konform.`,

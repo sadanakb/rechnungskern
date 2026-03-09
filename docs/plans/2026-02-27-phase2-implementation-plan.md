@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add revenue features (Mahnwesen, DATEV polish), power-user UX (TanStack Table, cmdk, Onboarding), KI-API migration, and programmatic SEO engine — transforming RechnungsWerk from MVP to feature-rich product.
+**Goal:** Add revenue features (Mahnwesen, DATEV polish), power-user UX (TanStack Table, cmdk, Onboarding), KI-API migration, and programmatic SEO engine — transforming RechnungsKern from MVP to feature-rich product.
 
 **Architecture:** Mahnwesen as 3-level state machine with Brevo email delivery. TanStack Table replaces custom invoice table. cmdk for Cmd+K navigation. pSEO via Next.js dynamic routes with generateStaticParams. KI migration adds Mistral/Claude API clients alongside Ollama fallback.
 
@@ -26,7 +26,7 @@
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm install @tanstack/react-table cmdk
 ```
 
@@ -47,7 +47,7 @@ reportlab>=4.2.0
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pip install -r requirements.txt
 ```
 
@@ -55,8 +55,8 @@ pip install -r requirements.txt
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short
-cd /Users/sadanakb/rechnungswerk/frontend && npx vitest run
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short
+cd /Users/sadanakb/rechnungskern/frontend && npx vitest run
 ```
 Expected: All 198 backend + 71 frontend tests pass.
 
@@ -231,7 +231,7 @@ class TestListMahnungen:
 
 **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && pytest tests/test_mahnwesen.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && pytest tests/test_mahnwesen.py -v`
 Expected: FAIL — router not found.
 
 **Step 3: Add Mahnung model to models.py**
@@ -447,10 +447,10 @@ app.include_router(mahnwesen.router)
 
 **Step 7: Run tests**
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && pytest tests/test_mahnwesen.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && pytest tests/test_mahnwesen.py -v`
 Expected: All 5 tests PASS.
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short`
+Run: `cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short`
 Expected: All tests pass (198 + 5 = 203).
 
 **Step 8: Commit**
@@ -492,7 +492,7 @@ describe('CommandPalette', () => {
 
 **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npx vitest run __tests__/command-palette.test.tsx`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npx vitest run __tests__/command-palette.test.tsx`
 Expected: FAIL — module not found.
 
 **Step 3: Create CommandPalette component**
@@ -642,12 +642,12 @@ useEffect(() => {
 
 **Step 5: Run tests**
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npx vitest run`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npx vitest run`
 Expected: All tests pass.
 
 **Step 6: Build**
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npm run build`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npm run build`
 Expected: Build succeeds.
 
 **Step 7: Commit**
@@ -867,9 +867,9 @@ The page should be a 'use client' component with state tracking the current step
 **Step 6: Run tests**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/test_onboarding.py -v
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/test_onboarding.py -v
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 7: Commit**
@@ -930,7 +930,7 @@ Read the existing `frontend/app/(dashboard)/invoices/page.tsx` and replace the c
 **Step 4: Run tests and build**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npx vitest run && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npx vitest run && npm run build
 ```
 
 **Step 5: Commit**
@@ -1096,8 +1096,8 @@ ai_provider: str = "auto"  # auto, anthropic, mistral, ollama
 **Step 4: Run tests**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/test_ai_service.py -v
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/test_ai_service.py -v
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short
 ```
 
 **Step 5: Commit**
@@ -1196,7 +1196,7 @@ Create `frontend/app/(marketing)/e-rechnung/bundesland/[land]/page.tsx`.
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 Expected: All industry and Bundesland pages are statically generated.
 
@@ -1231,7 +1231,7 @@ Create `frontend/content/blog/gobd-compliance.mdx` — "GoBD-konforme Archivieru
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 Expected: All 4 blog posts appear in build output.
 
@@ -1298,7 +1298,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-NEWSLETTER_LIST_ID = 2  # Default list ID for RechnungsWerk newsletter
+NEWSLETTER_LIST_ID = 2  # Default list ID for RechnungsKern newsletter
 
 
 def add_contact(email: str, attributes: dict = None) -> bool:
@@ -1502,7 +1502,7 @@ Add "Mahnwesen" link to `SidebarNav.tsx`.
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 5: Commit**
@@ -1539,7 +1539,7 @@ Add "DATEV Export" button to the invoices page toolbar.
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 5: Commit**

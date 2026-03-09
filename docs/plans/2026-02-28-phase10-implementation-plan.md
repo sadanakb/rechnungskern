@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Upgrade RechnungsWerk's existing DATEV export from a simple CSV dump to a full EXTF v700 ZIP export with Beraternummer/Mandantennummer, SKR03-filtered Buchungsstapel + Stammdaten, and Steuerberater email delivery.
+**Goal:** Upgrade RechnungsKern's existing DATEV export from a simple CSV dump to a full EXTF v700 ZIP export with Beraternummer/Mandantennummer, SKR03-filtered Buchungsstapel + Stammdaten, and Steuerberater email delivery.
 
 **Architecture:** The existing `DATEVExporter` class in `backend/app/export/datev_export.py` is enhanced with Beraternummer/Mandantennummer params and a new `format_stammdaten()` method. Three new Organization columns (`datev_berater_nr`, `datev_mandant_nr`, `steuerberater_email`) are added via Alembic migration. A new `backend/app/routers/datev.py` serves two JWT-protected endpoints: `GET /api/datev/export` (ZIP download) and `POST /api/datev/send-email`. The frontend settings page gets a DATEV config section, and the existing `DATEVExportSection` in berichte is upgraded to use the new ZIP endpoint.
 
@@ -23,7 +23,7 @@
 **Step 1: Create feature branch**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git checkout -b feature/phase10-datev-export
 ```
 
@@ -127,7 +127,7 @@ class TestDATEVFormatter:
 ### Step 2: Run tests to verify they fail
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_formatter.py -v
 ```
 
@@ -281,7 +281,7 @@ Add `import zipfile` to the top-level imports.
 ### Step 4: Run tests to verify they pass
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_formatter.py -v
 ```
 
@@ -290,7 +290,7 @@ Expected: 6 PASSED
 ### Step 5: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/export/datev_export.py backend/tests/test_datev_formatter.py
 git commit -m "feat: enhance DATEVExporter with berater_nr, stammdaten, ZIP export"
 ```
@@ -320,7 +320,7 @@ def test_organization_has_datev_fields(self):
 ### Step 2: Run test to verify it fails
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_formatter.py::TestDATEVFormatter::test_organization_has_datev_fields -v
 ```
 
@@ -373,7 +373,7 @@ def downgrade() -> None:
 ### Step 5: Run test to verify it passes
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_formatter.py::TestDATEVFormatter::test_organization_has_datev_fields -v
 ```
 
@@ -382,7 +382,7 @@ Expected: PASS
 ### Step 6: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/models.py backend/alembic/versions/phase10_datev_settings.py backend/tests/test_datev_formatter.py
 git commit -m "feat: add DATEV settings columns to Organization model + migration"
 ```
@@ -516,7 +516,7 @@ class TestDATEVSettingsApi:
 ### Step 2: Run tests to verify they fail
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_settings_api.py -v
 ```
 
@@ -611,7 +611,7 @@ from app.auth_jwt import get_current_user
 ### Step 4: Run tests to verify they pass
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_settings_api.py -v
 ```
 
@@ -620,7 +620,7 @@ Expected: 3 PASSED
 ### Step 5: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/routers/onboarding.py backend/tests/test_datev_settings_api.py
 git commit -m "feat: add GET/POST /api/onboarding/datev-settings endpoints"
 ```
@@ -801,7 +801,7 @@ class TestDATEVExportEndpoint:
 ### Step 2: Run tests to verify they fail
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_export_endpoint.py -v
 ```
 
@@ -821,16 +821,16 @@ def send_datev_export_email(
     invoice_count: int,
 ) -> bool:
     """Send a notification email to the tax advisor about a new DATEV export."""
-    subject = f"DATEV-Export {from_month} bis {to_month} — RechnungsWerk"
+    subject = f"DATEV-Export {from_month} bis {to_month} — RechnungsKern"
     body = (
         f"Guten Tag,\n\n"
         f"ein neuer DATEV-Export wurde erstellt.\n\n"
         f"Zeitraum: {from_month} bis {to_month}\n"
         f"Anzahl Buchungssätze: {invoice_count}\n\n"
-        f"Bitte loggen Sie sich in RechnungsWerk ein, um den Export herunterzuladen:\n"
-        f"https://app.rechnungswerk.de/berichte\n\n"
+        f"Bitte loggen Sie sich in RechnungsKern ein, um den Export herunterzuladen:\n"
+        f"https://app.rechnungskern.de/berichte\n\n"
         f"Mit freundlichen Grüßen,\n"
-        f"RechnungsWerk"
+        f"RechnungsKern"
     )
     return _send_smtp(to_email=to_email, subject=subject, body=body)
 ```
@@ -1056,7 +1056,7 @@ app.include_router(datev_router.router, prefix="/api/datev", tags=["datev"])
 ### Step 6: Run tests to verify they pass
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest tests/test_datev_export_endpoint.py -v
 ```
 
@@ -1065,7 +1065,7 @@ Expected: 4 PASSED
 ### Step 7: Run full backend test suite to ensure no regressions
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest --tb=short -q 2>&1 | tail -5
 ```
 
@@ -1074,7 +1074,7 @@ Expected: All previously passing tests still pass (436+)
 ### Step 8: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/routers/datev.py backend/app/email_service.py backend/app/main.py backend/tests/test_datev_export_endpoint.py
 git commit -m "feat: add DATEV export + send-email endpoints with EXTF ZIP format"
 ```
@@ -1263,7 +1263,7 @@ function DatevKonfigurationTab() {
 ### Step 3: Verify TypeScript compiles
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npx tsc --noEmit 2>&1 | head -20
 ```
 
@@ -1272,7 +1272,7 @@ Expected: No errors
 ### Step 4: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/lib/api.ts frontend/app/\(dashboard\)/settings/page.tsx
 git commit -m "feat: add DATEV-Konfiguration tab to settings page"
 ```
@@ -1457,7 +1457,7 @@ Also add the `Mail` icon to the lucide-react import and the `sendDatevEmail` + `
 ### Step 3: Verify TypeScript compiles
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npx tsc --noEmit 2>&1 | head -20
 ```
 
@@ -1466,7 +1466,7 @@ Expected: No TypeScript errors
 ### Step 4: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/\(dashboard\)/berichte/page.tsx frontend/lib/api.ts
 git commit -m "feat: enhance DATEV export UI with month range, ZIP download, send-email button"
 ```
@@ -1483,7 +1483,7 @@ git commit -m "feat: enhance DATEV export UI with month range, ZIP download, sen
 ### Step 1: Run full backend test suite
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 python -m pytest --tb=short -q 2>&1 | tail -10
 ```
 
@@ -1492,7 +1492,7 @@ Expected: All tests pass (446+ including new Phase 10 tests), 0 failures.
 ### Step 2: Run frontend build
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npx next build 2>&1 | tail -15
 ```
 
@@ -1536,7 +1536,7 @@ To:
 ### Step 5: Commit changelog + version
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/\(marketing\)/changelog/page.tsx frontend/components/layout/SidebarNav.tsx
 git commit -m "feat: add v1.0.0 changelog entry and bump version to 6.0.0"
 ```
@@ -1544,7 +1544,7 @@ git commit -m "feat: add v1.0.0 changelog entry and bump version to 6.0.0"
 ### Step 6: Merge to master
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git checkout master
 git merge feature/phase10-datev-export --no-ff -m "feat: merge Phase 10 — DATEV-Export (EXTF v700 ZIP, SKR03-Filter, Steuerberater-E-Mail)"
 ```
@@ -1557,7 +1557,7 @@ Open `.claude/CHECKPOINT.md`. Replace entire contents with:
 # Checkpoint — 2026-02-28
 
 ## Ziel
-RechnungsWerk — production-ready German e-invoicing SaaS, alle Phasen 1-10 abgeschlossen.
+RechnungsKern — production-ready German e-invoicing SaaS, alle Phasen 1-10 abgeschlossen.
 
 ## Erledigt
 - [x] Phase 1: Marktreife (Multi-Tenant Auth, Landing Page, Stripe, PWA, MDX Blog)

@@ -7,14 +7,14 @@
 
 ## Ziel
 
-Rechnungsempfänger können Rechnungen direkt im Kunden-Portal online bezahlen — per Kreditkarte, SEPA-Lastschrift, Sofort oder iDEAL. RechnungsWerk erhebt automatisch eine Platform-Fee von 0,5 % über Stripe Connect Express. PayPal wird als einfacher Link-Button unterstützt (kein Platform-Cut).
+Rechnungsempfänger können Rechnungen direkt im Kunden-Portal online bezahlen — per Kreditkarte, SEPA-Lastschrift, Sofort oder iDEAL. RechnungsKern erhebt automatisch eine Platform-Fee von 0,5 % über Stripe Connect Express. PayPal wird als einfacher Link-Button unterstützt (kein Platform-Cut).
 
 ---
 
 ## Architektur
 
 ```
-RechnungsWerk (Stripe Platform Account)
+RechnungsKern (Stripe Platform Account)
     │
     ├── Org (Stripe Connect Express Account)
     │       │

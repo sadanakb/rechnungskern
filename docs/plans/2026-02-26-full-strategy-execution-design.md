@@ -1,4 +1,4 @@
-# RechnungsWerk: Full Strategy Execution Design
+# RechnungsKern: Full Strategy Execution Design
 
 **Datum:** 26. Februar 2026
 **Zeitrahmen:** 3 Monate intensiv (Maerz-Juni 2026)
@@ -28,7 +28,7 @@
 - Banking-Anbindung
 
 ### Wettbewerbsposition (First Mover)
-**Kein Open-Source E-Invoicing SaaS existiert in Deutschland.** Alle OSS-Alternativen sind Developer-Libraries (Mustang, Konik) oder Desktop-Tools (ZUGFeRD-Manager). RechnungsWerk waere das erste.
+**Kein Open-Source E-Invoicing SaaS existiert in Deutschland.** Alle OSS-Alternativen sind Developer-Libraries (Mustang, Konik) oder Desktop-Tools (ZUGFeRD-Manager). RechnungsKern waere das erste.
 
 ---
 
@@ -171,9 +171,9 @@ Text:        #0f172a (slate-900)
 - **Schwaeche:** Keine EUeR, kein ELSTER, schwache Mobile App
 - **Chance:** Vollstaendigeres Feature-Set
 
-### Strategische Differenzierung RechnungsWerk
+### Strategische Differenzierung RechnungsKern
 
-| Feature | sevDesk | Lexware | easybill | **RechnungsWerk** |
+| Feature | sevDesk | Lexware | easybill | **RechnungsKern** |
 |---------|---------|---------|----------|-------------------|
 | XRechnung/ZUGFeRD | Alle Tarife | Nur XL (32,90) | Bezahltarife | **Alle Tarife inkl. Free** |
 | Open Source | Nein | Nein | Nein | **AGPL auf GitHub** |
@@ -276,7 +276,7 @@ Text:        #0f172a (slate-900)
 
 **Anthropic hat am 20. Februar 2026 "Claude Code Security" veroeffentlicht** — ein KI-gestuetztes Vulnerability-Scanning-Tool basierend auf Opus 4.6.
 
-### Aktion: Security Audit fuer RechnungsWerk
+### Aktion: Security Audit fuer RechnungsKern
 1. Claude Code Security auf die gesamte Codebase ausfuehren
 2. Bekannte Schwachstellen-Kategorien pruefen:
    - SQL Injection (SQLAlchemy parametrisierte Queries?)

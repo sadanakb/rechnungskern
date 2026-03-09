@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Ueber uns – RechnungsWerk',
+  title: 'Ueber uns – RechnungsKern',
   description:
     'Wir machen E-Rechnungen fuer deutsche Unternehmen einfach. Open Source, datenschutzkonform, EN 16931 zertifiziert.',
   openGraph: {
-    title: 'Ueber uns – RechnungsWerk',
+    title: 'Ueber uns – RechnungsKern',
     description:
       'Wir machen E-Rechnungen fuer deutsche Unternehmen einfach. Open Source, datenschutzkonform, EN 16931 zertifiziert.',
     type: 'website',
@@ -19,7 +19,7 @@ const values = [
     icon: '&#128273;',
     title: 'Open Source',
     description:
-      'RechnungsWerk ist vollstaendig Open Source (AGPL-3.0). Jede Zeile Code ist auf GitHub einsehbar — keine versteckten Algorithmen, keine Lock-in-Effekte.',
+      'RechnungsKern ist vollstaendig Open Source (AGPL-3.0). Jede Zeile Code ist auf GitHub einsehbar — keine versteckten Algorithmen, keine Lock-in-Effekte.',
   },
   {
     icon: '&#128274;',
@@ -46,7 +46,7 @@ const techStack = [
 
 const team = [
   { initials: 'SK', name: 'Sadan K.', role: 'Gruender & Entwickler' },
-  { initials: 'RW', name: 'RechnungsWerk', role: 'Open Source Community' },
+  { initials: 'RW', name: 'RechnungsKern', role: 'Open Source Community' },
 ]
 
 export default function UeberUnsPage() {
@@ -68,7 +68,7 @@ export default function UeberUnsPage() {
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
             Die E-Rechnungspflicht in Deutschland ist komplex, die vorhandenen
-            Loesungen oft teuer oder schwer verstaendlich. RechnungsWerk entstand
+            Loesungen oft teuer oder schwer verstaendlich. RechnungsKern entstand
             aus der Ueberzeugung, dass rechtskonforme E-Rechnungen fuer jeden
             zugaenglich sein muessen — ob Einzelunternehmer, Mittelstaendler oder
             Grossunternehmen.
@@ -103,7 +103,7 @@ export default function UeberUnsPage() {
               Compliance — ueberforderten viele.
             </p>
             <p>
-              RechnungsWerk wurde entwickelt, um diese Luecke zu schliessen.
+              RechnungsKern wurde entwickelt, um diese Luecke zu schliessen.
               Vollstaendig Open Source, lokal hostbar und mit einem klaren
               Fokus auf korrekte Implementierung der deutschen und europaeischen
               Standards. Von Anfang an stand dabei Transparenz im Mittelpunkt:
@@ -111,7 +111,7 @@ export default function UeberUnsPage() {
               und pruefbar.
             </p>
             <p>
-              Heute unterstuetzt RechnungsWerk XRechnung 3.0.2 und
+              Heute unterstuetzt RechnungsKern XRechnung 3.0.2 und
               ZUGFeRD 2.3.3, bietet OCR-gestuetzte Belegserfassung, GoBD-konformes
               Archiv, DATEV-Export und ein vollstaendiges Mahnwesen — alles
               unter einer offenen Lizenz.
@@ -207,7 +207,7 @@ export default function UeberUnsPage() {
             className="mt-4 text-sm leading-relaxed"
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
-            RechnungsWerk ist vollstaendig Open Source und unter der AGPL-3.0
+            RechnungsKern ist vollstaendig Open Source und unter der AGPL-3.0
             lizenziert. Sie koennen den Quellcode einsehen, forken, anpassen
             und Ihre eigene Instanz betreiben — ohne Einschraenkungen.
           </p>

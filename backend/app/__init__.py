@@ -1,1 +1,1 @@
-"""RechnungsWerk backend package"""
+"""RechnungsKern backend package"""

@@ -60,7 +60,7 @@ if app.state.arq_pool:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q 2>&1 | tail -5
+cd /Users/sadanakb/rechnungskern/backend && pytest -q 2>&1 | tail -5
 # Expected: 384 passed (no regressions)
 ```
 
@@ -217,7 +217,7 @@ class TestEmailTaskDispatch:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_email_tasks.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_email_tasks.py
 # Expected: 3 passed
 ```
 
@@ -446,7 +446,7 @@ class TestWebhookRetry:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_webhook_retry.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_webhook_retry.py
 # Expected: 4 passed
 ```
 
@@ -727,7 +727,7 @@ class TestRecurringCron:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_recurring_cron.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_recurring_cron.py
 # Expected: 3 passed
 ```
 
@@ -902,7 +902,7 @@ class TestLocalStorage:
         from app.storage import LocalStorage
 
         storage = LocalStorage(base_dir=str(tmp_path))
-        data = b"Hello, RechnungsWerk!"
+        data = b"Hello, RechnungsKern!"
         storage.save("invoices/test.pdf", data)
         result = storage.read("invoices/test.pdf")
 
@@ -937,13 +937,13 @@ class TestLocalStorage:
             mock_boto3_client.return_value = mock_client
 
             storage = S3Storage(
-                bucket="rechnungswerk-test",
+                bucket="rechnungskern-test",
                 region="eu-central-1",
                 access_key="AKIAIOSFODNN7EXAMPLE",
                 secret_key="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
             )
 
-            assert storage.bucket == "rechnungswerk-test"
+            assert storage.bucket == "rechnungskern-test"
             assert storage.client is mock_client
             mock_boto3_client.assert_called_once_with(
                 "s3",
@@ -956,7 +956,7 @@ class TestLocalStorage:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_storage.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_storage.py
 # Expected: 4 passed
 ```
 
@@ -1185,7 +1185,7 @@ class TestShareLinks:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_share_links.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_share_links.py
 # Expected: 5 passed
 ```
 
@@ -1488,7 +1488,7 @@ class TestPortalAPI:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_portal_api.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_portal_api.py
 # Expected: 5 passed
 ```
 
@@ -1539,11 +1539,11 @@ def send_invoice_portal_email(
         + ".</p>"
         "<p>Sie können Ihre Rechnung über den folgenden Link einsehen, "
         "herunterladen und Ihre Zahlung bestätigen:</p>"
-        f'<p><a href="https://rechnungswerk.io{portal_url}" '
+        f'<p><a href="https://rechnungskern.io{portal_url}" '
         'style="background:#14b8a6;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Rechnung ansehen</a></p>'
         "<p>Der Link ist 30 Tage gültig.</p>"
-        "<br><p>Mit freundlichen Grüßen,<br>Ihr RechnungsWerk Team</p>"
+        "<br><p>Mit freundlichen Grüßen,<br>Ihr RechnungsKern Team</p>"
         "</body></html>"
     )
 
@@ -1760,7 +1760,7 @@ const [copySuccess, setCopySuccess] = useState(false)
 const handleCreateShareLink = async () => {
   try {
     const result = await createShareLink(invoice.invoice_id)
-    setShareLink(`https://rechnungswerk.io${result.url}`)
+    setShareLink(`https://rechnungskern.io${result.url}`)
     setShowShareModal(true)
   } catch (err) {
     console.error('Share link error:', err)
@@ -1895,10 +1895,10 @@ const handleSendEmail = async () => {
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q --tb=short tests/test_send_invoice_email.py
+cd /Users/sadanakb/rechnungskern/backend && pytest -q --tb=short tests/test_send_invoice_email.py
 # Expected: 3 passed
 
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10
 # Expected: build succeeds
 ```
 
@@ -2064,7 +2064,7 @@ export default function PortalPage() {
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}>
-              RechnungsWerk
+              RechnungsKern
             </p>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
               Ihre Rechnung
@@ -2362,8 +2362,8 @@ export default function PortalPage() {
           color: '#94a3b8',
         }}>
           Bereitgestellt von{' '}
-          <a href="https://rechnungswerk.io" style={{ color: '#14b8a6' }}>
-            RechnungsWerk
+          <a href="https://rechnungskern.io" style={{ color: '#14b8a6' }}>
+            RechnungsKern
           </a>
           {invoice.expires_at &&
             ` · Link gültig bis ${new Date(invoice.expires_at).toLocaleDateString('de-DE')}`
@@ -2377,7 +2377,7 @@ export default function PortalPage() {
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10
 # Expected: build succeeds, portal/[token] route appears in output
 ```
 
@@ -2446,7 +2446,7 @@ def downgrade() -> None:
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -c "from alembic.config import Config; from alembic import command; c = Config('alembic.ini'); command.history(c)" 2>&1 | head -5
+cd /Users/sadanakb/rechnungskern/backend && python -c "from alembic.config import Config; from alembic import command; c = Config('alembic.ini'); command.history(c)" 2>&1 | head -5
 # Expected: b7c3e9f4d2a1 appears in migration history
 ```
 
@@ -2466,14 +2466,14 @@ cd /Users/sadanakb/rechnungswerk/backend && python -c "from alembic.config impor
 ### Final test run
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest -q 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/backend && pytest -q 2>&1 | tail -10
 # Expected: 384+ passed (all original + new tests from Tasks 2-8)
 ```
 
 ### Frontend build check
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10
 # Expected: build succeeds with 114+ pages, including portal/[token]
 ```
 
@@ -2533,7 +2533,7 @@ Find the `releases` array (or equivalent data structure) and insert the v0.8.0 e
 
 **Verification command:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | grep -E "Route|Error" | head -20
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | grep -E "Route|Error" | head -20
 # Expected: changelog route appears, no TypeScript errors
 ```
 

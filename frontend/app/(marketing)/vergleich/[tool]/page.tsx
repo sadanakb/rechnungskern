@@ -41,11 +41,11 @@ export async function generateMetadata({
   if (!comparison) return {}
 
   return {
-    title: `RechnungsWerk vs ${comparison.name} — E-Rechnungssoftware Vergleich`,
-    description: `Vergleich: RechnungsWerk vs ${comparison.name}. Open Source, Self-Hosting, XRechnung 3.0.2 & ZUGFeRD 2.3.3. Entdecken Sie die bessere Alternative zu ${comparison.name}.`,
+    title: `RechnungsKern vs ${comparison.name} — E-Rechnungssoftware Vergleich`,
+    description: `Vergleich: RechnungsKern vs ${comparison.name}. Open Source, Self-Hosting, XRechnung 3.0.2 & ZUGFeRD 2.3.3. Entdecken Sie die bessere Alternative zu ${comparison.name}.`,
     openGraph: {
-      title: `RechnungsWerk vs ${comparison.name} — E-Rechnungssoftware Vergleich`,
-      description: `Detaillierter Funktionsvergleich: RechnungsWerk vs ${comparison.name}. Finden Sie die passende E-Rechnungsloesung.`,
+      title: `RechnungsKern vs ${comparison.name} — E-Rechnungssoftware Vergleich`,
+      description: `Detaillierter Funktionsvergleich: RechnungsKern vs ${comparison.name}. Finden Sie die passende E-Rechnungsloesung.`,
       type: 'website',
       locale: 'de_DE',
     },
@@ -130,7 +130,7 @@ export default async function ComparisonPage({
               style={{ color: 'rgb(var(--foreground))' }}
             >
               <span style={{ color: 'rgb(var(--primary))' }}>{comparison.name}</span>{' '}
-              Alternative: RechnungsWerk
+              Alternative: RechnungsKern
             </h1>
 
             <p
@@ -138,7 +138,7 @@ export default async function ComparisonPage({
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
               {comparison.name} — {comparison.tagline} ({comparison.pricing}).
-              Entdecken Sie, warum RechnungsWerk die moderne Open-Source-Alternative ist.
+              Entdecken Sie, warum RechnungsKern die moderne Open-Source-Alternative ist.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -182,7 +182,7 @@ export default async function ComparisonPage({
                 className="mt-3 text-base max-w-xl mx-auto"
                 style={{ color: 'rgb(var(--foreground-muted))' }}
               >
-                RechnungsWerk vs {comparison.name} — Feature fuer Feature im direkten Vergleich.
+                RechnungsKern vs {comparison.name} — Feature fuer Feature im direkten Vergleich.
               </p>
             </div>
 
@@ -211,7 +211,7 @@ export default async function ComparisonPage({
                   className="text-sm font-semibold text-center"
                   style={{ color: 'rgb(var(--primary))' }}
                 >
-                  RechnungsWerk
+                  RechnungsKern
                 </div>
                 <div
                   className="text-sm font-semibold text-center"
@@ -270,7 +270,7 @@ export default async function ComparisonPage({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* RechnungsWerk pricing */}
+              {/* RechnungsKern pricing */}
               <div
                 className="rounded-xl border p-8"
                 style={{
@@ -283,7 +283,7 @@ export default async function ComparisonPage({
                   className="text-lg font-bold mb-2"
                   style={{ color: 'rgb(var(--primary))' }}
                 >
-                  RechnungsWerk
+                  RechnungsKern
                 </h3>
                 <p
                   className="text-3xl font-extrabold mb-1"
@@ -383,7 +383,7 @@ export default async function ComparisonPage({
         </section>
 
         {/* ============================================================
-            RechnungsWerk advantages
+            RechnungsKern advantages
             ============================================================ */}
         <section className="py-20">
           <div className="mx-auto max-w-4xl px-6">
@@ -392,13 +392,13 @@ export default async function ComparisonPage({
                 className="text-3xl font-bold tracking-tight"
                 style={{ color: 'rgb(var(--foreground))' }}
               >
-                Warum RechnungsWerk statt {comparison.name}?
+                Warum RechnungsKern statt {comparison.name}?
               </h2>
               <p
                 className="mt-3 text-base max-w-xl mx-auto"
                 style={{ color: 'rgb(var(--foreground-muted))' }}
               >
-                Diese Vorteile bietet Ihnen RechnungsWerk gegenueber {comparison.name}.
+                Diese Vorteile bietet Ihnen RechnungsKern gegenueber {comparison.name}.
               </p>
             </div>
 
@@ -502,7 +502,7 @@ export default async function ComparisonPage({
               className="mt-4 text-base max-w-lg mx-auto"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Testen Sie RechnungsWerk kostenlos. Keine Kreditkarte, keine Verpflichtung.
+              Testen Sie RechnungsKern kostenlos. Keine Kreditkarte, keine Verpflichtung.
               Erstellen Sie Ihre erste E-Rechnung in unter 30 Sekunden.
             </p>
             <div className="mt-8">
@@ -528,7 +528,7 @@ export default async function ComparisonPage({
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'SoftwareApplication',
-            name: 'RechnungsWerk',
+            name: 'RechnungsKern',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
             description: `E-Rechnungssoftware — Open-Source-Alternative zu ${comparison.name}. XRechnung 3.0.2 und ZUGFeRD 2.3.3 konform.`,

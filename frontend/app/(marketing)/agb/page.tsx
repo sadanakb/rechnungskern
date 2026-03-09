@@ -1,10 +1,10 @@
 export const metadata = {
-  title: 'AGB — RechnungsWerk',
-  description: 'Allgemeine Geschaeftsbedingungen von RechnungsWerk',
+  title: 'AGB — RechnungsKern',
+  description: 'Allgemeine Geschaeftsbedingungen von RechnungsKern',
 }
 
 export default function AGBPage() {
-  const company = process.env.NEXT_PUBLIC_COMPANY_NAME || 'RechnungsWerk'
+  const company = process.env.NEXT_PUBLIC_COMPANY_NAME || 'RechnungsKern'
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
@@ -28,7 +28,7 @@ export default function AGBPage() {
             (1) Diese Allgemeinen Geschaeftsbedingungen (nachfolgend &bdquo;AGB&ldquo;) gelten fuer
             saemtliche Vertraege zwischen {company} (nachfolgend &bdquo;Anbieter&ldquo;) und dem
             Kunden (nachfolgend &bdquo;Nutzer&ldquo;) ueber die Nutzung der unter{' '}
-            <strong>rechnungswerk.de</strong> bereitgestellten Software-as-a-Service-Loesung
+            <strong>rechnungskern.de</strong> bereitgestellten Software-as-a-Service-Loesung
             (nachfolgend &bdquo;Dienst&ldquo; oder &bdquo;Plattform&ldquo;).
           </p>
           <p className="mb-2">
@@ -234,11 +234,11 @@ export default function AGBPage() {
             (2) Der Nutzer ist verpflichtet, Maengel unverzueglich nach deren Entdeckung schriftlich
             oder per E-Mail an{' '}
             <a
-              href="mailto:kontakt@rechnungswerk.de"
+              href="mailto:kontakt@rechnungskern.de"
               className="underline"
               style={{ color: 'rgb(var(--primary))' }}
             >
-              kontakt@rechnungswerk.de
+              kontakt@rechnungskern.de
             </a>{' '}
             zu melden und dabei den Mangel moeglichst genau zu beschreiben.
           </p>
@@ -342,11 +342,11 @@ export default function AGBPage() {
           <p>
             Bei Fragen zu diesen AGB wenden Sie sich bitte an:{' '}
             <a
-              href="mailto:kontakt@rechnungswerk.de"
+              href="mailto:kontakt@rechnungskern.de"
               className="underline"
               style={{ color: 'rgb(var(--primary))' }}
             >
-              kontakt@rechnungswerk.de
+              kontakt@rechnungskern.de
             </a>
           </p>
         </section>

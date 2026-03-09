@@ -492,8 +492,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "RechnungsWerk",
-    short_name: "RechnungsWerk",
+    name: "RechnungsKern",
+    short_name: "RechnungsKern",
     description: "XRechnung & ZUGFeRD — Die E-Rechnungslösung für Deutschland",
     start_url: "/",
     display: "standalone",
@@ -752,7 +752,7 @@ First read `frontend/app/(marketing)/e-rechnung/page.tsx` to understand the curr
     E-Rechnung ab 2025:<br />Jetzt vorbereiten
   </h1>
   <p className="text-xl text-[var(--text-muted)] max-w-2xl mx-auto mb-8">
-    Deutschland führt die E-Rechnungspflicht schrittweise ein. RechnungsWerk macht Sie
+    Deutschland führt die E-Rechnungspflicht schrittweise ein. RechnungsKern macht Sie
     ab dem ersten Tag compliant — mit XRechnung und ZUGFeRD.
   </p>
   <a href="/register" className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--primary)] text-white rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity">
@@ -800,9 +800,9 @@ Two cards side by side (flex on desktop, stack on mobile):
 const faqs = [
   { q: "Ab wann gilt die E-Rechnungspflicht für mein Unternehmen?", a: "Seit dem 1. Januar 2025 müssen alle Unternehmen in Deutschland E-Rechnungen empfangen können. Die Sendepflicht gilt für Unternehmen über 800.000 € Jahresumsatz ab 2027, für alle ab 2028." },
   { q: "Was ist der Unterschied zwischen XRechnung und ZUGFeRD?", a: "XRechnung ist ein reines XML-Format, das von deutschen Behörden entwickelt wurde. ZUGFeRD kombiniert ein menschenlesbares PDF mit eingebettetem XML und ist international weiter verbreitet." },
-  { q: "Kann ich bestehende Word/Excel-Rechnungen weiternutzen?", a: "Nein. Ab den gesetzlichen Stichtagen müssen B2B-Rechnungen in einem strukturierten elektronischen Format vorliegen. RechnungsWerk erstellt diese automatisch." },
-  { q: "Wie sicher sind meine Daten bei RechnungsWerk?", a: "Alle Daten werden in deutschen Rechenzentren gespeichert, AES-256-verschlüsselt übertragen und sind ausschließlich für Sie zugänglich. Wir sind DSGVO-konform." },
-  { q: "Welche Formate unterstützt RechnungsWerk?", a: "RechnungsWerk erstellt XRechnung (UBL und CII) sowie ZUGFeRD (alle Stufen). DATEV-Export für Steuerberater ist ebenfalls enthalten." },
+  { q: "Kann ich bestehende Word/Excel-Rechnungen weiternutzen?", a: "Nein. Ab den gesetzlichen Stichtagen müssen B2B-Rechnungen in einem strukturierten elektronischen Format vorliegen. RechnungsKern erstellt diese automatisch." },
+  { q: "Wie sicher sind meine Daten bei RechnungsKern?", a: "Alle Daten werden in deutschen Rechenzentren gespeichert, AES-256-verschlüsselt übertragen und sind ausschließlich für Sie zugänglich. Wir sind DSGVO-konform." },
+  { q: "Welche Formate unterstützt RechnungsKern?", a: "RechnungsKern erstellt XRechnung (UBL und CII) sowie ZUGFeRD (alle Stufen). DATEV-Export für Steuerberater ist ebenfalls enthalten." },
 ];
 ```
 Render as a `<details>`/`<summary>` accordion or a React state-managed open/close per item. Include JSON-LD schema script tag:
@@ -815,7 +815,7 @@ Render as a `<details>`/`<summary>` accordion or a React state-managed open/clos
 ```
 
 **5. Feature comparison table:**
-| Feature | RechnungsWerk | Manueller Prozess |
+| Feature | RechnungsKern | Manueller Prozess |
 |---|---|---|
 | XRechnung erstellen | ✅ Automatisch | ❌ Manuell/nicht möglich |
 | ZUGFeRD PDF | ✅ Inbegriffen | ❌ Kostenpflichtiges Tool |

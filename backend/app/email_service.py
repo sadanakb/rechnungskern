@@ -5,7 +5,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-SENDER = {"email": "noreply@rechnungswerk.io", "name": "RechnungsWerk"}
+SENDER = {"email": "noreply@rechnungskern.de", "name": "RechnungsKern"}
 
 
 def _get_transactional_api():
@@ -35,19 +35,19 @@ def send_password_reset_email(to_email: str, reset_url: str) -> bool:
     html_content = (
         "<html><body>"
         "<h2>Passwort zuruecksetzen</h2>"
-        "<p>Du hast angefordert, dein Passwort bei RechnungsWerk zurueckzusetzen.</p>"
+        "<p>Du hast angefordert, dein Passwort bei RechnungsKern zurueckzusetzen.</p>"
         "<p>Klicke auf den folgenden Link, um ein neues Passwort zu setzen:</p>"
         f'<p><a href="{html.escape(reset_url)}">{html.escape(reset_url)}</a></p>'
         "<p>Dieser Link ist 1 Stunde gueltig.</p>"
         "<p>Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.</p>"
-        "<br><p>Dein RechnungsWerk Team</p>"
+        "<br><p>Dein RechnungsKern Team</p>"
         "</body></html>"
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject="Passwort zuruecksetzen - RechnungsWerk",
+        subject="Passwort zuruecksetzen - RechnungsKern",
         html_content=html_content,
     )
 
@@ -76,18 +76,18 @@ def send_email_verification(to_email: str, verification_url: str) -> bool:
     html_content = (
         "<html><body>"
         "<h2>E-Mail-Adresse bestaetigen</h2>"
-        "<p>Willkommen bei RechnungsWerk!</p>"
+        "<p>Willkommen bei RechnungsKern!</p>"
         "<p>Bitte bestaetigt deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>"
         f'<p><a href="{html.escape(verification_url)}">{html.escape(verification_url)}</a></p>'
         "<p>Dieser Link ist 24 Stunden gueltig.</p>"
-        "<br><p>Dein RechnungsWerk Team</p>"
+        "<br><p>Dein RechnungsKern Team</p>"
         "</body></html>"
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject="E-Mail bestaetigen - RechnungsWerk",
+        subject="E-Mail bestaetigen - RechnungsKern",
         html_content=html_content,
     )
 
@@ -117,7 +117,7 @@ _MAHNUNG_TEMPLATES = {
             "<p>Sollte sich Ihre Zahlung mit diesem Schreiben gekreuzt haben, "
             "betrachten Sie diese Erinnerung bitte als gegenstandslos.</p>"
             "<p>Bitte ueberweisen Sie den offenen Betrag zeitnah.</p>"
-            "<br><p>Mit freundlichen Gruessen,<br>Ihr RechnungsWerk Team</p>"
+            "<br><p>Mit freundlichen Gruessen,<br>Ihr RechnungsKern Team</p>"
             "</body></html>"
         ),
     },
@@ -133,7 +133,7 @@ _MAHNUNG_TEMPLATES = {
             "(faellig seit {due_date}). Zuzueglich Mahngebuehren und Verzugszinsen ergibt sich "
             "ein Gesamtbetrag von <strong>{total_with_fees} EUR</strong>.</p>"
             "<p>Wir bitten Sie, den ausstehenden Betrag innerhalb von 10 Tagen zu ueberweisen.</p>"
-            "<br><p>Mit freundlichen Gruessen,<br>Ihr RechnungsWerk Team</p>"
+            "<br><p>Mit freundlichen Gruessen,<br>Ihr RechnungsKern Team</p>"
             "</body></html>"
         ),
     },
@@ -151,7 +151,7 @@ _MAHNUNG_TEMPLATES = {
             "<p><strong>Wir fordern Sie letztmalig auf, den Gesamtbetrag innerhalb von "
             "7 Tagen zu begleichen.</strong> Andernfalls behalten wir uns vor, "
             "den Vorgang an ein Inkassobuero weiterzuleiten oder rechtliche Schritte einzuleiten.</p>"
-            "<br><p>Mit freundlichen Gruessen,<br>Ihr RechnungsWerk Team</p>"
+            "<br><p>Mit freundlichen Gruessen,<br>Ihr RechnungsKern Team</p>"
             "</body></html>"
         ),
     },
@@ -186,18 +186,18 @@ def send_team_invite(
         "<html><body>"
         "<h2>Team-Einladung</h2>"
         f"<p><strong>{safe_inviter}</strong> hat Sie eingeladen, dem Team "
-        f"<strong>{safe_org}</strong> bei RechnungsWerk beizutreten.</p>"
+        f"<strong>{safe_org}</strong> bei RechnungsKern beizutreten.</p>"
         "<p>Klicken Sie auf den folgenden Link, um die Einladung anzunehmen:</p>"
         f'<p><a href="{html.escape(invite_url)}">{html.escape(invite_url)}</a></p>'
         "<p>Dieser Link ist 7 Tage gueltig.</p>"
-        "<br><p>Ihr RechnungsWerk Team</p>"
+        "<br><p>Ihr RechnungsKern Team</p>"
         "</body></html>"
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject=f"Einladung zum Team {safe_org} - RechnungsWerk",
+        subject=f"Einladung zum Team {safe_org} - RechnungsKern",
         html_content=html_content,
     )
 
@@ -227,7 +227,7 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
 
     html_content = (
         "<html><body>"
-        "<h2>Neue Kontaktanfrage ueber RechnungsWerk</h2>"
+        "<h2>Neue Kontaktanfrage ueber RechnungsKern</h2>"
         f"<p><strong>Name:</strong> {safe_name}</p>"
         f"<p><strong>E-Mail:</strong> {safe_email}</p>"
         f"<p><strong>Betreff:</strong> {safe_subject}</p>"
@@ -237,7 +237,7 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
     )
 
     email_obj = sib_api_v3_sdk.SendSmtpEmail(
-        to=[{"email": "contact@rechnungswerk.de", "name": "RechnungsWerk Support"}],
+        to=[{"email": "contact@rechnungskern.de", "name": "RechnungsKern Support"}],
         reply_to={"email": email, "name": name},
         sender=SENDER,
         subject=f"[Kontaktformular] {html.escape(subject)} — von {html.escape(name)}",
@@ -352,7 +352,7 @@ def send_invoice_portal_email(
         'style="background:#84CC16;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Rechnung ansehen</a></p>'
         "<p>Der Link ist 30 Tage gültig.</p>"
-        "<br><p>Mit freundlichen Grüßen,<br>Ihr RechnungsWerk Team</p>"
+        "<br><p>Mit freundlichen Grüßen,<br>Ihr RechnungsKern Team</p>"
         "</body></html>"
     )
 
@@ -400,18 +400,18 @@ def send_datev_export_email(
         "<p>ein neuer DATEV-Export wurde erstellt.</p>"
         f"<p><strong>Zeitraum:</strong> {html.escape(from_month)} bis {html.escape(to_month)}</p>"
         f"<p><strong>Anzahl Buchungssätze:</strong> {invoice_count}</p>"
-        "<p>Bitte loggen Sie sich in RechnungsWerk ein, um den Export herunterzuladen:</p>"
+        "<p>Bitte loggen Sie sich in RechnungsKern ein, um den Export herunterzuladen:</p>"
         f'<p><a href="{html.escape(settings.frontend_url)}/berichte" '
         'style="background:#84CC16;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Export herunterladen</a></p>'
-        "<br><p>Mit freundlichen Grüßen,<br>RechnungsWerk</p>"
+        "<br><p>Mit freundlichen Grüßen,<br>RechnungsKern</p>"
         "</body></html>"
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject=f"DATEV-Export {html.escape(from_month)} bis {html.escape(to_month)} — RechnungsWerk",
+        subject=f"DATEV-Export {html.escape(from_month)} bis {html.escape(to_month)} — RechnungsKern",
         html_content=html_content,
     )
 
@@ -441,21 +441,21 @@ def send_gdpr_delete_confirmation(to_email: str, token: str) -> bool:
     html_content = (
         "<html><body>"
         "<h2>Account-Löschung bestätigen</h2>"
-        "<p>Du hast die Löschung deines RechnungsWerk-Accounts beantragt.</p>"
+        "<p>Du hast die Löschung deines RechnungsKern-Accounts beantragt.</p>"
         "<p>Klicke auf den folgenden Button, um dein Konto und alle Daten "
         "<strong>unwiderruflich</strong> zu löschen:</p>"
         f'<p><a href="{safe_confirm_url}" style="background:#ef4444;color:white;padding:12px 24px;'
         f'border-radius:6px;text-decoration:none;font-weight:bold;">Account jetzt löschen</a></p>'
         "<p>Dieser Link ist 24 Stunden gültig. Falls du diese Anfrage nicht gestellt hast, "
         "ignoriere diese E-Mail.</p>"
-        "<br><p>RechnungsWerk</p>"
+        "<br><p>RechnungsKern</p>"
         "</body></html>"
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject="Account-Löschung bestätigen — RechnungsWerk",
+        subject="Account-Löschung bestätigen — RechnungsKern",
         html_content=html_content,
     )
     try:

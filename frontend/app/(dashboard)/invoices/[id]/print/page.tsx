@@ -481,7 +481,7 @@ export default function InvoicePrintPage() {
               color: '#9ca3af',
             }}
           >
-            Generiert mit RechnungsWerk · rechnungswerk.de
+            Generiert mit RechnungsKern · rechnungskern.de
           </div>
 
         </div>

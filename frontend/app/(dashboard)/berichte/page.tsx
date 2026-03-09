@@ -522,7 +522,7 @@ function DATEVExportSection() {
 // ---------------------------------------------------------------------------
 
 export default function BerichtePage() {
-  useEffect(() => { document.title = 'Berichte | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Berichte | RechnungsKern' }, [])
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}

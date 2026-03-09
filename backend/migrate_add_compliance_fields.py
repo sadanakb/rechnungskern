@@ -16,7 +16,7 @@ Run with: python migrate_add_compliance_fields.py
 import sqlite3
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "app", "data", "rechnungswerk.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "app", "data", "rechnungskern.db")
 
 NEW_COLUMNS = [
     ("iban", "VARCHAR(34)"),

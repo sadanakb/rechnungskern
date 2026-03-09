@@ -1,6 +1,6 @@
-# Contributing to RechnungsWerk
+# Contributing to RechnungsKern
 
-Vielen Dank fuer dein Interesse an RechnungsWerk!
+Vielen Dank fuer dein Interesse an RechnungsKern!
 
 ## Lizenz
 

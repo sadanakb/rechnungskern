@@ -22,5 +22,5 @@ labels: bug
 ## Umgebung
 - OS:
 - Browser:
-- RechnungsWerk Version:
+- RechnungsKern Version:
 - Self-Hosted / Cloud:

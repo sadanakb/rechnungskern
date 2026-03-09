@@ -393,7 +393,7 @@ function MahnHistory({ invoiceId, onStatusChange }: MahnHistoryProps) {
 // ---------------------------------------------------------------------------
 
 export default function MahnwesenPage() {
-  useEffect(() => { document.title = 'Mahnwesen | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Mahnwesen | RechnungsKern' }, [])
   const [invoices, setInvoices] = useState<OverdueInvoice[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

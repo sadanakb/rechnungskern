@@ -17,7 +17,7 @@ const messaging = firebase.messaging();
 
 // Handle background push messages (app not in foreground)
 messaging.onBackgroundMessage((payload) => {
-  const { title = 'RechnungsWerk', body = '' } = payload.notification || {};
+  const { title = 'RechnungsKern', body = '' } = payload.notification || {};
   self.registration.showNotification(title, {
     body,
     icon: '/icon-192.png',
@@ -32,7 +32,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const client of list) {
-        if (client.url.includes('rechnungswerk') && 'focus' in client) {
+        if (client.url.includes('rechnungskern') && 'focus' in client) {
           return client.focus();
         }
       }

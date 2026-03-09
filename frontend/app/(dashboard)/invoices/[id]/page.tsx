@@ -540,7 +540,7 @@ function CancelDialog({
 // ---------------------------------------------------------------------------
 
 export default function InvoiceDetailPage() {
-  useEffect(() => { document.title = 'Rechnungsdetails | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Rechnungsdetails | RechnungsKern' }, [])
   const params = useParams()
   const router = useRouter()
   const invoiceId = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '')
@@ -598,7 +598,7 @@ export default function InvoiceDetailPage() {
     if (!invoice) return
     try {
       const result = await createShareLink(invoice.invoice_id)
-      setShareLink(`https://rechnungswerk.io${result.url}`)
+      setShareLink(`https://rechnungskern.io${result.url}`)
       setShowShareModal(true)
     } catch (err) {
       if (process.env.NODE_ENV === 'development') console.error('Share link error:', err)

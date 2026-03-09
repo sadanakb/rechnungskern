@@ -1,5 +1,5 @@
 /**
- * API client for RechnungsWerk backend (Port 8001)
+ * API client for RechnungsKern backend (Port 8001)
  */
 import axios from 'axios'
 
@@ -1415,7 +1415,7 @@ export async function downloadImportTemplate(): Promise<void> {
   const url = URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }))
   const a = document.createElement('a')
   a.href = url
-  a.download = 'rechnungswerk_import_vorlage.csv'
+  a.download = 'rechnungskern_import_vorlage.csv'
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -1560,7 +1560,7 @@ export async function exportGdprData(): Promise<void> {
   const url = URL.createObjectURL(new Blob([res.data], { type: 'application/zip' }))
   const a = document.createElement('a')
   a.href = url
-  a.download = `RechnungsWerk_Datenexport_${today}.zip`
+  a.download = `RechnungsKern_Datenexport_${today}.zip`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

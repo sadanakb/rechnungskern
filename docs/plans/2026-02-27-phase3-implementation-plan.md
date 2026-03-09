@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Transform RechnungsWerk from feature-complete MVP to production-ready, launchable SaaS — error handling, security hardening, settings page, pSEO expansion, monitoring, feature gating, and GitHub launch prep.
+**Goal:** Transform RechnungsKern from feature-complete MVP to production-ready, launchable SaaS — error handling, security hardening, settings page, pSEO expansion, monitoring, feature gating, and GitHub launch prep.
 
 **Architecture:** Security middleware on FastAPI, Sentry for error tracking, expanded pSEO with comparison + glossary pages, Alembic migrations for all Phase 1+2 models, feature gate enforcement on premium endpoints, Playwright E2E tests for critical flows.
 
@@ -111,7 +111,7 @@ Create `frontend/app/(dashboard)/error.tsx` — same pattern but with a "Zurueck
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 5: Commit**
@@ -186,8 +186,8 @@ Add `from app.middleware.security import SecurityHeadersMiddleware` and `app.add
 **Step 4: Run tests**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/test_security_headers.py -v
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/test_security_headers.py -v
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short
 ```
 
 **Step 5: Commit**
@@ -224,7 +224,7 @@ Read `frontend/components/layout/SidebarNav.tsx`. Add `{ href: '/settings', labe
 **Step 3: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 4: Commit**
@@ -249,7 +249,7 @@ Read `backend/alembic/env.py`. Ensure it has `from app.models import Base` and `
 **Step 2: Generate migration**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 alembic revision --autogenerate -m "add Phase 1+2 models — users, orgs, mahnungen, onboarding"
 ```
 
@@ -260,15 +260,15 @@ Read the generated file. Verify it creates tables: users, organizations, organiz
 **Step 4: Test migration (dry run)**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && alembic upgrade head
-cd /Users/sadanakb/rechnungswerk/backend && alembic downgrade -1
-cd /Users/sadanakb/rechnungswerk/backend && alembic upgrade head
+cd /Users/sadanakb/rechnungskern/backend && alembic upgrade head
+cd /Users/sadanakb/rechnungskern/backend && alembic downgrade -1
+cd /Users/sadanakb/rechnungskern/backend && alembic upgrade head
 ```
 
 **Step 5: Run all tests**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short
 ```
 
 **Step 6: Commit**
@@ -372,8 +372,8 @@ Add to DATEV export: `Depends(require_feature("datev_export"))` (Starter+).
 **Step 3: Run tests**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/test_feature_gate.py -v
-cd /Users/sadanakb/rechnungswerk/backend && pytest tests/ -q --tb=short
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/test_feature_gate.py -v
+cd /Users/sadanakb/rechnungskern/backend && pytest tests/ -q --tb=short
 ```
 
 **Step 4: Commit**
@@ -407,7 +407,7 @@ Ensure robots.ts disallows /dashboard, /login, /register, /onboarding, /settings
 **Step 3: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 Check the generated sitemap has all URLs.
@@ -446,17 +446,17 @@ Each entry: slug, name, description, pricing (their price vs ours), pros/cons ta
 
 Create `frontend/app/(marketing)/vergleich/[tool]/page.tsx`:
 - SSG with generateStaticParams
-- generateMetadata with "RechnungsWerk vs {Tool} — Vergleich 2025"
+- generateMetadata with "RechnungsKern vs {Tool} — Vergleich 2025"
 - Feature comparison table (checkmarks/crosses)
 - Pricing comparison
-- "Warum RechnungsWerk?" section highlighting open-source, AGPL, self-hosted
+- "Warum RechnungsKern?" section highlighting open-source, AGPL, self-hosted
 - JSON-LD SoftwareApplication schema
 - CTA to register
 
 **Step 3: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 4: Commit**
@@ -498,7 +498,7 @@ Each term: slug, name, shortDefinition (1 sentence), longDefinition (2-3 paragra
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 5: Commit**
@@ -528,7 +528,7 @@ git commit -m "feat: add glossary with 30 e-invoicing terms — pSEO long-tail p
 
 **Step 3: Write "DATEV Export Anleitung" article**
 
-~1500 words: Step-by-step guide for DATEV export from RechnungsWerk. SKR03 vs SKR04, CSV format, import into DATEV Unternehmen online.
+~1500 words: Step-by-step guide for DATEV export from RechnungsKern. SKR03 vs SKR04, CSV format, import into DATEV Unternehmen online.
 
 **Step 4: Write "Peppol Netzwerk" article**
 
@@ -537,7 +537,7 @@ git commit -m "feat: add glossary with 30 e-invoicing terms — pSEO long-tail p
 **Step 5: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 6: Commit**
@@ -645,7 +645,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Marketing Pages', () => {
   test('homepage loads', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/RechnungsWerk/)
+    await expect(page).toHaveTitle(/RechnungsKern/)
   })
 
   test('pricing page loads', async ({ page }) => {
@@ -668,7 +668,7 @@ test.describe('Marketing Pages', () => {
 **Step 4: Run E2E tests**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npx playwright test e2e/
+cd /Users/sadanakb/rechnungskern/frontend && npx playwright test e2e/
 ```
 
 **Step 5: Commit**
@@ -704,8 +704,8 @@ STRIPE_PRO_PRICE_ID=price_...
 STRIPE_PRO_YEARLY_PRICE_ID=price_...
 
 # Frontend
-NEXT_PUBLIC_API_URL=https://api.rechnungswerk.de
-NEXT_PUBLIC_APP_URL=https://rechnungswerk.de
+NEXT_PUBLIC_API_URL=https://api.rechnungskern.de
+NEXT_PUBLIC_APP_URL=https://rechnungskern.de
 
 # Email (Brevo)
 BREVO_API_KEY=xkeysib-...
@@ -720,7 +720,7 @@ SENTRY_DSN=https://...@sentry.io/...
 # Security
 CLOUD_MODE=true
 REQUIRE_API_KEY=true
-ALLOWED_ORIGINS=["https://rechnungswerk.de"]
+ALLOWED_ORIGINS=["https://rechnungskern.de"]
 ```
 
 **Step 2: Add healthcheck to backend in docker-compose**
@@ -741,7 +741,7 @@ Create `frontend/app/(marketing)/changelog/page.tsx` — SSG page with Phase 1 +
 **Step 4: Build and verify**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build
+cd /Users/sadanakb/rechnungskern/frontend && npm run build
 ```
 
 **Step 5: Commit**

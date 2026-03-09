@@ -6,11 +6,11 @@ import { glossaryTerms, type GlossaryTerm } from '../../../data/pseo/glossary'
    Metadata
    ----------------------------------------------------------------------- */
 export const metadata: Metadata = {
-  title: 'E-Rechnungs-Glossar | RechnungsWerk',
+  title: 'E-Rechnungs-Glossar | RechnungsKern',
   description:
-    'Alle wichtigen Begriffe rund um E-Rechnung, XRechnung, ZUGFeRD, Buchhaltung und Steuerrecht verstaendlich erklaert. Das umfassende Glossar von RechnungsWerk.',
+    'Alle wichtigen Begriffe rund um E-Rechnung, XRechnung, ZUGFeRD, Buchhaltung und Steuerrecht verstaendlich erklaert. Das umfassende Glossar von RechnungsKern.',
   openGraph: {
-    title: 'E-Rechnungs-Glossar | RechnungsWerk',
+    title: 'E-Rechnungs-Glossar | RechnungsKern',
     description:
       'Ueber 30 Fachbegriffe zu E-Rechnung, Buchhaltung und Steuerrecht verstaendlich erklaert.',
     type: 'website',

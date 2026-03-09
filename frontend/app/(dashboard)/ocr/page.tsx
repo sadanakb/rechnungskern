@@ -156,7 +156,7 @@ function ConfidenceDot({ value }: { value?: number }) {
 // Page
 // ---------------------------------------------------------------------------
 export default function OCRPage() {
-  useEffect(() => { document.title = 'OCR-Erkennung | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'OCR-Erkennung | RechnungsKern' }, [])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [processingStep, setProcessingStep] = useState(0)

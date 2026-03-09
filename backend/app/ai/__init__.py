@@ -1,1 +1,1 @@
-"""KI-Module für RechnungsWerk."""
+"""KI-Module für RechnungsKern."""

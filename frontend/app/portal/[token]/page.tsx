@@ -250,7 +250,7 @@ export default function PortalPage() {
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}>
-              Rechnungs<span style={{ color: '#84CC16' }}>Werk</span>
+              Rechnungs<span style={{ color: '#84CC16' }}>Kern</span>
             </p>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1c1917', margin: 0 }}>
               Ihre Rechnung
@@ -582,8 +582,8 @@ export default function PortalPage() {
           color: '#a8a29e',
         }}>
           Bereitgestellt von{' '}
-          <a href="https://rechnungswerk.io" style={{ color: '#84cc16' }}>
-            RechnungsWerk
+          <a href="https://rechnungskern.io" style={{ color: '#84cc16' }}>
+            RechnungsKern
           </a>
           {invoice.expires_at &&
             ` · Link gültig bis ${new Date(invoice.expires_at).toLocaleDateString('de-DE')}`

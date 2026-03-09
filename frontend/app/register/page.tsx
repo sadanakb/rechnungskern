@@ -78,7 +78,7 @@ export default function RegisterPage() {
             Konto erstellen
           </h1>
           <p className="text-sm mt-2" style={{ color: 'rgb(var(--foreground) / 0.5)' }}>
-            Starte kostenlos mit RechnungsWerk
+            Starte kostenlos mit RechnungsKern
           </p>
         </div>
 

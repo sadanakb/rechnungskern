@@ -1,5 +1,5 @@
 """
-DEPRECATED — Legacy file-based API-Key authentication for RechnungsWerk.
+DEPRECATED — Legacy file-based API-Key authentication for RechnungsKern.
 
 This module is superseded by app.auth_jwt which provides JWT authentication
 and DB-backed API keys (see get_org_from_api_key). This file is kept only

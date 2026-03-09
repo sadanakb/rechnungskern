@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Transform RechnungsWerk from a functional prototype into a deployable SaaS with auth, payments, landing page, and legal compliance — ready for first paying customers.
+**Goal:** Transform RechnungsKern from a functional prototype into a deployable SaaS with auth, payments, landing page, and legal compliance — ready for first paying customers.
 
 **Architecture:** Better Auth for JWT + multi-tenant auth, Stripe + SEPA for payments, Coolify on Hetzner CX22 for deployment. Frontend gets design refresh (Navy + Teal palette, Geist Sans font) and PWA support via Serwist. Landing page as SSG route.
 
@@ -13,7 +13,7 @@
 **Pre-Requisites:**
 - Hetzner Cloud Account (hetzner.com/cloud)
 - Stripe Account (stripe.com) — beantragen dauert 1-3 Tage
-- Domain rechnungswerk.de registrieren
+- Domain rechnungskern.de registrieren
 - Brevo Account (brevo.com)
 
 ---
@@ -44,7 +44,7 @@ pydantic-settings==2.7.1
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pip install -r requirements.txt
 ```
 Expected: All packages install without errors.
@@ -53,7 +53,7 @@ Expected: All packages install without errors.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/ -q --tb=short
 ```
 Expected: All 174 tests pass. If FastAPI 0.133 JSON Content-Type enforcement breaks tests, add `headers={"Content-Type": "application/json"}` to failing test requests.
@@ -61,7 +61,7 @@ Expected: All 174 tests pass. If FastAPI 0.133 JSON Content-Type enforcement bre
 **Step 4: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/requirements.txt
 git commit -m "chore: upgrade FastAPI to 0.133, SQLAlchemy to 2.0.47"
 ```
@@ -186,7 +186,7 @@ class TestInvoiceOrgRelation:
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_models.py -v
 ```
 Expected: FAIL — `ImportError: cannot import name 'User' from 'app.models'`
@@ -257,7 +257,7 @@ Also add necessary imports if missing: `Boolean`, `ForeignKey`, `relationship`.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_models.py -v
 ```
 Expected: All 5 tests PASS.
@@ -266,7 +266,7 @@ Expected: All 5 tests PASS.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/ -q --tb=short
 ```
 Expected: All 174 + 5 = 179 tests pass. The `organization_id` column is nullable, so existing Invoice tests remain valid.
@@ -275,7 +275,7 @@ Expected: All 174 + 5 = 179 tests pass. The `organization_id` column is nullable
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 alembic revision --autogenerate -m "add user organization models"
 alembic upgrade head
 ```
@@ -283,7 +283,7 @@ alembic upgrade head
 **Step 7: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/models.py backend/tests/test_models.py backend/alembic/versions/
 git commit -m "feat: add User, Organization, OrganizationMember models with multi-tenant"
 ```
@@ -435,7 +435,7 @@ class TestMe:
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_auth.py -v
 ```
 Expected: FAIL — Router not found, 404 errors.
@@ -681,7 +681,7 @@ app.include_router(auth_router.router)
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_auth.py -v
 ```
 Expected: All 7 tests PASS.
@@ -690,7 +690,7 @@ Expected: All 7 tests PASS.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/ -q --tb=short
 ```
 Expected: All tests pass (179 + 7 = 186).
@@ -698,7 +698,7 @@ Expected: All tests pass (179 + 7 = 186).
 **Step 9: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/routers/auth.py backend/app/schemas_auth.py backend/app/auth_jwt.py backend/app/main.py backend/tests/test_auth.py
 git commit -m "feat: add auth endpoints — register, login, me with JWT + multi-tenant"
 ```
@@ -812,7 +812,7 @@ class TestTenantIsolation:
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_tenant_isolation.py -v
 ```
 Expected: FAIL — invoices endpoint doesn't filter by organization.
@@ -866,7 +866,7 @@ def create_invoice(
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_tenant_isolation.py -v
 ```
 Expected: All 2 tests PASS.
@@ -875,7 +875,7 @@ Expected: All 2 tests PASS.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/ -q --tb=short
 ```
 Expected: All tests pass. Existing tests still work because `get_current_user_optional` returns None when no auth header.
@@ -883,7 +883,7 @@ Expected: All tests pass. Existing tests still work because `get_current_user_op
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/routers/invoices.py backend/tests/test_tenant_isolation.py
 git commit -m "feat: add tenant isolation — invoices filtered by organization_id"
 ```
@@ -902,7 +902,7 @@ git commit -m "feat: add tenant isolation — invoices filtered by organization_
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm install geist
 ```
 
@@ -980,7 +980,7 @@ Update `frontend/components/design-system/tokens.ts` colors to match new palette
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm run build
 ```
 Expected: Build succeeds without errors.
@@ -988,7 +988,7 @@ Expected: Build succeeds without errors.
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/globals.css frontend/app/layout.tsx frontend/components/design-system/tokens.ts frontend/package.json frontend/package-lock.json
 git commit -m "feat: design refresh — navy + teal palette, Geist Sans typography"
 ```
@@ -1040,7 +1040,7 @@ describe('Register Page', () => {
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npx vitest run __tests__/auth.test.tsx
 ```
 Expected: FAIL — modules not found.
@@ -1232,7 +1232,7 @@ export default function LoginPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Anmelden</h1>
           <p className="text-sm mt-1" style={{ color: 'rgb(var(--foreground) / 0.6)' }}>
-            Melde dich bei RechnungsWerk an
+            Melde dich bei RechnungsKern an
           </p>
         </div>
 
@@ -1319,7 +1319,7 @@ export default function RegisterPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Konto erstellen</h1>
           <p className="text-sm mt-1" style={{ color: 'rgb(var(--foreground) / 0.6)' }}>
-            Starte kostenlos mit RechnungsWerk
+            Starte kostenlos mit RechnungsKern
           </p>
         </div>
 
@@ -1377,7 +1377,7 @@ Modify `frontend/app/layout.tsx` — wrap children with `<AuthProvider>`.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npx vitest run __tests__/auth.test.tsx
 ```
 Expected: Both tests PASS.
@@ -1385,7 +1385,7 @@ Expected: Both tests PASS.
 **Step 9: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/login/ frontend/app/register/ frontend/lib/auth.ts frontend/lib/api.ts frontend/app/layout.tsx frontend/__tests__/auth.test.tsx
 git commit -m "feat: add login + register pages with auth context and JWT flow"
 ```
@@ -1409,9 +1409,9 @@ Create `LICENSE` in project root with AGPL-3.0 text. Use the standard AGPL-3.0-o
 Create `CONTRIBUTING.md`:
 
 ```markdown
-# Contributing to RechnungsWerk
+# Contributing to RechnungsKern
 
-Vielen Dank fuer dein Interesse an RechnungsWerk!
+Vielen Dank fuer dein Interesse an RechnungsKern!
 
 ## Lizenz
 
@@ -1516,7 +1516,7 @@ cloud_mode: bool = True  # False for self-hosted, True for SaaS
 **Step 5: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add LICENSE CONTRIBUTING.md backend/app/feature_gate.py backend/app/config.py
 git commit -m "feat: add AGPL-3.0 license, contributing guide, feature gating for tiers"
 ```
@@ -1535,7 +1535,7 @@ git commit -m "feat: add AGPL-3.0 license, contributing guide, feature gating fo
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm install @serwist/next serwist
 ```
 
@@ -1576,8 +1576,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'RechnungsWerk',
-    short_name: 'RechnungsWerk',
+    name: 'RechnungsKern',
+    short_name: 'RechnungsKern',
     description: 'E-Rechnungen erstellen — XRechnung & ZUGFeRD konform',
     start_url: '/',
     display: 'standalone',
@@ -1612,7 +1612,7 @@ Note: Serwist requires Webpack. For dev, keep using Turbopack (`next dev`). For 
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm run build
 ```
 Expected: Build succeeds, `public/sw.js` is generated.
@@ -1620,7 +1620,7 @@ Expected: Build succeeds, `public/sw.js` is generated.
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/sw.ts frontend/app/manifest.ts frontend/next.config.mjs frontend/package.json frontend/package-lock.json
 git commit -m "feat: add PWA support with Serwist — offline caching, manifest, service worker"
 ```
@@ -1678,7 +1678,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 backgroundColor: 'rgb(var(--background) / 0.8)',
               }}>
         <nav className="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
-          <a href="/" className="text-xl font-bold">RechnungsWerk</a>
+          <a href="/" className="text-xl font-bold">RechnungsKern</a>
           <div className="flex items-center gap-6">
             <a href="/preise" className="text-sm font-medium hover:opacity-80">Preise</a>
             <a href="/blog" className="text-sm font-medium hover:opacity-80">Blog</a>
@@ -1718,10 +1718,10 @@ Include JSON-LD structured data:
 
 ```tsx
 export const metadata = {
-  title: 'RechnungsWerk — E-Rechnungen erstellen | XRechnung & ZUGFeRD',
+  title: 'RechnungsKern — E-Rechnungen erstellen | XRechnung & ZUGFeRD',
   description: 'Erstelle XRechnung und ZUGFeRD konforme E-Rechnungen. Open Source. Ab 9 EUR/Monat. GoBD-konform. DATEV-Export.',
   openGraph: {
-    title: 'RechnungsWerk — E-Rechnungen in 30 Sekunden',
+    title: 'RechnungsKern — E-Rechnungen in 30 Sekunden',
     description: 'XRechnung & ZUGFeRD konform. Open Source. Ab 9 EUR/Monat.',
     type: 'website',
     locale: 'de_DE',
@@ -1738,7 +1738,7 @@ And at the bottom of the page component, render JSON-LD:
     __html: JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
-      name: 'RechnungsWerk',
+      name: 'RechnungsKern',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       offers: [
@@ -1761,7 +1761,7 @@ Create `frontend/app/(marketing)/preise/page.tsx` — feature comparison matrix 
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm run build
 ```
 Expected: Build succeeds. Landing page and pricing page are statically generated.
@@ -1769,7 +1769,7 @@ Expected: Build succeeds. Landing page and pricing page are statically generated
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/
 git commit -m "feat: add landing page + pricing page with SSG, JSON-LD, marketing layout"
 ```
@@ -1790,7 +1790,7 @@ git commit -m "feat: add landing page + pricing page with SSG, JSON-LD, marketin
 import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://rechnungswerk.de'
+  const baseUrl = 'https://rechnungskern.de'
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
@@ -1814,7 +1814,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/dashboard/', '/invoices/', '/ocr/', '/manual/', '/settings/'],
       },
     ],
-    sitemap: 'https://rechnungswerk.de/sitemap.xml',
+    sitemap: 'https://rechnungskern.de/sitemap.xml',
   }
 }
 ```
@@ -1824,13 +1824,13 @@ export default function robots(): MetadataRoute.Robots {
 Create `frontend/public/llms.txt`:
 
 ```
-# RechnungsWerk
+# RechnungsKern
 
 > E-Rechnungssoftware fuer Deutschland. Open Source (AGPL-3.0).
 
-## Was ist RechnungsWerk?
+## Was ist RechnungsKern?
 
-RechnungsWerk ist eine Open-Source E-Rechnungssoftware fuer den deutschen Markt.
+RechnungsKern ist eine Open-Source E-Rechnungssoftware fuer den deutschen Markt.
 Sie unterstuetzt XRechnung 3.0.2 und ZUGFeRD 2.3.3 (EN 16931 konform).
 
 ## Preise
@@ -1842,15 +1842,15 @@ Sie unterstuetzt XRechnung 3.0.2 und ZUGFeRD 2.3.3 (EN 16931 konform).
 
 ## Links
 
-- Website: https://rechnungswerk.de
+- Website: https://rechnungskern.de
 - GitHub: https://github.com/sadanakb/rechnungswerk
-- Dokumentation: https://rechnungswerk.de/docs
+- Dokumentation: https://rechnungskern.de/docs
 ```
 
 **Step 4: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/sitemap.ts frontend/app/robots.ts frontend/public/llms.txt
 git commit -m "feat: add SEO foundation — sitemap, robots.txt, llms.txt"
 ```
@@ -1870,7 +1870,7 @@ git commit -m "feat: add SEO foundation — sitemap, robots.txt, llms.txt"
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm install @next/mdx @mdx-js/react gray-matter
 ```
 
@@ -1888,14 +1888,14 @@ Include FAQ section at the bottom for FAQPage JSON-LD.
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm run build
 ```
 
 **Step 5: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/\(marketing\)/blog/ frontend/content/ frontend/next.config.mjs frontend/package.json frontend/package-lock.json
 git commit -m "feat: add MDX blog scaffold with first article on E-Rechnungspflicht"
 ```
@@ -1918,7 +1918,7 @@ git commit -m "feat: add MDX blog scaffold with first article on E-Rechnungspfli
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pip install stripe
 echo "stripe==11.5.0" >> requirements.txt
 ```
@@ -1979,8 +1979,8 @@ def create_checkout_session(
     customer_email: str,
     plan: str,
     billing_cycle: str = "monthly",
-    success_url: str = "https://rechnungswerk.de/dashboard?upgraded=true",
-    cancel_url: str = "https://rechnungswerk.de/preise",
+    success_url: str = "https://rechnungskern.de/dashboard?upgraded=true",
+    cancel_url: str = "https://rechnungskern.de/preise",
 ) -> str:
     price_key = f"{plan}_{billing_cycle}"
     price_id = PRICE_IDS.get(price_key)
@@ -2020,14 +2020,14 @@ stripe_pro_yearly_price_id: str = ""
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 pytest tests/test_billing.py -v
 ```
 
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add backend/app/routers/billing.py backend/app/stripe_service.py backend/app/config.py backend/requirements.txt backend/tests/test_billing.py backend/app/main.py
 git commit -m "feat: add Stripe integration — checkout, SEPA, webhooks, customer portal"
 ```
@@ -2105,7 +2105,7 @@ services:
   db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: rechnungswerk
+      POSTGRES_DB: rechnungskern
       POSTGRES_USER: rw
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
@@ -2124,10 +2124,10 @@ services:
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: postgresql://rw:${DB_PASSWORD}@db:5432/rechnungswerk
+      DATABASE_URL: postgresql://rw:${DB_PASSWORD}@db:5432/rechnungskern
       REDIS_URL: redis://redis:6379
       REQUIRE_API_KEY: "false"
-      ALLOWED_ORIGINS: '["https://rechnungswerk.de"]'
+      ALLOWED_ORIGINS: '["https://rechnungskern.de"]'
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     depends_on:
@@ -2141,7 +2141,7 @@ services:
   frontend:
     build: ./frontend
     environment:
-      NEXT_PUBLIC_API_URL: https://api.rechnungswerk.de
+      NEXT_PUBLIC_API_URL: https://api.rechnungskern.de
     ports:
       - "3001:3001"
 
@@ -2171,7 +2171,7 @@ STRIPE_PRO_PRICE_ID=price_...
 
 Run:
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 docker compose build
 ```
 Expected: Both images build successfully.
@@ -2179,7 +2179,7 @@ Expected: Both images build successfully.
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add docker-compose.yml backend/Dockerfile frontend/Dockerfile .env.production.example
 git commit -m "feat: add Docker Compose production setup — PostgreSQL 17, Redis, Uptime Kuma"
 ```
@@ -2266,7 +2266,7 @@ Add to `frontend/app/(marketing)/layout.tsx`:
     <a href="/impressum">Impressum</a>
     <a href="/datenschutz">Datenschutz</a>
     <a href="/agb">AGB</a>
-    <span>© 2026 RechnungsWerk. AGPL-3.0 Lizenz.</span>
+    <span>© 2026 RechnungsKern. AGPL-3.0 Lizenz.</span>
   </div>
 </footer>
 ```
@@ -2274,7 +2274,7 @@ Add to `frontend/app/(marketing)/layout.tsx`:
 **Step 6: Commit**
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/\(marketing\)/impressum/ frontend/app/\(marketing\)/datenschutz/ frontend/app/\(marketing\)/agb/ frontend/components/CookieBanner.tsx frontend/app/layout.tsx
 git commit -m "feat: add Impressum, Datenschutz, AGB pages + cookie banner"
 ```

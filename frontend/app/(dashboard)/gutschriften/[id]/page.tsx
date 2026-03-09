@@ -52,7 +52,7 @@ function DetailSkeleton() {
 }
 
 export default function CreditNoteDetailPage() {
-  useEffect(() => { document.title = 'Gutschrift | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Gutschrift | RechnungsKern' }, [])
   const params = useParams()
   const creditNoteId = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '')
 

@@ -3,8 +3,8 @@ Database connection and session management.
 
 Supports SQLite (development) and PostgreSQL (production).
 Switch via DATABASE_URL environment variable:
-  SQLite (default): sqlite:///./data/rechnungswerk.db
-  PostgreSQL:       postgresql://user:pass@host:5432/rechnungswerk
+  SQLite (default): sqlite:///./data/rechnungskern.db
+  PostgreSQL:       postgresql://user:pass@host:5432/rechnungskern
 """
 import logging
 

@@ -4,7 +4,7 @@ import { bundeslaender } from '@/data/pseo/bundeslaender'
 import fs from 'fs'
 import path from 'path'
 
-const BASE_URL = 'https://rechnungswerk.de'
+const BASE_URL = 'https://rechnungskern.de'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString()

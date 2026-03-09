@@ -1,5 +1,5 @@
 """
-Configuration settings for RechnungsWerk
+Configuration settings for RechnungsKern
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
@@ -9,12 +9,12 @@ class Settings(BaseSettings):
     """Application settings"""
 
     # API Settings
-    app_name: str = "RechnungsWerk"
+    app_name: str = "RechnungsKern"
     app_version: str = "1.0.0"
     debug: bool = False
 
     # Database
-    database_url: str = "sqlite:///./data/rechnungswerk.db"
+    database_url: str = "sqlite:///./data/rechnungskern.db"
 
     # CORS — akzeptiert komma-getrennte Liste ODER JSON-Array
     allowed_origins: List[str] = [
@@ -22,9 +22,9 @@ class Settings(BaseSettings):
         "http://localhost:3001",
         "http://127.0.0.1:3000",
         "http://app.localhost:3000",
-        "https://app.rechnungswerk.de",
-        "https://rechnungswerk.de",
-        "https://www.rechnungswerk.de",
+        "https://app.rechnungskern.de",
+        "https://rechnungskern.de",
+        "https://www.rechnungskern.de",
     ]
 
     # OCR Settings

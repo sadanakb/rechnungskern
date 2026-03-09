@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-echo "=== RechnungsWerk Deploy ==="
-cd /opt/rechnungswerk
+echo "=== RechnungsKern Deploy ==="
+cd /opt/rechnungskern
 echo "[1/4] Pulling latest code..."
 git pull origin master
 echo "[2/4] Building containers..."

@@ -21,7 +21,7 @@ def subscribe(request: Request, req: SubscribeRequest):
     # Honeypot check — real users never fill the hidden 'website' field
     if req.website:
         raise HTTPException(status_code=400, detail="Invalid request")
-    """Subscribe an email address to the RechnungsWerk newsletter."""
+    """Subscribe an email address to the RechnungsKern newsletter."""
     success = brevo_service.add_contact(req.email)
     if not success:
         raise HTTPException(

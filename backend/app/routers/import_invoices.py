@@ -105,7 +105,7 @@ def download_template(current_user=Depends(get_current_user)):
     return Response(
         content=csv_content.encode("utf-8-sig"),  # BOM for Excel compatibility
         media_type="text/csv",
-        headers={"Content-Disposition": 'attachment; filename="rechnungswerk_import_vorlage.csv"'}
+        headers={"Content-Disposition": 'attachment; filename="rechnungskern_import_vorlage.csv"'}
     )
 
 

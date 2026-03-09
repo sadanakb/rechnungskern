@@ -1,6 +1,6 @@
 <div align="center">
 
-# RechnungsWerk
+# RechnungsKern
 
 **Open-Source E-Invoicing fuer Deutschland -- XRechnung, ZUGFeRD, DATEV**
 
@@ -17,11 +17,11 @@
 
 ---
 
-RechnungsWerk wandelt Papierrechnungen per OCR in normkonforme XRechnung-XML um, generiert ZUGFeRD-PDFs und validiert gegen den offiziellen KoSIT-Validator. Gedacht als Open-Source-Alternative zu sevDesk, lexoffice & Co.
+RechnungsKern wandelt Papierrechnungen per OCR in normkonforme XRechnung-XML um, generiert ZUGFeRD-PDFs und validiert gegen den offiziellen KoSIT-Validator. Gedacht als Open-Source-Alternative zu sevDesk, lexoffice & Co.
 
 > **Status: Aktive Entwicklung (Beta)** -- Kernfunktionen sind nutzbar, aber die Software befindet sich noch in aktiver Entwicklung. Self-Hosting ist der aktuelle Hauptmodus; eine gehostete SaaS-Version ist geplant.
 
-Die E-Rechnungspflicht betrifft ab 2025 jedes Unternehmen in Deutschland. Die meisten bestehenden Loesungen wie sevDesk oder lexoffice kosten ab ca. 8-15 EUR/Monat, bieten aber oft nur eingeschraenkte E-Rechnungs-Unterstuetzung. RechnungsWerk ist Open Source und kann selbst gehostet werden (SaaS-Version in Planung).
+Die E-Rechnungspflicht betrifft ab 2025 jedes Unternehmen in Deutschland. Die meisten bestehenden Loesungen wie sevDesk oder lexoffice kosten ab ca. 8-15 EUR/Monat, bieten aber oft nur eingeschraenkte E-Rechnungs-Unterstuetzung. RechnungsKern ist Open Source und kann selbst gehostet werden (SaaS-Version in Planung).
 
 ---
 
@@ -30,7 +30,7 @@ Die E-Rechnungspflicht betrifft ab 2025 jedes Unternehmen in Deutschland. Die me
 ### Ein Befehl (Entwicklung)
 
 ```bash
-git clone https://github.com/sadanakb/rechnungswerk.git && cd rechnungswerk
+git clone https://github.com/sadanakb/rechnungswerk.git && cd rechnungskern
 make setup   # Installiert Backend + Frontend Dependencies
 make dev     # Startet Backend (Port 8001) + Frontend (Port 3001)
 ```
@@ -40,7 +40,7 @@ Oeffne http://localhost:3001 -- API-Docs: http://localhost:8001/docs
 ### Mit Docker Compose (Produktion)
 
 ```bash
-git clone https://github.com/sadanakb/rechnungswerk.git && cd rechnungswerk
+git clone https://github.com/sadanakb/rechnungswerk.git && cd rechnungskern
 cp .env.production.example .env
 # .env anpassen: DB_PASSWORD, JWT_SECRET_KEY, ALLOWED_ORIGINS
 docker compose up -d
@@ -97,7 +97,7 @@ docker compose up -d
 ### Konfiguration
 
 ```bash
-git clone https://github.com/sadanakb/rechnungswerk.git && cd rechnungswerk
+git clone https://github.com/sadanakb/rechnungswerk.git && cd rechnungskern
 cp .env.production.example .env
 ```
 
@@ -260,7 +260,7 @@ cd backend && python -m pytest tests/ --cov=app --cov-report=html
 ## Projektstruktur
 
 ```
-rechnungswerk/
+rechnungskern/
 ├── Makefile                        # make dev / make test / make setup
 ├── docker-compose.yml              # Produktions-Setup (5 Services)
 ├── backend/
@@ -308,7 +308,7 @@ Beitraege sind willkommen! Lies die [CONTRIBUTING.md](CONTRIBUTING.md) fuer Deta
 
 Dieses Projekt steht unter der **AGPL-3.0 Lizenz** -- siehe [LICENSE](LICENSE) fuer Details.
 
-**Cloud-Premium:** Die gehostete Version unter [rechnungswerk.de](https://rechnungswerk.de) bietet zusaetzliche Premium-Features (erweiterte Analytics, Priority Support, SLA) als kostenpflichtiges Abonnement. Der gesamte Open-Source-Kern bleibt frei verfuegbar.
+**Cloud-Premium:** Die gehostete Version unter [rechnungskern.de](https://rechnungskern.de) bietet zusaetzliche Premium-Features (erweiterte Analytics, Priority Support, SLA) als kostenpflichtiges Abonnement. Der gesamte Open-Source-Kern bleibt frei verfuegbar.
 
 ---
 

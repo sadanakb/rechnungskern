@@ -327,7 +327,7 @@ class TestAiServiceOpenAI:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && pip install openai>=1.0.0 && python -m pytest -q --tb=short tests/test_ai_service_openai.py
+cd /Users/sadanakb/rechnungskern/backend && pip install openai>=1.0.0 && python -m pytest -q --tb=short tests/test_ai_service_openai.py
 # Expected: 5 passed
 ```
 
@@ -483,7 +483,7 @@ class TestConnectionManager:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q --tb=short tests/test_websocket.py
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q --tb=short tests/test_websocket.py
 # Expected: 5 passed
 ```
 
@@ -589,7 +589,7 @@ class TestWebSocketEndpoint:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q --tb=short tests/test_ws_endpoint.py
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q --tb=short tests/test_ws_endpoint.py
 # Expected: 3 passed
 ```
 
@@ -711,7 +711,7 @@ class TestWebSocketNotifications:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q --tb=short tests/test_ws_notifications.py
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q --tb=short tests/test_ws_notifications.py
 # Expected: 2 passed
 ```
 
@@ -874,7 +874,7 @@ return (
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10
 # Expected: build succeeds, no TypeScript errors
 ```
 
@@ -1132,7 +1132,7 @@ class TestAiRouter:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q --tb=short tests/test_ai_router.py
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q --tb=short tests/test_ai_router.py
 # Expected: 4 passed
 ```
 
@@ -1296,7 +1296,7 @@ class TestCategorizeInvoiceTask:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q --tb=short tests/test_categorize_task.py
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q --tb=short tests/test_categorize_task.py
 # Expected: 3 passed
 ```
 
@@ -1354,7 +1354,7 @@ def downgrade() -> None:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -c "from alembic.config import Config; from alembic import command; c = Config('alembic.ini'); command.history(c)" 2>&1 | head -5
+cd /Users/sadanakb/rechnungskern/backend && python -c "from alembic.config import Config; from alembic import command; c = Config('alembic.ini'); command.history(c)" 2>&1 | head -5
 # Expected: c8d4f0e5a3b2 appears
 ```
 
@@ -1383,7 +1383,7 @@ class ChatRequest(BaseModel):
     history: list[ChatMessage] = []
 
 
-SYSTEM_PROMPT = """Du bist ein hilfreicher Buchhaltungsassistent für das Rechnungstool RechnungsWerk.
+SYSTEM_PROMPT = """Du bist ein hilfreicher Buchhaltungsassistent für das Rechnungstool RechnungsKern.
 Du hilfst dem Nutzer bei Fragen zu seinen Rechnungen, Umsätzen und Buchhaltung.
 Antworte immer auf Deutsch, präzise und professionell.
 Du hast Zugang zu den Rechnungsdaten des Nutzers über die bereitgestellten Tools."""
@@ -1639,7 +1639,7 @@ class TestAiChat:
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q --tb=short tests/test_ai_chat.py
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q --tb=short tests/test_ai_chat.py
 # Expected: 3 passed
 ```
 
@@ -1874,7 +1874,7 @@ Vor dem letzten `</>` im Return (nach `</div>` des Haupt-Div):
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10
 # Expected: build succeeds
 ```
 
@@ -1960,7 +1960,7 @@ Widget JSX im Return (nach den KPI-Cards, vor dem Chart):
 
 **Verification:**
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10
 # Expected: build succeeds, no TypeScript errors
 ```
 
@@ -1978,13 +1978,13 @@ cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10
 
 ### Step 1: Full backend tests
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend && python -m pytest -q 2>&1 | tail -10
+cd /Users/sadanakb/rechnungskern/backend && python -m pytest -q 2>&1 | tail -10
 # Expected: 430+ passed (all original + new Phase 9 tests)
 ```
 
 ### Step 2: Frontend build
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -15
+cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -15
 # Expected: build succeeds, 114+ routes
 ```
 
@@ -2020,7 +2020,7 @@ In `frontend/components/layout/SidebarNav.tsx` ändern:
 ### Step 5: Merge + CHECKPOINT update
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/\(marketing\)/changelog/page.tsx frontend/components/layout/SidebarNav.tsx
 git commit -m "feat: add v0.9.0 changelog entry — Phase 9 KI-Suite + Echtzeit"
 git checkout master
@@ -2033,7 +2033,7 @@ Update `.claude/CHECKPOINT.md`:
 # Checkpoint — 2026-02-28 12:00
 
 ## Ziel
-RechnungsWerk — production-ready German e-invoicing SaaS, alle Phasen 1-9 abgeschlossen.
+RechnungsKern — production-ready German e-invoicing SaaS, alle Phasen 1-9 abgeschlossen.
 
 ## Erledigt
 - [x] Phasen 1-8: vollständig (siehe HANDOFF.md für Details)
@@ -2076,5 +2076,5 @@ git add .claude/CHECKPOINT.md && git commit -m "chore: update CHECKPOINT — Pha
 
 6. **Branch erstellen** vor Task 1:
 ```bash
-cd /Users/sadanakb/rechnungswerk && git checkout -b feature/phase9-ki-echtzeit
+cd /Users/sadanakb/rechnungskern && git checkout -b feature/phase9-ki-echtzeit
 ```

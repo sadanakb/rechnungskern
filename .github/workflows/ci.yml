@@ -1,4 +1,4 @@
-name: CI — RechnungsWerk
+name: CI — RechnungsKern
 
 on:
   push:

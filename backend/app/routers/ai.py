@@ -204,7 +204,7 @@ class ChatRequest(BaseModel):
     history: list[ChatMessage] = []
 
 
-SYSTEM_PROMPT = """Du bist ein hilfreicher Buchhaltungsassistent für das Rechnungstool RechnungsWerk.
+SYSTEM_PROMPT = """Du bist ein hilfreicher Buchhaltungsassistent für das Rechnungstool RechnungsKern.
 Du hilfst dem Nutzer bei Fragen zu seinen Rechnungen, Umsätzen und Buchhaltung.
 Antworte immer auf Deutsch, präzise und professionell.
 Du hast Zugang zu den Rechnungsdaten des Nutzers über die bereitgestellten Tools."""

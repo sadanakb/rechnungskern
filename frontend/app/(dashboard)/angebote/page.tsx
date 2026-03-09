@@ -119,7 +119,7 @@ function DeleteConfirmDialog({
 // Page
 // ---------------------------------------------------------------------------
 export default function AngebotePage() {
-  useEffect(() => { document.title = 'Angebote | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Angebote | RechnungsKern' }, [])
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)

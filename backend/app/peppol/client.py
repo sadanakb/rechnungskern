@@ -1,5 +1,5 @@
 """
-PEPPOL-Netzwerk Client für RechnungsWerk.
+PEPPOL-Netzwerk Client für RechnungsKern.
 
 Sendet und empfängt E-Rechnungen über das PEPPOL-Netzwerk via Access Point (AP).
 Voraussetzung: Ein registrierter PEPPOL Access Point Provider (z.B. ecosio, Basware, Storecove).

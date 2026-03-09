@@ -53,7 +53,7 @@ backend/data/
 
 # Strategy docs (not code)
 docs/RechnungsWerk_Strategie_2026.pdf
-docs/rechnungswerk-strategie.py
+docs/rechnungskern-strategie.py
 RechnungsWerk_AI_Master_Brief_Claude_Opus_4_6.md
 
 # Root-level package files (not needed, frontend has its own)

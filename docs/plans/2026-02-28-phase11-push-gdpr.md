@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add Firebase FCM Web Push Notifications (4 triggers) and full DSGVO-Controls (Datenexport Art. 20, Account-Löschung Art. 17, /datenschutz Marketing-Page) to RechnungsWerk.
+**Goal:** Add Firebase FCM Web Push Notifications (4 triggers) and full DSGVO-Controls (Datenexport Art. 20, Account-Löschung Art. 17, /datenschutz Marketing-Page) to RechnungsKern.
 
 **Architecture:** `push_service.py` wraps Firebase Admin SDK; `routers/push.py` manages subscriptions; `routers/gdpr.py` handles export + 2-step deletion. Push triggers are injected at 4 existing points (cron, invoices, mahnwesen, OCR). Frontend adds a "Benachrichtigungen" settings tab + ServiceWorker.
 
@@ -641,7 +641,7 @@ async def send_overdue_push_cron(ctx: Dict) -> dict:
             push_service.notify_org(
                 organization_id=org_id,
                 title=f"{count} überfällige Rechnung{'n' if count > 1 else ''}",
-                body="Bitte prüfe offene Rechnungen in RechnungsWerk.",
+                body="Bitte prüfe offene Rechnungen in RechnungsKern.",
                 db=db,
             )
             notified += 1
@@ -886,7 +886,7 @@ def export_gdpr_data(
         zf.writestr("profil.json", json.dumps(profil_data, ensure_ascii=False, indent=2))
 
     buf.seek(0)
-    filename = f"RechnungsWerk_Datenexport_{datetime.now(timezone.utc).date()}.zip"
+    filename = f"RechnungsKern_Datenexport_{datetime.now(timezone.utc).date()}.zip"
     return StreamingResponse(
         content=buf,
         media_type="application/zip",
@@ -977,23 +977,23 @@ def send_gdpr_delete_confirmation(to_email: str, token: str) -> bool:
     import sib_api_v3_sdk
     api = _get_transactional_api()
 
-    confirm_url = f"https://app.rechnungswerk.de/gdpr/confirm-delete?token={token}"
+    confirm_url = f"https://app.rechnungskern.de/gdpr/confirm-delete?token={token}"
     html_content = (
         "<html><body>"
         "<h2>Account-Löschung bestätigen</h2>"
-        "<p>Du hast die Löschung deines RechnungsWerk-Accounts beantragt.</p>"
+        "<p>Du hast die Löschung deines RechnungsKern-Accounts beantragt.</p>"
         "<p>Klicke auf den folgenden Button, um dein Konto und alle Daten <strong>unwiderruflich</strong> zu löschen:</p>"
         f'<p><a href="{confirm_url}" style="background:#ef4444;color:white;padding:12px 24px;'
         f'border-radius:6px;text-decoration:none;font-weight:bold;">Account jetzt löschen</a></p>'
         "<p>Dieser Link ist 24 Stunden gültig. Falls du diese Anfrage nicht gestellt hast, ignoriere diese E-Mail.</p>"
-        "<br><p>RechnungsWerk</p>"
+        "<br><p>RechnungsKern</p>"
         "</body></html>"
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
         sender=SENDER,
-        subject="Account-Löschung bestätigen — RechnungsWerk",
+        subject="Account-Löschung bestätigen — RechnungsKern",
         html_content=html_content,
     )
     try:
@@ -1095,7 +1095,7 @@ const messaging = firebase.messaging();
 
 // Handle background push messages
 messaging.onBackgroundMessage((payload) => {
-  const { title = 'RechnungsWerk', body = '' } = payload.notification || {};
+  const { title = 'RechnungsKern', body = '' } = payload.notification || {};
   self.registration.showNotification(title, {
     body,
     icon: '/icon-192.png',
@@ -1110,7 +1110,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const client of list) {
-        if (client.url.includes('rechnungswerk') && 'focus' in client) {
+        if (client.url.includes('rechnungskern') && 'focus' in client) {
           return client.focus();
         }
       }
@@ -1157,7 +1157,7 @@ export async function exportGdprData(): Promise<void> {
   const url = URL.createObjectURL(new Blob([res.data], { type: 'application/zip' }))
   const a = document.createElement('a')
   a.href = url
-  a.download = `RechnungsWerk_Datenexport_${today}.zip`
+  a.download = `RechnungsKern_Datenexport_${today}.zip`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -1466,8 +1466,8 @@ Create `frontend/app/(marketing)/datenschutz/page.tsx`:
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Datenschutzerklärung | RechnungsWerk',
-  description: 'Datenschutzerklärung von RechnungsWerk gemäß DSGVO.',
+  title: 'Datenschutzerklärung | RechnungsKern',
+  description: 'Datenschutzerklärung von RechnungsKern gemäß DSGVO.',
 }
 
 export default function DatenschutzPage() {
@@ -1479,7 +1479,7 @@ export default function DatenschutzPage() {
         <div>
           <h2 className="text-xl font-semibold mb-2">1. Verantwortlicher</h2>
           <p>
-            Verantwortlicher im Sinne der DSGVO ist: RechnungsWerk GmbH,
+            Verantwortlicher im Sinne der DSGVO ist: RechnungsKern GmbH,
             [Adresse], [E-Mail].
           </p>
         </div>
@@ -1500,7 +1500,7 @@ export default function DatenschutzPage() {
         <div>
           <h2 className="text-xl font-semibold mb-2">3. Zweck der Verarbeitung</h2>
           <p>
-            Daten werden ausschließlich zur Bereitstellung des RechnungsWerk-Dienstes
+            Daten werden ausschließlich zur Bereitstellung des RechnungsKern-Dienstes
             (E-Invoicing, Buchhaltung, Steuerberater-Export) verarbeitet.
           </p>
         </div>
@@ -1520,7 +1520,7 @@ export default function DatenschutzPage() {
             <li><strong>Berichtigung (Art. 16):</strong> Korrektur falscher Daten</li>
             <li><strong>Löschung (Art. 17):</strong> Lösche deinen Account in Einstellungen → Datenschutz</li>
             <li><strong>Datenübertragbarkeit (Art. 20):</strong> Exportiere deine Daten in Einstellungen → Datenschutz</li>
-            <li><strong>Widerspruch (Art. 21):</strong> Wende dich an datenschutz@rechnungswerk.de</li>
+            <li><strong>Widerspruch (Art. 21):</strong> Wende dich an datenschutz@rechnungskern.de</li>
           </ul>
         </div>
 
@@ -1536,7 +1536,7 @@ export default function DatenschutzPage() {
         <div>
           <h2 className="text-xl font-semibold mb-2">7. Kontakt</h2>
           <p>
-            Bei Fragen zum Datenschutz: datenschutz@rechnungswerk.de
+            Bei Fragen zum Datenschutz: datenschutz@rechnungskern.de
           </p>
         </div>
       </section>

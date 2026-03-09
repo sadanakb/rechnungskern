@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import KontaktForm from './KontaktForm'
 
 export const metadata: Metadata = {
-  title: 'Kontakt – RechnungsWerk',
+  title: 'Kontakt – RechnungsKern',
   description: 'Nehmen Sie Kontakt mit uns auf. Wir antworten innerhalb von 24 Stunden.',
   openGraph: {
-    title: 'Kontakt – RechnungsWerk',
+    title: 'Kontakt – RechnungsKern',
     description: 'Nehmen Sie Kontakt mit uns auf. Wir antworten innerhalb von 24 Stunden.',
     type: 'website',
     locale: 'de_DE',
@@ -44,10 +44,10 @@ export default function KontaktPage() {
           >
             <span>&#9993;</span>
             <a
-              href="mailto:contact@rechnungswerk.de"
+              href="mailto:contact@rechnungskern.de"
               style={{ color: 'rgb(var(--primary))' }}
             >
-              contact@rechnungswerk.de
+              contact@rechnungskern.de
             </a>
           </div>
           <div
@@ -83,13 +83,13 @@ export default function KontaktPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Organization',
-            name: 'RechnungsWerk',
-            url: 'https://rechnungswerk.de',
-            email: 'contact@rechnungswerk.de',
+            name: 'RechnungsKern',
+            url: 'https://rechnungskern.de',
+            email: 'contact@rechnungskern.de',
             contactPoint: {
               '@type': 'ContactPoint',
               contactType: 'customer support',
-              email: 'contact@rechnungswerk.de',
+              email: 'contact@rechnungskern.de',
               availableLanguage: 'German',
             },
           }),

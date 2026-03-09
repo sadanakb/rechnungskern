@@ -216,10 +216,10 @@ def test_webhook_test_ping(client):
     call_args = mock_post.call_args
     assert call_args[0][0] == "https://ping.example.com/hook"
 
-    # Verify the X-RechnungsWerk-Event header
+    # Verify the X-RechnungsKern-Event header
     headers_sent = call_args[1]["headers"]
-    assert headers_sent["X-RechnungsWerk-Event"] == "ping"
-    assert "sha256=" in headers_sent["X-RechnungsWerk-Signature"]
+    assert headers_sent["X-RechnungsKern-Event"] == "ping"
+    assert "sha256=" in headers_sent["X-RechnungsKern-Signature"]
 
 
 def test_webhook_delivery_log(client):

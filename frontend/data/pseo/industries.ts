@@ -13,7 +13,7 @@ export const industries: IndustryPage[] = [
     slug: 'handwerk',
     name: 'Handwerk',
     description:
-      'Handwerksbetriebe stehen vor besonderen Herausforderungen bei der Rechnungsstellung: Abschlagsrechnungen, Aufmass-basierte Abrechnungen und oeffentliche Auftraege nach VOB erfordern praezise und konforme E-Rechnungen. RechnungsWerk automatisiert diesen Prozess und stellt sicher, dass jede Rechnung den aktuellen Standards entspricht.',
+      'Handwerksbetriebe stehen vor besonderen Herausforderungen bei der Rechnungsstellung: Abschlagsrechnungen, Aufmass-basierte Abrechnungen und oeffentliche Auftraege nach VOB erfordern praezise und konforme E-Rechnungen. RechnungsKern automatisiert diesen Prozess und stellt sicher, dass jede Rechnung den aktuellen Standards entspricht.',
     challenges: [
       'Komplexe Abschlagsrechnungen und Schlussrechnungen nach VOB muessen korrekt abgebildet werden',
       'Oeffentliche Auftraggeber verlangen seit 2025 zwingend XRechnung — manuelles Erstellen ist fehleranfaellig',
@@ -34,7 +34,7 @@ export const industries: IndustryPage[] = [
     slug: 'it-dienstleister',
     name: 'IT-Dienstleister',
     description:
-      'IT-Dienstleister und Softwareunternehmen benoetigen flexible Abrechnungsmodelle: Projektbasierte Rechnungen, wiederkehrende Lizenzgebuehren und internationale Kunden mit Reverse-Charge-Verfahren. RechnungsWerk bildet all diese Szenarien ab und spart wertvolle Entwicklerzeit.',
+      'IT-Dienstleister und Softwareunternehmen benoetigen flexible Abrechnungsmodelle: Projektbasierte Rechnungen, wiederkehrende Lizenzgebuehren und internationale Kunden mit Reverse-Charge-Verfahren. RechnungsKern bildet all diese Szenarien ab und spart wertvolle Entwicklerzeit.',
     challenges: [
       'Gemischte Abrechnungsmodelle aus Projektarbeit, Stundensaetzen und wiederkehrenden Lizenzgebuehren',
       'Internationale Kunden erfordern Reverse-Charge-Verfahren und korrekte USt-IdNr.-Pruefung',
@@ -55,7 +55,7 @@ export const industries: IndustryPage[] = [
     slug: 'gastronomie',
     name: 'Gastronomie',
     description:
-      'Restaurants, Caterer und Lieferdienste erstellen taeglich eine grosse Anzahl von Rechnungen. Die TSE-Pflicht, unterschiedliche Mehrwertsteuersaetze und die Abrechnung mit Lieferanten machen die Buchhaltung komplex. RechnungsWerk vereinfacht den gesamten Rechnungsprozess fuer die Gastronomie.',
+      'Restaurants, Caterer und Lieferdienste erstellen taeglich eine grosse Anzahl von Rechnungen. Die TSE-Pflicht, unterschiedliche Mehrwertsteuersaetze und die Abrechnung mit Lieferanten machen die Buchhaltung komplex. RechnungsKern vereinfacht den gesamten Rechnungsprozess fuer die Gastronomie.',
     challenges: [
       'TSE-Pflicht (Technische Sicherheitseinrichtung) erfordert manipulationssichere Kassensysteme und Belege',
       'Unterschiedliche Mehrwertsteuersaetze (7 % Lieferung vs. 19 % Vor-Ort) muessen korrekt angewendet werden',
@@ -76,7 +76,7 @@ export const industries: IndustryPage[] = [
     slug: 'einzelhandel',
     name: 'Einzelhandel',
     description:
-      'Der Einzelhandel erzeugt ein hohes Rechnungsvolumen und benoetigt nahtlose POS-Integration. Von der Kassenanbindung bis zur B2B-Rechnung an Geschaeftskunden — RechnungsWerk bietet die passende Loesung fuer Einzelhaendler jeder Groesse.',
+      'Der Einzelhandel erzeugt ein hohes Rechnungsvolumen und benoetigt nahtlose POS-Integration. Von der Kassenanbindung bis zur B2B-Rechnung an Geschaeftskunden — RechnungsKern bietet die passende Loesung fuer Einzelhaendler jeder Groesse.',
     challenges: [
       'Hohe Rechnungsvolumina erfordern Massenverarbeitung und effiziente Workflows',
       'POS-Systeme muessen nahtlos mit der E-Rechnungsloesung verbunden werden',
@@ -97,7 +97,7 @@ export const industries: IndustryPage[] = [
     slug: 'freiberufler',
     name: 'Freiberufler',
     description:
-      'Freiberufler und Kleinunternehmer brauchen eine unkomplizierte Rechnungsloesung, die die Kleinunternehmerregelung korrekt abbildet und quartalsweise Meldungen unterstuetzt. RechnungsWerk ist die ideale Loesung: einfach zu bedienen, konform und kostenguenstig.',
+      'Freiberufler und Kleinunternehmer brauchen eine unkomplizierte Rechnungsloesung, die die Kleinunternehmerregelung korrekt abbildet und quartalsweise Meldungen unterstuetzt. RechnungsKern ist die ideale Loesung: einfach zu bedienen, konform und kostenguenstig.',
     challenges: [
       'Korrekte Anwendung der Kleinunternehmerregelung (§ 19 UStG) auf Rechnungen ohne MwSt.-Ausweis',
       'Quartalsweise UStVA-Voranmeldungen muessen auf Basis der erstellten Rechnungen vorbereitet werden',
@@ -118,7 +118,7 @@ export const industries: IndustryPage[] = [
     slug: 'immobilien',
     name: 'Immobilien',
     description:
-      'Immobilienverwaltungen und Hausverwaltungen erstellen regelmaessig Nebenkostenabrechnungen, Mieterrechnungen und Verwaltungsgebuehren. RechnungsWerk automatisiert wiederkehrende Rechnungen und stellt die Einhaltung aller gesetzlichen Anforderungen sicher.',
+      'Immobilienverwaltungen und Hausverwaltungen erstellen regelmaessig Nebenkostenabrechnungen, Mieterrechnungen und Verwaltungsgebuehren. RechnungsKern automatisiert wiederkehrende Rechnungen und stellt die Einhaltung aller gesetzlichen Anforderungen sicher.',
     challenges: [
       'Jaehrliche Nebenkostenabrechnungen fuer zahlreiche Mieteinheiten muessen termingerecht erstellt werden',
       'Wiederkehrende Mieterrechnungen und Verwaltungsgebuehren erfordern automatisierte Prozesse',
@@ -139,7 +139,7 @@ export const industries: IndustryPage[] = [
     slug: 'logistik',
     name: 'Logistik',
     description:
-      'Logistikunternehmen und Speditionen arbeiten international, benoetigen CMR-Frachtbriefe und muessen Zolldokumente abbilden. RechnungsWerk unterstuetzt grenzueberschreitende Rechnungsstellung und stellt die Konformitaet mit europaeischen E-Rechnungsstandards sicher.',
+      'Logistikunternehmen und Speditionen arbeiten international, benoetigen CMR-Frachtbriefe und muessen Zolldokumente abbilden. RechnungsKern unterstuetzt grenzueberschreitende Rechnungsstellung und stellt die Konformitaet mit europaeischen E-Rechnungsstandards sicher.',
     challenges: [
       'Grenzueberschreitende Rechnungsstellung mit unterschiedlichen MwSt.-Regelungen je Land',
       'CMR-Frachtbriefe und Zolldokumente muessen mit Rechnungen verknuepft und archiviert werden',
@@ -160,7 +160,7 @@ export const industries: IndustryPage[] = [
     slug: 'gesundheitswesen',
     name: 'Gesundheitswesen',
     description:
-      'Aerzte, Zahnaerzte und Therapeuten rechnen ueber die Kassenaerztliche Vereinigung ab, erstellen aber auch Privatrechnungen nach GOAe/GOZ. RechnungsWerk vereinfacht die Abrechnung im Gesundheitswesen und stellt die Einhaltung aller regulatorischen Anforderungen sicher.',
+      'Aerzte, Zahnaerzte und Therapeuten rechnen ueber die Kassenaerztliche Vereinigung ab, erstellen aber auch Privatrechnungen nach GOAe/GOZ. RechnungsKern vereinfacht die Abrechnung im Gesundheitswesen und stellt die Einhaltung aller regulatorischen Anforderungen sicher.',
     challenges: [
       'Komplexe KV-Abrechnungen (Kassenaerztliche Vereinigung) neben privaten Patientenrechnungen',
       'Strenge Datenschutzanforderungen (DSGVO) bei der Verarbeitung von Patientendaten auf Rechnungen',
@@ -181,7 +181,7 @@ export const industries: IndustryPage[] = [
     slug: 'beratung',
     name: 'Beratung',
     description:
-      'Unternehmensberater, Steuerberater und Wirtschaftspruefer rechnen projektbasiert ab und muessen Reisekosten korrekt weiterberechnen. RechnungsWerk bietet die passenden Werkzeuge fuer professionelle Beratungsrechnungen mit detaillierter Leistungsaufstellung.',
+      'Unternehmensberater, Steuerberater und Wirtschaftspruefer rechnen projektbasiert ab und muessen Reisekosten korrekt weiterberechnen. RechnungsKern bietet die passenden Werkzeuge fuer professionelle Beratungsrechnungen mit detaillierter Leistungsaufstellung.',
     challenges: [
       'Projektbasierte Abrechnung mit unterschiedlichen Stundensaetzen und Leistungsphasen',
       'Korrekte Weiterberechnung von Reisekosten gemaess Reisekostenrecht inkl. Pauschalen',
@@ -202,7 +202,7 @@ export const industries: IndustryPage[] = [
     slug: 'e-commerce',
     name: 'E-Commerce',
     description:
-      'Online-Haendler und Marketplace-Verkaeufer muessen ein extrem hohes Rechnungsvolumen bewaeltigen, Fernabsatzregeln einhalten und oft ueber mehrere Plattformen hinweg abrechnen. RechnungsWerk automatisiert die Rechnungsstellung fuer den E-Commerce — von Amazon bis zum eigenen Shop.',
+      'Online-Haendler und Marketplace-Verkaeufer muessen ein extrem hohes Rechnungsvolumen bewaeltigen, Fernabsatzregeln einhalten und oft ueber mehrere Plattformen hinweg abrechnen. RechnungsKern automatisiert die Rechnungsstellung fuer den E-Commerce — von Amazon bis zum eigenen Shop.',
     challenges: [
       'Extrem hohes Rechnungsvolumen durch Marketplace-Verkaeufe auf Amazon, eBay und Co.',
       'Fernabsatzgesetz (§ 312 BGB ff.) erfordert besondere Angaben auf Rechnungen und Belegen',

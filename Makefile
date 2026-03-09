@@ -3,7 +3,7 @@
 # ─── Development ────────────────────────────────────────────
 
 dev: ## Start backend + frontend in parallel (one command)
-	@echo "Starting RechnungsWerk (Backend + Frontend)..."
+	@echo "Starting RechnungsKern (Backend + Frontend)..."
 	@trap 'kill 0' INT TERM; \
 		$(MAKE) backend & \
 		$(MAKE) frontend & \

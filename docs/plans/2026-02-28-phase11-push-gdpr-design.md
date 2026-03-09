@@ -8,7 +8,7 @@
 
 ## Ziel
 
-Firebase FCM Web Push Notifications (4 Trigger) + vollständige DSGVO-Controls (Datenexport Art. 20, Account-Löschung Art. 17, Datenschutzseite) direkt in RechnungsWerk.
+Firebase FCM Web Push Notifications (4 Trigger) + vollständige DSGVO-Controls (Datenexport Art. 20, Account-Löschung Art. 17, Datenschutzseite) direkt in RechnungsKern.
 
 ---
 
@@ -93,7 +93,7 @@ User klickt "Daten exportieren"
   → Sammelt: invoices (CSV), contacts (CSV), organisation (JSON), user-profil (JSON)
   → zipfile.ZipFile in memory → BytesIO
   → StreamingResponse(application/zip)
-  → Browser speichert als "RechnungsWerk_Datenexport_2026-02-28.zip"
+  → Browser speichert als "RechnungsKern_Datenexport_2026-02-28.zip"
 ```
 
 ### Account-Löschung

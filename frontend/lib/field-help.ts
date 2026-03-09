@@ -110,7 +110,7 @@ export const FIELD_HELP: Record<string, { title: string; description: string; ex
   },
   webhook_url: {
     title: 'Webhook URL',
-    description: 'Die URL an die RechnungsWerk Ereignisse sendet (z.B. wenn eine Rechnung erstellt oder bezahlt wird). Muss eine gültige HTTPS-URL sein die POST-Requests entgegennimmt.',
-    example: 'https://meine-app.de/api/webhooks/rechnungswerk',
+    description: 'Die URL an die RechnungsKern Ereignisse sendet (z.B. wenn eine Rechnung erstellt oder bezahlt wird). Muss eine gültige HTTPS-URL sein die POST-Requests entgegennimmt.',
+    example: 'https://meine-app.de/api/webhooks/rechnungskern',
   },
 }

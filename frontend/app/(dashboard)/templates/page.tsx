@@ -539,7 +539,7 @@ function TemplateCard({ tmpl, onEdit, onDelete, onSetDefault }: TemplateCardProp
 // ---------------------------------------------------------------------------
 
 export default function TemplatesPage() {
-  useEffect(() => { document.title = 'Vorlagen | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Vorlagen | RechnungsKern' }, [])
   const [templates, setTemplates] = useState<InvoiceTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

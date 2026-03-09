@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'RechnungsWerk',
-    short_name: 'RechnungsWerk',
+    name: 'RechnungsKern',
+    short_name: 'RechnungsKern',
     description: 'E-Rechnungen einfach erstellen, validieren und verwalten. XRechnung & ZUGFeRD konform.',
     start_url: '/dashboard',
     display: 'standalone',

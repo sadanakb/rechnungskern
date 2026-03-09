@@ -25,10 +25,10 @@ export async function generateMetadata({
   if (!term) return {}
 
   return {
-    title: `Was ist ${term.name}? | RechnungsWerk Glossar`,
+    title: `Was ist ${term.name}? | RechnungsKern Glossar`,
     description: term.shortDefinition,
     openGraph: {
-      title: `Was ist ${term.name}? | RechnungsWerk Glossar`,
+      title: `Was ist ${term.name}? | RechnungsKern Glossar`,
       description: term.shortDefinition,
       type: 'article',
       locale: 'de_DE',
@@ -270,7 +270,7 @@ export default async function GlossaryTermPage({
             inDefinedTermSet: {
               '@type': 'DefinedTermSet',
               name: 'E-Rechnungs-Glossar',
-              url: 'https://rechnungswerk.io/glossar',
+              url: 'https://rechnungskern.io/glossar',
             },
           }),
         }}
@@ -288,13 +288,13 @@ export default async function GlossaryTermPage({
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Glossar',
-                item: 'https://rechnungswerk.io/glossar',
+                item: 'https://rechnungskern.io/glossar',
               },
               {
                 '@type': 'ListItem',
                 position: 2,
                 name: term.name,
-                item: `https://rechnungswerk.io/glossar/${term.slug}`,
+                item: `https://rechnungskern.io/glossar/${term.slug}`,
               },
             ],
           }),

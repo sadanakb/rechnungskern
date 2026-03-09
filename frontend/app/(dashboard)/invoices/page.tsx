@@ -477,7 +477,7 @@ function DeleteConfirmDialog({
 // Page
 // ---------------------------------------------------------------------------
 function InvoicesContent() {
-  useEffect(() => { document.title = 'Rechnungen | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Rechnungen | RechnungsKern' }, [])
   const router = useRouter()
   const searchParams = useSearchParams()
 

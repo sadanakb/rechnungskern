@@ -1,18 +1,18 @@
 #!/bin/bash
-# RechnungsWerk Database Backup
-# Aufruf via Cron: 0 3 * * * /path/to/rechnungswerk/scripts/backup.sh
+# RechnungsKern Database Backup
+# Aufruf via Cron: 0 3 * * * /path/to/rechnungskern/scripts/backup.sh
 
 set -euo pipefail
 
 BACKUP_DIR="${BACKUP_DIR:-/backups}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="rechnungswerk_${TIMESTAMP}.sql.gz"
+BACKUP_FILE="rechnungskern_${TIMESTAMP}.sql.gz"
 RETENTION_DAYS=30
 
 mkdir -p "${BACKUP_DIR}"
 
 # Dump und komprimieren
-docker compose exec -T db pg_dump -U rw rechnungswerk | gzip > "${BACKUP_DIR}/${BACKUP_FILE}"
+docker compose exec -T db pg_dump -U rw rechnungskern | gzip > "${BACKUP_DIR}/${BACKUP_FILE}"
 
 # Optional: Upload zu S3/Hetzner Object Storage
 if [ -n "${AWS_ACCESS_KEY_ID:-}" ] && [ -n "${BACKUP_BUCKET:-}" ]; then
@@ -21,6 +21,6 @@ if [ -n "${AWS_ACCESS_KEY_ID:-}" ] && [ -n "${BACKUP_BUCKET:-}" ]; then
 fi
 
 # Alte lokale Backups loeschen
-find "${BACKUP_DIR}" -name "rechnungswerk_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+find "${BACKUP_DIR}" -name "rechnungskern_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
 
 echo "[$(date)] Backup erstellt: ${BACKUP_FILE}"

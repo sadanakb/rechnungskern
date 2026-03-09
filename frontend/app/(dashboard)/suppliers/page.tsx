@@ -25,7 +25,7 @@ import {
 
 
 export default function SuppliersPage() {
-  useEffect(() => { document.title = 'Lieferanten | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Lieferanten | RechnungsKern' }, [])
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)

@@ -66,7 +66,7 @@ def generate_gobd_report(org_name: str) -> bytes:
     # Section 1: Systembeschreibung
     story.append(Paragraph("1. Systembeschreibung", heading_style))
     story.append(Paragraph(
-        f"{org_name} nutzt RechnungsWerk zur elektronischen Rechnungsverarbeitung. "
+        f"{org_name} nutzt RechnungsKern zur elektronischen Rechnungsverarbeitung. "
         "Das System unterstuetzt die Formate XRechnung (UBL 2.1) und ZUGFeRD 2.3.3 "
         "gemaess EN 16931. Die Verarbeitung erfolgt automatisiert mit KI-gestuetzter "
         "Texterkennung (OCR) und regelbasierter Validierung.",

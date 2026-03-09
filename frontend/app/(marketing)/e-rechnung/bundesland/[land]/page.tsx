@@ -25,10 +25,10 @@ export async function generateMetadata({
   if (!bundesland) return {}
 
   return {
-    title: `E-Rechnung in ${bundesland.name} | RechnungsWerk`,
+    title: `E-Rechnung in ${bundesland.name} | RechnungsKern`,
     description: `E-Rechnungen fuer ${bundesland.businesses} in ${bundesland.name}. XRechnung & ZUGFeRD konform. ${bundesland.ihk}. GoBD-konform, DATEV-Export.`,
     openGraph: {
-      title: `E-Rechnung in ${bundesland.name} | RechnungsWerk`,
+      title: `E-Rechnung in ${bundesland.name} | RechnungsKern`,
       description: `Konforme E-Rechnungen fuer Unternehmen in ${bundesland.name}. XRechnung 3.0.2, ZUGFeRD 2.3.3.`,
       type: 'website',
       locale: 'de_DE',
@@ -55,13 +55,13 @@ function getBundeslandFAQs(name: string, ihk: string): FAQ[] {
       answer: `Die zustaendige IHK ist die ${ihk}. Diese bietet Informationsveranstaltungen und Beratung zur E-Rechnungspflicht und Digitalisierung fuer Unternehmen in ${name}.`,
     },
     {
-      question: `Wie kann ich als Unternehmen in ${name} mit RechnungsWerk starten?`,
+      question: `Wie kann ich als Unternehmen in ${name} mit RechnungsKern starten?`,
       answer:
-        'Registrieren Sie sich kostenlos auf RechnungsWerk, geben Sie Ihre Unternehmensdaten ein und erstellen Sie sofort Ihre erste E-Rechnung. Der Free-Plan umfasst 5 Rechnungen pro Monat — ideal zum Testen.',
+        'Registrieren Sie sich kostenlos auf RechnungsKern, geben Sie Ihre Unternehmensdaten ein und erstellen Sie sofort Ihre erste E-Rechnung. Der Free-Plan umfasst 5 Rechnungen pro Monat — ideal zum Testen.',
     },
     {
       question: `Gibt es Foerderungen fuer die Digitalisierung in ${name}?`,
-      answer: `Ja. ${name} bietet verschiedene Foerderprogramme fuer die Digitalisierung von KMU. Informieren Sie sich bei Ihrer IHK oder der Landesfoerderbank ueber aktuelle Programme. RechnungsWerk ist als Cloud-Loesung oder Open-Source-Selbsthosting sofort einsatzbereit.`,
+      answer: `Ja. ${name} bietet verschiedene Foerderprogramme fuer die Digitalisierung von KMU. Informieren Sie sich bei Ihrer IHK oder der Landesfoerderbank ueber aktuelle Programme. RechnungsKern ist als Cloud-Loesung oder Open-Source-Selbsthosting sofort einsatzbereit.`,
     },
   ]
 }
@@ -244,7 +244,7 @@ export default async function BundeslandPage({
         </section>
 
         {/* ============================================================
-            Why RechnungsWerk
+            Why RechnungsKern
             ============================================================ */}
         <section
           className="py-20"
@@ -256,7 +256,7 @@ export default async function BundeslandPage({
                 className="text-3xl font-bold tracking-tight"
                 style={{ color: 'rgb(var(--foreground))' }}
               >
-                Warum RechnungsWerk fuer {bundesland.name}?
+                Warum RechnungsKern fuer {bundesland.name}?
               </h2>
               <p
                 className="mt-3 text-base max-w-xl mx-auto"
@@ -391,7 +391,7 @@ export default async function BundeslandPage({
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'SoftwareApplication',
-            name: 'RechnungsWerk',
+            name: 'RechnungsKern',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
             description: `E-Rechnungssoftware fuer Unternehmen in ${bundesland.name}. XRechnung 3.0.2 und ZUGFeRD 2.3.3 konform.`,

@@ -39,7 +39,7 @@ async def send_overdue_push_cron(ctx: Dict) -> dict:
                 push_service.notify_org(
                     organization_id=org_id,
                     title=f"{count} überfällige Rechnung{'n' if count > 1 else ''}",
-                    body="Bitte prüfe offene Rechnungen in RechnungsWerk.",
+                    body="Bitte prüfe offene Rechnungen in RechnungsKern.",
                     db=db,
                 )
                 notified += 1

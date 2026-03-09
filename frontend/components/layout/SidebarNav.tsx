@@ -179,7 +179,7 @@ export function SidebarNav() {
               className="font-bold text-sm tracking-tight truncate"
               style={{ color: 'rgb(var(--sidebar-brand))' }}
             >
-              RechnungsWerk
+              RechnungsKern
             </span>
           )}
         </div>

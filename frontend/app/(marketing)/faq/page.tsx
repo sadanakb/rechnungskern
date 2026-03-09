@@ -25,22 +25,22 @@ const FAQ_ITEMS = [
   {
     question: 'Was ist der Unterschied zwischen XRechnung und ZUGFeRD?',
     answer:
-      'XRechnung ist ein rein maschinenlesbares XML-Format (basierend auf UBL oder CII) und das Pflichtformat fuer Rechnungen an oeffentliche Auftraggeber des Bundes. ZUGFeRD ist ein hybrides Format, das eine menschenlesbare PDF-Datei mit eingebetteten, strukturierten XML-Daten kombiniert — ideal fuer den Uebergang, da Empfaenger die PDF wie gewohnt oeffnen koennen. Beide Formate erfullen die EN 16931-Norm. RechnungsWerk unterstuetzt XRechnung 3.0.2 und ZUGFeRD 2.3.3.',
+      'XRechnung ist ein rein maschinenlesbares XML-Format (basierend auf UBL oder CII) und das Pflichtformat fuer Rechnungen an oeffentliche Auftraggeber des Bundes. ZUGFeRD ist ein hybrides Format, das eine menschenlesbare PDF-Datei mit eingebetteten, strukturierten XML-Daten kombiniert — ideal fuer den Uebergang, da Empfaenger die PDF wie gewohnt oeffnen koennen. Beide Formate erfullen die EN 16931-Norm. RechnungsKern unterstuetzt XRechnung 3.0.2 und ZUGFeRD 2.3.3.',
   },
   {
-    question: 'Unterstuetzt RechnungsWerk Peppol?',
+    question: 'Unterstuetzt RechnungsKern Peppol?',
     answer:
-      'Ja. RechnungsWerk unterstutzt die Ubermittlung uber das Peppol-Netzwerk, das europaweite Standard-Netzwerk fuer den elektronischen Rechnungsaustausch. Damit koennen Sie E-Rechnungen direkt an oeffentliche Auftraggeber und an international taetige Geschaftspartner zustellen. Die Peppol-Unterstuetzung ist im Starter- und Professional-Plan enthalten.',
+      'Ja. RechnungsKern unterstutzt die Ubermittlung uber das Peppol-Netzwerk, das europaweite Standard-Netzwerk fuer den elektronischen Rechnungsaustausch. Damit koennen Sie E-Rechnungen direkt an oeffentliche Auftraggeber und an international taetige Geschaftspartner zustellen. Die Peppol-Unterstuetzung ist im Starter- und Professional-Plan enthalten.',
   },
   {
-    question: 'Kann ich RechnungsWerk selbst hosten?',
+    question: 'Kann ich RechnungsKern selbst hosten?',
     answer:
-      'Ja. RechnungsWerk ist Open Source (Lizenz: AGPL-3.0) und kann vollstaendig auf Ihrer eigenen Infrastruktur betrieben werden. Den vollstaendigen Quellcode finden Sie auf GitHub. Eine ausfuhrliche Anleitung zum Selbst-Hosting finden Sie in unserer Dokumentation unter /docs.',
+      'Ja. RechnungsKern ist Open Source (Lizenz: AGPL-3.0) und kann vollstaendig auf Ihrer eigenen Infrastruktur betrieben werden. Den vollstaendigen Quellcode finden Sie auf GitHub. Eine ausfuhrliche Anleitung zum Selbst-Hosting finden Sie in unserer Dokumentation unter /docs.',
   },
   {
-    question: 'Wie viel kostet RechnungsWerk?',
+    question: 'Wie viel kostet RechnungsKern?',
     answer:
-      'RechnungsWerk bietet einen kostenlosen Free-Plan fuer bis zu 5 Rechnungen pro Monat ohne Kreditkarte. Der Starter-Plan kostet 9,90 EUR/Monat (zzgl. MwSt.) und beinhaltet unbegrenzte Rechnungen, DATEV-Export und API-Zugang. Der Professional-Plan fuer 19,90 EUR/Monat erganzt Banking-Integration, Team-Verwaltung und Prioritaets-Support. Die vollstaendige Uebersicht finden Sie auf der Preisseite.',
+      'RechnungsKern bietet einen kostenlosen Free-Plan fuer bis zu 5 Rechnungen pro Monat ohne Kreditkarte. Der Starter-Plan kostet 9,90 EUR/Monat (zzgl. MwSt.) und beinhaltet unbegrenzte Rechnungen, DATEV-Export und API-Zugang. Der Professional-Plan fuer 19,90 EUR/Monat erganzt Banking-Integration, Team-Verwaltung und Prioritaets-Support. Die vollstaendige Uebersicht finden Sie auf der Preisseite.',
   },
   {
     question: 'Wie sicher sind meine Daten?',
@@ -48,12 +48,12 @@ const FAQ_ITEMS = [
       'Alle Daten werden verschlusselt ubertragen (TLS 1.3) und verschlusselt gespeichert. Unsere Server befinden sich ausschliesslich in Deutschland in einem ISO 27001-zertifizierten Rechenzentrum. Es werden keine Daten an Dritte weitergegeben oder zu Werbezwecken genutzt. Beim Selbst-Hosting haben Sie die vollstaendige Datensouveraenitaet.',
   },
   {
-    question: 'Ist RechnungsWerk GoBD-konform?',
+    question: 'Ist RechnungsKern GoBD-konform?',
     answer:
-      'Ja. RechnungsWerk speichert alle Rechnungen revisionssicher und unveraenderlich gemaess den Grundsaetzen zur ordnungsmaessigen Fuhrung und Aufbewahrung von Bucern (GoBD). Rechnungen koennen nicht nachtraeglich geloescht oder veraendert werden. Der integrierte DATEV-Export vereinfacht die Zusammenarbeit mit Ihrem Steuerberater erheblich.',
+      'Ja. RechnungsKern speichert alle Rechnungen revisionssicher und unveraenderlich gemaess den Grundsaetzen zur ordnungsmaessigen Fuhrung und Aufbewahrung von Bucern (GoBD). Rechnungen koennen nicht nachtraeglich geloescht oder veraendert werden. Der integrierte DATEV-Export vereinfacht die Zusammenarbeit mit Ihrem Steuerberater erheblich.',
   },
   {
-    question: 'Kann ich RechnungsWerk mit DATEV verbinden?',
+    question: 'Kann ich RechnungsKern mit DATEV verbinden?',
     answer:
       'Ja. Im Starter- und Professional-Plan koennen Sie Ihre Rechnungsdaten jederzeit als DATEV-kompatible Exportdatei herunterladen. Ihr Steuerberater kann diese Datei direkt in DATEV importieren, ohne manuelle Dateneingabe. Eine direkte DATEV-API-Anbindung ist fuer kuenftige Versionen geplant.',
   },
@@ -65,7 +65,7 @@ const FAQ_ITEMS = [
   {
     question: 'Was ist eine EN 16931-konforme Rechnung?',
     answer:
-      'EN 16931 ist die europaische Norm, die das semantische Datenmodell fuer elektronische Rechnungen definiert. Sie legt fest, welche Pflichtfelder eine E-Rechnung enthalten muss (z.B. Steueridentifikationsnummer, Zahlungsbedingungen, Zeilenpositionen). RechnungsWerk validiert jede Rechnung automatisch gegen diese Norm, bevor sie exportiert wird, und zeigt eventuelle Fehler im Klartext an.',
+      'EN 16931 ist die europaische Norm, die das semantische Datenmodell fuer elektronische Rechnungen definiert. Sie legt fest, welche Pflichtfelder eine E-Rechnung enthalten muss (z.B. Steueridentifikationsnummer, Zahlungsbedingungen, Zeilenpositionen). RechnungsKern validiert jede Rechnung automatisch gegen diese Norm, bevor sie exportiert wird, und zeigt eventuelle Fehler im Klartext an.',
   },
   {
     question: 'Wie lange werden meine Rechnungen gespeichert?',
@@ -75,12 +75,12 @@ const FAQ_ITEMS = [
   {
     question: 'Gibt es eine API fuer Integrationen?',
     answer:
-      'Ja. RechnungsWerk bietet eine REST-API (verfugbar ab dem Starter-Plan), mit der Sie Rechnungen programmatisch erstellen, abrufen und versenden koennen. Die vollstaendige API-Dokumentation ist im Dashboard unter "API-Schlussel" erreichbar. Wir bieten auch Webhooks an, um Ihr System uber Statusaenderungen (z.B. Zahlung erhalten) zu informieren.',
+      'Ja. RechnungsKern bietet eine REST-API (verfugbar ab dem Starter-Plan), mit der Sie Rechnungen programmatisch erstellen, abrufen und versenden koennen. Die vollstaendige API-Dokumentation ist im Dashboard unter "API-Schlussel" erreichbar. Wir bieten auch Webhooks an, um Ihr System uber Statusaenderungen (z.B. Zahlung erhalten) zu informieren.',
   },
   {
-    question: 'Kann ich als Kleinunternehmer RechnungsWerk nutzen?',
+    question: 'Kann ich als Kleinunternehmer RechnungsKern nutzen?',
     answer:
-      'Ja, unbedingt. RechnungsWerk unterstutzt Kleinunternehmer-Rechnungen nach § 19 UStG, bei denen kein Umsatzsteuerausweis erfolgt. Sie koennen in den Einstellungen den Kleinunternehmer-Modus aktivieren; alle Rechnungen werden dann ohne MwSt.-Ausweis aber vollstaendig EN 16931-konform erstellt. Als Kleinunternehmer mussen Sie ab 2025 E-Rechnungen empfangen koennen, sind aber von der Sendepflicht zunachst ausgenommen.',
+      'Ja, unbedingt. RechnungsKern unterstutzt Kleinunternehmer-Rechnungen nach § 19 UStG, bei denen kein Umsatzsteuerausweis erfolgt. Sie koennen in den Einstellungen den Kleinunternehmer-Modus aktivieren; alle Rechnungen werden dann ohne MwSt.-Ausweis aber vollstaendig EN 16931-konform erstellt. Als Kleinunternehmer mussen Sie ab 2025 E-Rechnungen empfangen koennen, sind aber von der Sendepflicht zunachst ausgenommen.',
   },
   {
     question: 'Wie migriere ich von meiner bisherigen Software?',
@@ -220,7 +220,7 @@ export default function FAQPage() {
               className="mt-4 text-lg max-w-xl mx-auto leading-relaxed"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Alles Wichtige zu E-Rechnungspflicht, Formaten, Datenschutz und RechnungsWerk auf einen Blick.
+              Alles Wichtige zu E-Rechnungspflicht, Formaten, Datenschutz und RechnungsKern auf einen Blick.
             </p>
           </div>
         </section>
@@ -249,7 +249,7 @@ export default function FAQPage() {
             >
               Keine Antwort gefunden?{' '}
               <a
-                href="mailto:support@rechnungswerk.de"
+                href="mailto:support@rechnungskern.de"
                 className="font-medium hover:opacity-80"
                 style={{ color: 'rgb(var(--primary))' }}
               >

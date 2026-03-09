@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Selbst-Hosting – RechnungsWerk | Docker Deployment Guide',
+  title: 'Selbst-Hosting – RechnungsKern | Docker Deployment Guide',
   description:
-    'Vollstaendige Anleitung zum Selbst-Hosting von RechnungsWerk mit Docker Compose. Voraussetzungen, Umgebungsvariablen, HTTPS-Konfiguration, Backup und Updates.',
+    'Vollstaendige Anleitung zum Selbst-Hosting von RechnungsKern mit Docker Compose. Voraussetzungen, Umgebungsvariablen, HTTPS-Konfiguration, Backup und Updates.',
   openGraph: {
-    title: 'Selbst-Hosting – RechnungsWerk',
-    description: 'Docker Compose Deployment Guide fuer RechnungsWerk.',
+    title: 'Selbst-Hosting – RechnungsKern',
+    description: 'Docker Compose Deployment Guide fuer RechnungsKern.',
     type: 'website',
     locale: 'de_DE',
   },
@@ -28,7 +28,7 @@ const ENV_VARS: EnvVar[] = [
     name: 'DATABASE_URL',
     required: true,
     description: 'PostgreSQL-Verbindungsstring',
-    example: 'postgresql://rw:geheim@db:5432/rechnungswerk',
+    example: 'postgresql://rw:geheim@db:5432/rechnungskern',
   },
   {
     name: 'SECRET_KEY',
@@ -179,7 +179,7 @@ export default function DocsPage() {
             className="mt-4 text-lg leading-relaxed max-w-2xl"
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
-            RechnungsWerk ist Open Source (AGPL-3.0). Betreiben Sie Ihre eigene Instanz
+            RechnungsKern ist Open Source (AGPL-3.0). Betreiben Sie Ihre eigene Instanz
             auf Ihrer eigenen Infrastruktur — vollstaendige Datensouveraenitaet,
             keine monatlichen Gebuehren.
           </p>
@@ -334,7 +334,7 @@ export default function DocsPage() {
                   Schritt 1: Repository klonen
                 </p>
                 <CodeBlock language="bash">{`git clone https://github.com/sadanakb/rechnungswerk.git
-cd rechnungswerk`}</CodeBlock>
+cd rechnungskern`}</CodeBlock>
               </div>
 
               <div>
@@ -384,7 +384,7 @@ docker compose exec backend python -m app.cli create-admin`}</CodeBlock>
                 >
                   Hinweis:
                 </span>{' '}
-                RechnungsWerk laeuft anschliessend unter{' '}
+                RechnungsKern laeuft anschliessend unter{' '}
                 <code
                   className="rounded px-1.5 py-0.5 text-xs font-mono"
                   style={{ backgroundColor: 'rgb(var(--border))' }}
@@ -502,7 +502,7 @@ docker compose exec backend python -m app.cli create-admin`}</CodeBlock>
 
             <div className="mt-4">
               <CodeBlock language=".env">{`# Minimal-Konfiguration fuer Selbst-Hosting
-DATABASE_URL=postgresql://rw:geheim@db:5432/rechnungswerk
+DATABASE_URL=postgresql://rw:geheim@db:5432/rechnungskern
 SECRET_KEY=ihr-zufaelliger-schluessel-hier
 ALLOWED_ORIGINS=https://rechnung.meinefirma.de
 CLOUD_MODE=false`}</CodeBlock>
@@ -573,7 +573,7 @@ CLOUD_MODE=false`}</CodeBlock>
                   Manuelles Datenbank-Backup mit pg_dump
                 </p>
                 <CodeBlock language="bash">{`docker compose exec db pg_dump \
-  -U rw rechnungswerk \
+  -U rw rechnungskern \
   > backup_$(date +%Y%m%d_%H%M%S).sql`}</CodeBlock>
               </div>
 
@@ -584,10 +584,10 @@ CLOUD_MODE=false`}</CodeBlock>
                 >
                   Automatisches taegliches Backup (Cron-Job)
                 </p>
-                <CodeBlock language="bash">{`# In /etc/cron.d/rechnungswerk eintragen:
-0 2 * * * root docker compose -f /opt/rechnungswerk/docker-compose.yml \\
-  exec -T db pg_dump -U rw rechnungswerk \\
-  > /backups/rechnungswerk_$(date +%Y%m%d).sql`}</CodeBlock>
+                <CodeBlock language="bash">{`# In /etc/cron.d/rechnungskern eintragen:
+0 2 * * * root docker compose -f /opt/rechnungskern/docker-compose.yml \\
+  exec -T db pg_dump -U rw rechnungskern \\
+  > /backups/rechnungskern_$(date +%Y%m%d).sql`}</CodeBlock>
               </div>
 
               <div
@@ -751,7 +751,7 @@ docker compose exec backend alembic upgrade head`}</CodeBlock>
             className="mt-3 text-sm leading-relaxed max-w-md mx-auto"
             style={{ color: 'rgb(var(--foreground-muted))' }}
           >
-            Die Cloud-Version von RechnungsWerk ist kostenlos nutzbar und sofort einsatzbereit.
+            Die Cloud-Version von RechnungsKern ist kostenlos nutzbar und sofort einsatzbereit.
             Keine Server-Konfiguration, kein Wartungsaufwand.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">

@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Rechnungsempfänger können Rechnungen im Kunden-Portal per Kreditkarte, SEPA-Lastschrift, Sofort, iDEAL oder PayPal bezahlen; RechnungsWerk behält 0,5 % Platform-Fee via Stripe Connect Express ein.
+**Goal:** Rechnungsempfänger können Rechnungen im Kunden-Portal per Kreditkarte, SEPA-Lastschrift, Sofort, iDEAL oder PayPal bezahlen; RechnungsKern behält 0,5 % Platform-Fee via Stripe Connect Express ein.
 
 **Architecture:** Stripe Connect Express: Jede Org onboardet einmalig (~10 Min, von Stripe gehosted) und erhält eine `stripe_connect_account_id`. PaymentIntents werden auf dem Connected Account erstellt mit `application_fee_amount`. Ein neuer Webhook-Handler `payment_intent.succeeded` markiert die Rechnung automatisch als bezahlt. PayPal wird als einfaches `paypal_link`-Feld in den Org-Settings unterstützt (Button im Portal → externer Link, kein Platform-Fee).
 
@@ -121,7 +121,7 @@ def test_organization_connect_fields_default_values():
 
 ### Step 2: Test zum Scheitern bringen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_phase12_migration.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_phase12_migration.py -v`
 Expected: FAIL mit "cannot import name 'PortalPaymentIntent' from 'app.models'"
 
 ### Step 3: Modelle erweitern
@@ -208,18 +208,18 @@ def downgrade() -> None:
 
 ### Step 5: Test bestehen lassen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_phase12_migration.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_phase12_migration.py -v`
 Expected: 4 passed
 
 ### Step 6: Gesamte Test-Suite
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
 Expected: alle bestehenden Tests + 4 neue = bestanden
 
 ### Step 7: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 git add app/models.py alembic/versions/phase12_portal_payment.py tests/test_phase12_migration.py
 git commit -m "feat(phase12): add PortalPaymentIntent model + Stripe Connect fields on Organization"
 ```
@@ -255,8 +255,8 @@ def test_create_connect_account_returns_url():
         from app.stripe_service import create_connect_onboarding_url
         result = create_connect_onboarding_url(
             existing_account_id=None,
-            return_url="https://rechnungswerk.de/dashboard/settings?stripe_connected=1",
-            refresh_url="https://rechnungswerk.de/dashboard/settings?stripe_refresh=1",
+            return_url="https://rechnungskern.de/dashboard/settings?stripe_connected=1",
+            refresh_url="https://rechnungskern.de/dashboard/settings?stripe_refresh=1",
         )
     assert result["url"] == "https://connect.stripe.com/setup/e/acct_test_001/abc"
     assert result["account_id"] == "acct_test_001"
@@ -272,8 +272,8 @@ def test_create_connect_account_reuses_existing_id():
         from app.stripe_service import create_connect_onboarding_url
         result = create_connect_onboarding_url(
             existing_account_id="acct_existing",
-            return_url="https://rechnungswerk.de/dashboard/settings?stripe_connected=1",
-            refresh_url="https://rechnungswerk.de/dashboard/settings?stripe_refresh=1",
+            return_url="https://rechnungskern.de/dashboard/settings?stripe_connected=1",
+            refresh_url="https://rechnungskern.de/dashboard/settings?stripe_refresh=1",
         )
     mock_create.assert_not_called()
     assert result["account_id"] == "acct_existing"
@@ -336,7 +336,7 @@ def test_create_portal_payment_intent_fee_calculation():
 
 ### Step 2: Test zum Scheitern bringen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_stripe_connect_service.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_stripe_connect_service.py -v`
 Expected: FAIL mit "cannot import name 'create_connect_onboarding_url'"
 
 ### Step 3: Funktionen in stripe_service.py hinzufügen
@@ -424,18 +424,18 @@ def create_portal_payment_intent(
 
 ### Step 4: Tests bestehen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_stripe_connect_service.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_stripe_connect_service.py -v`
 Expected: 6 passed
 
 ### Step 5: Gesamte Test-Suite
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
 Expected: alle bestehenden Tests + 10 neue = bestanden
 
 ### Step 6: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 git add app/stripe_service.py tests/test_stripe_connect_service.py
 git commit -m "feat(phase12): add Stripe Connect Express + portal payment intent service functions"
 ```
@@ -565,7 +565,7 @@ def test_connect_status_after_onboarding(client, db_session):
 
 ### Step 2: Test zum Scheitern bringen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_billing_connect.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_billing_connect.py -v`
 Expected: FAIL mit 404 (endpoints not found)
 
 ### Step 3: Billing Router erweitern
@@ -602,8 +602,8 @@ def connect_onboard(
     try:
         result = stripe_service.create_connect_onboarding_url(
             existing_account_id=org.stripe_connect_account_id,
-            return_url="https://rechnungswerk.de/dashboard/settings?stripe_connected=1",
-            refresh_url="https://rechnungswerk.de/dashboard/settings?stripe_refresh=1",
+            return_url="https://rechnungskern.de/dashboard/settings?stripe_connected=1",
+            refresh_url="https://rechnungskern.de/dashboard/settings?stripe_refresh=1",
         )
         # Persist account_id if newly created
         if not org.stripe_connect_account_id:
@@ -711,18 +711,18 @@ from app.models import User, Organization, OrganizationMember, PortalPaymentInte
 
 ### Step 4: Tests bestehen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_billing_connect.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_billing_connect.py -v`
 Expected: 5 passed
 
 ### Step 5: Gesamte Test-Suite
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
 Expected: alle bisherigen Tests + 5 neue = bestanden
 
 ### Step 6: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 git add app/routers/billing.py tests/test_billing_connect.py
 git commit -m "feat(phase12): add Connect onboarding endpoints + payment_intent.succeeded webhook handler"
 ```
@@ -897,7 +897,7 @@ def test_payment_status_returns_unpaid(client, db_session):
 
 ### Step 2: Test zum Scheitern bringen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_portal_payment.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_portal_payment.py -v`
 Expected: FAIL (neue Endpoints nicht vorhanden, GET-Response fehlt payment fields)
 
 ### Step 3: Portal Router erweitern
@@ -1082,18 +1082,18 @@ async def get_payment_status(
 
 ### Step 4: Tests bestehen
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest tests/test_portal_payment.py -v`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest tests/test_portal_payment.py -v`
 Expected: 7 passed
 
 ### Step 5: Gesamte Test-Suite (alle bisherigen Tests müssen noch passen)
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
 Expected: alle Tests bestanden
 
 ### Step 6: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/backend
+cd /Users/sadanakb/rechnungskern/backend
 git add app/routers/portal.py tests/test_portal_payment.py
 git commit -m "feat(phase12): add portal payment intent + payment status endpoints"
 ```
@@ -1347,13 +1347,13 @@ Tab-Content:
 
 ### Step 4: Manuell verifizieren
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npx tsc --noEmit 2>&1 | head -20`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npx tsc --noEmit 2>&1 | head -20`
 Expected: keine TypeScript-Fehler
 
 ### Step 5: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/lib/api.ts frontend/app/(dashboard)/settings/page.tsx backend/app/routers/billing.py
 git commit -m "feat(phase12): add Zahlungen settings tab with Stripe Connect + PayPal link"
 ```
@@ -1371,7 +1371,7 @@ git commit -m "feat(phase12): add Zahlungen settings tab with Stripe Connect + P
 ### Step 1: Dependencies installieren
 
 ```bash
-cd /Users/sadanakb/rechnungswerk/frontend
+cd /Users/sadanakb/rechnungskern/frontend
 npm install @stripe/react-stripe-js @stripe/stripe-js
 ```
 
@@ -1583,18 +1583,18 @@ Payment-Modal am Ende des Returns (vor dem abschließenden `</div>`):
 
 ### Step 4: TypeScript verifizieren
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npx tsc --noEmit 2>&1 | head -30`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npx tsc --noEmit 2>&1 | head -30`
 Expected: 0 Fehler
 
 ### Step 5: Frontend bauen
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10`
 Expected: `✓ Compiled successfully`
 
 ### Step 6: Commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/portal/ frontend/package.json frontend/package-lock.json
 git commit -m "feat(phase12): add Stripe Payment Element + PayPal button to customer portal"
 ```
@@ -1612,12 +1612,12 @@ git commit -m "feat(phase12): add Stripe Payment Element + PayPal button to cust
 
 ### Step 1: Gesamte Backend-Test-Suite
 
-Run: `cd /Users/sadanakb/rechnungswerk/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
+Run: `cd /Users/sadanakb/rechnungskern/backend && python -m pytest --tb=short -q 2>&1 | tail -5`
 Expected: Alle Tests bestanden, 0 Fehler
 
 ### Step 2: Frontend Build
 
-Run: `cd /Users/sadanakb/rechnungswerk/frontend && npm run build 2>&1 | tail -10`
+Run: `cd /Users/sadanakb/rechnungskern/frontend && npm run build 2>&1 | tail -10`
 Expected: `✓ Compiled successfully`
 
 ### Step 3: Changelog-Eintrag
@@ -1653,7 +1653,7 @@ In `frontend/components/layout/SidebarNav.tsx` Version von `7.0.0` → `8.0.0` �
 ### Step 6: Release commit
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git add frontend/app/(marketing)/changelog/page.tsx frontend/components/layout/SidebarNav.tsx .claude/CHECKPOINT.md
 git commit -m "release: v1.2.0 — Phase 12 Kunden-Portal Online-Zahlung (Stripe Connect + PayPal)"
 ```
@@ -1661,7 +1661,7 @@ git commit -m "release: v1.2.0 — Phase 12 Kunden-Portal Online-Zahlung (Stripe
 ### Step 7: Merge zu master
 
 ```bash
-cd /Users/sadanakb/rechnungswerk
+cd /Users/sadanakb/rechnungskern
 git checkout master
 git merge feature/phase12-portal-payment
 git checkout main 2>/dev/null || true

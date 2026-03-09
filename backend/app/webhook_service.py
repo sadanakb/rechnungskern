@@ -124,8 +124,8 @@ def _deliver_sync(db, subscription: WebhookSubscription, event_type: str, payloa
             content=body,
             headers={
                 "Content-Type": "application/json",
-                "X-RechnungsWerk-Signature": f"sha256={sig}",
-                "X-RechnungsWerk-Event": event_type,
+                "X-RechnungsKern-Signature": f"sha256={sig}",
+                "X-RechnungsKern-Event": event_type,
             },
             timeout=5.0,
         )
@@ -173,8 +173,8 @@ async def _deliver(
                 content=body,
                 headers={
                     "Content-Type": "application/json",
-                    "X-RechnungsWerk-Signature": f"sha256={sig}",
-                    "X-RechnungsWerk-Event": event_type,
+                    "X-RechnungsKern-Signature": f"sha256={sig}",
+                    "X-RechnungsKern-Event": event_type,
                 },
                 timeout=5.0,
             )

@@ -1707,7 +1707,7 @@ async def export_datev(
 
     if format == "csv":
         content = exporter.export_csv_simple(invoice_dicts)
-        filename = f"rechnungswerk_export_{datetime.now().strftime('%Y%m%d')}.csv"
+        filename = f"rechnungskern_export_{datetime.now().strftime('%Y%m%d')}.csv"
     else:
         content = exporter.export_buchungsstapel(invoice_dicts)
         filename = f"EXTF_Buchungsstapel_{datetime.now().strftime('%Y%m%d')}.csv"

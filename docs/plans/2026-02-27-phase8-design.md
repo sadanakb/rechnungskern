@@ -5,7 +5,7 @@
 
 ## Goal
 
-Make RechnungsWerk truly production-ready (reliable async task execution, automatic recurring invoices, webhook retries, email queueing) and add a customer-facing invoice portal (shareable link, PDF/XML download, payment confirmation) that differentiates the product from Lexware and sevDesk.
+Make RechnungsKern truly production-ready (reliable async task execution, automatic recurring invoices, webhook retries, email queueing) and add a customer-facing invoice portal (shareable link, PDF/XML download, payment confirmation) that differentiates the product from Lexware and sevDesk.
 
 ---
 
@@ -86,13 +86,13 @@ All `/api/portal/*` endpoints are rate-limited (10 req/min per token via slowapi
 **Route:** `/portal/[token]` — Next.js dynamic route, **outside** the `(dashboard)` layout.
 
 **Page sections:**
-1. **Header** — RechnungsWerk logo, "Ihre Rechnung" heading
+1. **Header** — RechnungsKern logo, "Ihre Rechnung" heading
 2. **Seller/Buyer block** — Rechnungssteller (seller), Rechnungsempfänger (buyer)
 3. **Invoice metadata** — Rechnungsnummer, Datum, Fälligkeitsdatum, Status-Badge
 4. **Line items table** — Pos, Beschreibung, Menge, Einzelpreis, Gesamt
 5. **Totals** — Netto, MwSt, Brutto
 6. **Action bar** — PDF herunterladen, XML herunterladen, „Zahlung bestätigen" (if unpaid/overdue)
-7. **Footer** — „Powered by RechnungsWerk", legal disclaimer
+7. **Footer** — „Powered by RechnungsKern", legal disclaimer
 
 **Design:** No sidebar, no topbar. Clean A4-like centered card. Mobile-responsive. Uses CSS variables (`--primary`, `--foreground`, etc.).
 

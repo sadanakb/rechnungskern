@@ -1,4 +1,4 @@
-# RechnungsWerk — Backlog & Roadmap
+# RechnungsKern — Backlog & Roadmap
 
 Stand: 2026-03-04
 
@@ -57,7 +57,7 @@ Erweiterbarkeit durch Drittanbieter-Plugins. API-basiert.
 
 ## Wettbewerbs-Vorteile (beibehalten!)
 
-| Feature | sevdesk | lexoffice | easybill | Billomat | RechnungsWerk |
+| Feature | sevdesk | lexoffice | easybill | Billomat | RechnungsKern |
 |---------|---------|-----------|----------|----------|---------------|
 | Self-Hosting | - | - | - | - | Ja |
 | Open Source | - | - | - | - | Ja |

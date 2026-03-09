@@ -1123,7 +1123,7 @@ function ApiKeysTab({ plan }: { plan: string }) {
       <Card>
         <CardHeader>
           <CardTitle>API-Schluessel</CardTitle>
-          <CardDescription>Programmatischer Zugriff auf die RechnungsWerk API.</CardDescription>
+          <CardDescription>Programmatischer Zugriff auf die RechnungsKern API.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border-2 border-dashed p-8 text-center border-stone-200 dark:border-stone-700">
@@ -1162,7 +1162,7 @@ function ApiKeysTab({ plan }: { plan: string }) {
             <div>
               <CardTitle>API-Schluessel</CardTitle>
               <CardDescription>
-                Verwenden Sie API-Schluessel fuer den programmatischen Zugriff auf die RechnungsWerk API.
+                Verwenden Sie API-Schluessel fuer den programmatischen Zugriff auf die RechnungsKern API.
               </CardDescription>
             </div>
             <Button onClick={() => setShowCreateModal(true)}>
@@ -1996,7 +1996,7 @@ function PaymentSettingsTab() {
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: 'rgb(var(--muted-foreground))' }} />
                 <p className="text-sm" style={{ color: 'rgb(var(--muted-foreground))' }}>
                   Noch nicht verbunden. Nach dem Onboarding (~10 Min) können Kunden direkt im Portal bezahlen.
-                  RechnungsWerk behält automatisch 0,5 % als Plattformgebühr ein.
+                  RechnungsKern behält automatisch 0,5 % als Plattformgebühr ein.
                 </p>
               </div>
               <Button
@@ -2097,7 +2097,7 @@ function FeatureLinkCard({
 // Main Settings Page
 // ---------------------------------------------------------------------------
 export default function SettingsPage() {
-  useEffect(() => { document.title = 'Einstellungen | RechnungsWerk' }, [])
+  useEffect(() => { document.title = 'Einstellungen | RechnungsKern' }, [])
   const { user, loading } = useAuth()
   const plan = user?.organization?.plan ?? 'free'
   const [datevOpen, setDatevOpen] = useState(false)
@@ -2118,7 +2118,7 @@ export default function SettingsPage() {
           Einstellungen
         </h1>
         <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
-          Verwalten Sie Ihr Konto, Ihre Organisation und alle Features von RechnungsWerk.
+          Verwalten Sie Ihr Konto, Ihre Organisation und alle Features von RechnungsKern.
         </p>
       </div>
 

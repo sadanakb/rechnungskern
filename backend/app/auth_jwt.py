@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 from app.config import settings
 
-_INSECURE_DEFAULT = "rechnungswerk-secret-change-in-production"
+_INSECURE_DEFAULT = "rechnungskern-secret-change-in-production"
 
 # Startup check: refuse to run with insecure secret when auth is enabled
 if settings.require_api_key and (

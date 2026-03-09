@@ -3,7 +3,7 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: rechnungswerk
+      POSTGRES_DB: rechnungskern
       POSTGRES_USER: rw
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
@@ -24,10 +24,10 @@ services:
     build: ./backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://rw:${DB_PASSWORD}@db:5432/rechnungswerk
+      DATABASE_URL: postgresql://rw:${DB_PASSWORD}@db:5432/rechnungskern
       REDIS_URL: redis://redis:6379
       REQUIRE_API_KEY: "true"
-      ALLOWED_ORIGINS: '["https://rechnungswerk.de"]'
+      ALLOWED_ORIGINS: '["https://rechnungskern.de"]'
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     depends_on:
@@ -47,7 +47,7 @@ services:
     build: ./frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: https://api.rechnungswerk.de
+      NEXT_PUBLIC_API_URL: https://api.rechnungskern.de
     expose:
       - "3001"
 

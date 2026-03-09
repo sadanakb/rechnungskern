@@ -1,5 +1,5 @@
 """
-Versionierte externe API für RechnungsWerk (v1).
+Versionierte externe API für RechnungsKern (v1).
 
 Stellt eine öffentliche REST-API bereit, über die externe Systeme
 (ERP, Buchhaltungssoftware, etc.) Rechnungen abrufen, XRechnung-XML

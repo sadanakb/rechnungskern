@@ -1,5 +1,5 @@
 /**
- * RechnungsWerk Design Tokens
+ * RechnungsKern Design Tokens
  *
  * Brand colors, spacing, typography, and component styles
  * for a premium German B2B SaaS look.

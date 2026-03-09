@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Datenschutzerklärung | RechnungsWerk',
-  description: 'Datenschutzerklärung von RechnungsWerk gemäß DSGVO (Art. 13, 14 DSGVO).',
+  title: 'Datenschutzerklärung | RechnungsKern',
+  description: 'Datenschutzerklärung von RechnungsKern gemäß DSGVO (Art. 13, 14 DSGVO).',
 }
 
 export default function DatenschutzPage() {
@@ -17,8 +17,8 @@ export default function DatenschutzPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">1. Verantwortlicher</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Verantwortlicher im Sinne der DSGVO ist: RechnungsWerk GmbH,
-            [Adresse], Deutschland. Kontakt: datenschutz@rechnungswerk.de
+            Verantwortlicher im Sinne der DSGVO ist: RechnungsKern GmbH,
+            [Adresse], Deutschland. Kontakt: datenschutz@rechnungskern.de
           </p>
         </section>
 
@@ -38,7 +38,7 @@ export default function DatenschutzPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">3. Zweck der Verarbeitung</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Daten werden ausschließlich zur Bereitstellung des RechnungsWerk-Dienstes verarbeitet
+            Daten werden ausschließlich zur Bereitstellung des RechnungsKern-Dienstes verarbeitet
             (E-Invoicing, Buchhaltung, DATEV-Export). Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO
             (Vertragserfüllung).
           </p>
@@ -60,7 +60,7 @@ export default function DatenschutzPage() {
             <li><strong>Löschung (Art. 17):</strong> In Einstellungen → Datenschutz → Account löschen</li>
             <li><strong>Datenübertragbarkeit (Art. 20):</strong> In Einstellungen → Datenschutz → Daten herunterladen</li>
             <li><strong>Einschränkung (Art. 18):</strong> Auf Anfrage per E-Mail</li>
-            <li><strong>Widerspruch (Art. 21):</strong> datenschutz@rechnungswerk.de</li>
+            <li><strong>Widerspruch (Art. 21):</strong> datenschutz@rechnungskern.de</li>
           </ul>
         </section>
 
@@ -78,14 +78,14 @@ export default function DatenschutzPage() {
           <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
             Stripe (Zahlungsabwicklung), Brevo (transaktionale E-Mails),
             Firebase (Push-Benachrichtigungen). Alle Anbieter sind DSGVO-konform
-            und verarbeiten Daten ausschließlich im Auftrag von RechnungsWerk.
+            und verarbeiten Daten ausschließlich im Auftrag von RechnungsKern.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-3">8. Kontakt</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            Bei Fragen zum Datenschutz: datenschutz@rechnungswerk.de
+            Bei Fragen zum Datenschutz: datenschutz@rechnungskern.de
           </p>
         </section>
       </div>

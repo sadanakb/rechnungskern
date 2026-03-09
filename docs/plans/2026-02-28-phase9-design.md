@@ -5,7 +5,7 @@
 
 ## Goal
 
-Upgrade RechnungsWerk mit produktionsreifen KI-Features und Real-time WebSocket-Infrastruktur: GPT-4o-mini als kostenoptimierter Primary-Provider (7,5× günstiger als Claude Haiku für Standard-Tasks), Chat-Assistent mit Tool Use, asynchrone Auto-Kategorisierung (SKR03), monatliche AI-Zusammenfassung und Live-Events via WebSocket.
+Upgrade RechnungsKern mit produktionsreifen KI-Features und Real-time WebSocket-Infrastruktur: GPT-4o-mini als kostenoptimierter Primary-Provider (7,5× günstiger als Claude Haiku für Standard-Tasks), Chat-Assistent mit Tool Use, asynchrone Auto-Kategorisierung (SKR03), monatliche AI-Zusammenfassung und Live-Events via WebSocket.
 
 **Budget-Grundlage (aus Recherche-Dokument):**
 - GPT-4o-mini: $0,0006/Rechnung → ~$6 für 10.000 Rechnungen/Monat

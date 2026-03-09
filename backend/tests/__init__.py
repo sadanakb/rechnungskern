@@ -1,1 +1,1 @@
-"""RechnungsWerk test suite."""
+"""RechnungsKern test suite."""

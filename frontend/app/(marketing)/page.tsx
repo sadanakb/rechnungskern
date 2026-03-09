@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { FileText, CheckCircle, BarChart3, Search } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'RechnungsWerk — E-Rechnungen erstellen | XRechnung & ZUGFeRD',
+  title: 'RechnungsKern — E-Rechnungen erstellen | XRechnung & ZUGFeRD',
   description:
     'Erstelle XRechnung und ZUGFeRD konforme E-Rechnungen. Open Source. Ab 9 EUR/Monat. GoBD-konform. DATEV-Export.',
   openGraph: {
-    title: 'RechnungsWerk — E-Rechnungen in 30 Sekunden',
+    title: 'RechnungsKern — E-Rechnungen in 30 Sekunden',
     description: 'XRechnung & ZUGFeRD konform. Open Source. Ab 9 EUR/Monat.',
     type: 'website',
     locale: 'de_DE',
@@ -228,7 +228,7 @@ export default function LandingPage() {
                 className="text-3xl font-bold tracking-tight"
                 style={{ color: 'rgb(var(--foreground))' }}
               >
-                Was RechnungsWerk fuer Sie tut
+                Was RechnungsKern fuer Sie tut
               </h2>
               <p
                 className="mt-3 text-base max-w-xl mx-auto"
@@ -396,7 +396,7 @@ export default function LandingPage() {
               className="mt-4 text-base max-w-xl mx-auto leading-relaxed"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              RechnungsWerk ist unter der AGPL-3.0-Lizenz verfuegbar.
+              RechnungsKern ist unter der AGPL-3.0-Lizenz verfuegbar.
               Lesen Sie den Code, betreiben Sie eine eigene Instanz, oder tragen Sie bei.
               Transparenz ist kein Feature — sie ist das Fundament.
             </p>
@@ -469,11 +469,11 @@ export default function LandingPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'SoftwareApplication',
-            name: 'RechnungsWerk',
+            name: 'RechnungsKern',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
             description: 'Professionelle Rechnungssoftware für Deutschland. ZUGFeRD & XRechnung konform.',
-            url: 'https://rechnungswerk.de',
+            url: 'https://rechnungskern.de',
             offers: [
               { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR', description: 'Kostenlose Testversion verfügbar' },
               { '@type': 'Offer', name: 'Starter', price: '9.90', priceCurrency: 'EUR' },

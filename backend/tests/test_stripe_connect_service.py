@@ -15,8 +15,8 @@ def test_create_connect_account_returns_url():
         from app.stripe_service import create_connect_onboarding_url
         result = create_connect_onboarding_url(
             existing_account_id=None,
-            return_url="https://rechnungswerk.de/dashboard/settings?stripe_connected=1",
-            refresh_url="https://rechnungswerk.de/dashboard/settings?stripe_refresh=1",
+            return_url="https://rechnungskern.de/dashboard/settings?stripe_connected=1",
+            refresh_url="https://rechnungskern.de/dashboard/settings?stripe_refresh=1",
         )
     assert result["url"] == "https://connect.stripe.com/setup/e/acct_test_001/abc"
     assert result["account_id"] == "acct_test_001"
@@ -32,8 +32,8 @@ def test_create_connect_account_reuses_existing_id():
         from app.stripe_service import create_connect_onboarding_url
         result = create_connect_onboarding_url(
             existing_account_id="acct_existing",
-            return_url="https://rechnungswerk.de/dashboard/settings?stripe_connected=1",
-            refresh_url="https://rechnungswerk.de/dashboard/settings?stripe_refresh=1",
+            return_url="https://rechnungskern.de/dashboard/settings?stripe_connected=1",
+            refresh_url="https://rechnungskern.de/dashboard/settings?stripe_refresh=1",
         )
     mock_create.assert_not_called()
     assert result["account_id"] == "acct_existing"

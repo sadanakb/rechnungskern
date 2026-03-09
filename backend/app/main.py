@@ -1,5 +1,5 @@
 """
-RechnungsWerk FastAPI Main Application
+RechnungsKern FastAPI Main Application
 """
 import asyncio
 import json
@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup/shutdown lifecycle."""
-    logger.info("[Startup] Initializing RechnungsWerk database...")
+    logger.info("[Startup] Initializing RechnungsKern database...")
     init_db()
     logger.info("[Startup] Database initialized")
     if settings.require_api_key:
@@ -246,7 +246,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str = ""):
 async def root():
     """Root endpoint"""
     return {
-        "message": "RechnungsWerk API",
+        "message": "RechnungsKern API",
         "version": settings.app_version,
         "docs": "/docs",
         "health": "/api/health",

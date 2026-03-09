@@ -10,7 +10,7 @@
 
 Bitte melden Sie Sicherheitsprobleme **nicht** ueber oeffentliche Issues.
 
-Senden Sie stattdessen eine E-Mail an: security@rechnungswerk.de
+Senden Sie stattdessen eine E-Mail an: security@rechnungskern.de
 
 Wir bestaetigen den Eingang innerhalb von 48 Stunden und arbeiten an einer Loesung innerhalb von 7 Tagen.
 

@@ -112,7 +112,7 @@ def export_gdpr_data(
         zf.writestr("profil.json", json.dumps(profil_data, ensure_ascii=False, indent=2))
 
     buf.seek(0)
-    filename = f"RechnungsWerk_Datenexport_{datetime.now(timezone.utc).date()}.zip"
+    filename = f"RechnungsKern_Datenexport_{datetime.now(timezone.utc).date()}.zip"
     return StreamingResponse(
         content=buf,
         media_type="application/zip",
