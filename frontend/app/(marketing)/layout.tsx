@@ -13,11 +13,11 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
           backgroundColor: 'rgb(var(--background) / 0.8)',
         }}
       >
-        <nav className="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
+        <nav className="mx-auto max-w-6xl flex items-center justify-between px-6 py-5">
+          <Link href="/" className="text-2xl font-bold tracking-tight" style={{ color: 'rgb(var(--foreground))' }}>
             RechnungsWerk
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             <Link
               href="/preise"
               className="text-sm font-medium hover:opacity-80"
@@ -41,7 +41,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               href="/register"
-              className="rounded-lg px-4 py-2 text-sm font-medium"
+              className="rounded-full px-4 py-2 text-sm font-medium shadow-sm hover:shadow-md transition-all"
               style={{
                 backgroundColor: 'rgb(var(--primary))',
                 color: 'rgb(var(--primary-foreground))',
@@ -56,19 +56,19 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       {children}
 
       {/* Footer */}
-      <footer className="border-t py-12 mt-20" style={{ borderColor: 'rgb(var(--border))' }}>
+      <footer className="border-t py-16 mt-24" style={{ backgroundColor: 'rgb(var(--card))', borderColor: 'rgb(var(--border))' }}>
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-bold mb-3" style={{ color: 'rgb(var(--foreground))' }}>Produkt</h3>
-              <ul className="space-y-2 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <h3 className="font-bold mb-4" style={{ color: 'rgb(var(--foreground))' }}>Produkt</h3>
+              <ul className="space-y-3 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 <li><Link href="/preise" className="hover:opacity-80">Preise</Link></li>
                 <li><Link href="/register" className="hover:opacity-80">Kostenlos starten</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold mb-3" style={{ color: 'rgb(var(--foreground))' }}>Ressourcen</h3>
-              <ul className="space-y-2 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <h3 className="font-bold mb-4" style={{ color: 'rgb(var(--foreground))' }}>Ressourcen</h3>
+              <ul className="space-y-3 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 <li><Link href="/blog" className="hover:opacity-80">Blog</Link></li>
                 <li>
                   <a
@@ -83,15 +83,15 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               </ul>
             </div>
             <div>
-              <h3 className="font-bold mb-3" style={{ color: 'rgb(var(--foreground))' }}>Rechtliches</h3>
-              <ul className="space-y-2 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <h3 className="font-bold mb-4" style={{ color: 'rgb(var(--foreground))' }}>Rechtliches</h3>
+              <ul className="space-y-3 text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 <li><Link href="/impressum" className="hover:opacity-80">Impressum</Link></li>
                 <li><Link href="/datenschutz" className="hover:opacity-80">Datenschutz</Link></li>
                 <li><Link href="/agb" className="hover:opacity-80">AGB</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold mb-3" style={{ color: 'rgb(var(--foreground))' }}>Newsletter</h3>
+              <h3 className="font-bold mb-4" style={{ color: 'rgb(var(--foreground))' }}>Newsletter</h3>
               <p className="text-sm mb-3" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Erhalten Sie Updates zur E-Rechnungspflicht.
               </p>
@@ -99,14 +99,14 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div
-            className="mt-8 pt-8 border-t text-center text-sm"
+            className="mt-12 pt-12 border-t text-center text-sm"
             style={{
               borderColor: 'rgb(var(--border))',
               color: 'rgb(var(--foreground-muted))',
               opacity: 0.7,
             }}
           >
-            &copy; 2026 RechnungsWerk. Made in Germany.
+            &copy; 2026 RechnungsWerk — Made with care in Germany.
           </div>
         </div>
       </footer>

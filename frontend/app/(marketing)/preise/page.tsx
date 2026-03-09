@@ -149,19 +149,19 @@ export default function PreisePage() {
         {/* ============================================================
             Header
             ============================================================ */}
-        <section className="pt-20 pb-12">
+        <section className="pt-28 pb-16">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <h1
-              className="text-4xl sm:text-5xl font-extrabold tracking-tight"
+              className="text-5xl sm:text-6xl font-extrabold tracking-tight"
               style={{ color: 'rgb(var(--foreground))' }}
             >
               Einfache, faire Preise
             </h1>
             <p
-              className="mt-4 text-lg max-w-xl mx-auto"
+              className="mt-6 text-xl max-w-xl mx-auto"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Starten Sie kostenlos. Keine versteckten Kosten. Upgraden Sie, wenn Ihr Geschaeft waechst.
+              Starten Sie kostenlos und ohne Risiko. Upgraden Sie erst, wenn Ihr Geschaeft waechst.
             </p>
           </div>
         </section>
@@ -171,11 +171,11 @@ export default function PreisePage() {
             ============================================================ */}
         <section className="pb-20">
           <div className="mx-auto max-w-5xl px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {tiers.map((tier) => (
                 <div
                   key={tier.name}
-                  className="rounded-xl border p-6 flex flex-col relative"
+                  className="rounded-2xl border p-8 flex flex-col relative"
                   style={{
                     backgroundColor: 'rgb(var(--card))',
                     borderColor: tier.highlight ? 'rgb(var(--primary))' : 'rgb(var(--border))',
@@ -184,7 +184,7 @@ export default function PreisePage() {
                 >
                   {tier.highlight && (
                     <span
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-semibold"
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
                       style={{
                         backgroundColor: 'rgb(var(--primary))',
                         color: 'rgb(var(--primary-foreground))',
@@ -224,7 +224,7 @@ export default function PreisePage() {
 
                   <Link
                     href={tier.ctaHref}
-                    className="mt-6 block rounded-lg px-4 py-3 text-center text-sm font-semibold transition-shadow"
+                    className="mt-6 block rounded-xl px-4 py-3 text-center text-sm font-semibold transition-shadow"
                     style={
                       tier.highlight
                         ? {
@@ -240,7 +240,7 @@ export default function PreisePage() {
                     {tier.cta}
                   </Link>
 
-                  <ul className="mt-8 space-y-3 flex-1">
+                  <ul className="mt-8 space-y-4 flex-1">
                     {tier.features.map((f) => (
                       <li
                         key={f.text}
@@ -281,12 +281,12 @@ export default function PreisePage() {
             Self-hosting note
             ============================================================ */}
         <section
-          className="py-12"
+          className="py-16"
           style={{ backgroundColor: 'rgb(var(--card))' }}
         >
           <div className="mx-auto max-w-3xl px-6 text-center">
             <h2
-              className="text-xl font-bold"
+              className="text-2xl font-bold"
               style={{ color: 'rgb(var(--foreground))' }}
             >
               Lieber selbst hosten?
@@ -303,7 +303,7 @@ export default function PreisePage() {
                 href="https://github.com/sadanakb/rechnungswerk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold border transition-colors"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold border transition-colors"
                 style={{
                   borderColor: 'rgb(var(--border-strong))',
                   color: 'rgb(var(--foreground))',
@@ -333,24 +333,24 @@ export default function PreisePage() {
         <section className="py-20">
           <div className="mx-auto max-w-3xl px-6">
             <h2
-              className="text-3xl font-bold tracking-tight text-center mb-12"
+              className="text-3xl font-bold tracking-tight text-center mb-16"
               style={{ color: 'rgb(var(--foreground))' }}
             >
               Haeufig gestellte Fragen
             </h2>
 
-            <dl className="space-y-6">
+            <dl className="space-y-8">
               {faqs.map((faq) => (
                 <div
                   key={faq.question}
-                  className="rounded-xl border p-5"
+                  className="rounded-2xl border p-6"
                   style={{
                     backgroundColor: 'rgb(var(--card))',
                     borderColor: 'rgb(var(--border))',
                   }}
                 >
                   <dt
-                    className="text-sm font-semibold"
+                    className="text-base font-semibold"
                     style={{ color: 'rgb(var(--foreground))' }}
                   >
                     {faq.question}
@@ -370,24 +370,24 @@ export default function PreisePage() {
         {/* ============================================================
             CTA
             ============================================================ */}
-        <section className="pb-20">
+        <section className="pb-24">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <h2
-              className="text-2xl font-bold"
+              className="text-3xl font-bold"
               style={{ color: 'rgb(var(--foreground))' }}
             >
-              Bereit fuer konforme E-Rechnungen?
+              Bereit fuer stressfreie E-Rechnungen?
             </h2>
             <p
               className="mt-3 text-sm"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Starten Sie jetzt kostenlos — keine Kreditkarte erforderlich.
+              Starten Sie jetzt kostenlos — keine Kreditkarte, keine Verpflichtung.
             </p>
             <div className="mt-6">
               <Link
                 href="/register"
-                className="inline-block rounded-lg px-8 py-3.5 text-base font-semibold shadow-md hover:shadow-lg transition-shadow"
+                className="inline-block rounded-full px-8 py-3.5 text-base font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
                 style={{
                   backgroundColor: 'rgb(var(--primary))',
                   color: 'rgb(var(--primary-foreground))',

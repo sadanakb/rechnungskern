@@ -18,10 +18,10 @@ export const metadata: Metadata = {
    Badge data
    ----------------------------------------------------------------------- */
 const trustBadges = [
-  { label: 'XRechnung 3.0.2', sub: 'EN 16931 konform' },
-  { label: 'ZUGFeRD 2.3.3', sub: 'Hybrid-PDF' },
-  { label: 'DSGVO-konform', sub: 'Hosting in DE' },
-  { label: 'Open Source', sub: 'AGPL-3.0' },
+  { label: 'Made in Germany', sub: 'Entwickelt und gehostet in Deutschland' },
+  { label: 'DSGVO-konform', sub: 'Ihre Daten bleiben in Deutschland' },
+  { label: 'XRechnung & ZUGFeRD', sub: 'Alle E-Rechnungsformate' },
+  { label: 'Open Source', sub: 'Transparent und unabhaengig' },
 ]
 
 const timelineSteps = [
@@ -88,7 +88,7 @@ export default function LandingPage() {
             Hero
             ============================================================ */}
         <section className="relative overflow-hidden">
-          <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center">
+          <div className="mx-auto max-w-6xl px-6 pt-28 pb-20 text-center">
             <p
               className="inline-block rounded-full px-4 py-1.5 text-xs font-semibold mb-6"
               style={{
@@ -101,26 +101,25 @@ export default function LandingPage() {
             </p>
 
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight"
+              className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight"
               style={{ color: 'rgb(var(--foreground))' }}
             >
-              E-Rechnungen erstellen.
+              Rechnungen schreiben,
               <br />
-              <span style={{ color: 'rgb(var(--primary))' }}>XRechnung &amp; ZUGFeRD konform.</span>
+              <span style={{ color: 'rgb(var(--primary))' }}>die jeder akzeptiert.</span>
             </h1>
 
             <p
-              className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed"
+              className="mt-8 text-xl sm:text-2xl max-w-2xl mx-auto leading-relaxed"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              RechnungsWerk wandelt Ihre Rechnungen in XRechnung 3.0.2 und ZUGFeRD 2.3.3 um
-              — per OCR oder manueller Eingabe. Open Source, GoBD-konform, DATEV-ready.
+              Erstellen Sie XRechnung und ZUGFeRD konforme E-Rechnungen in Sekunden — einfach, sicher und komplett in Deutschland gehostet.
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-lg px-8 py-3.5 text-base font-semibold shadow-md hover:shadow-lg transition-shadow"
+                className="rounded-full px-8 py-3.5 text-base font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
                 style={{
                   backgroundColor: 'rgb(var(--primary))',
                   color: 'rgb(var(--primary-foreground))',
@@ -132,7 +131,7 @@ export default function LandingPage() {
                 href="https://github.com/sadanakb/rechnungswerk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg px-8 py-3.5 text-base font-semibold border transition-colors"
+                className="rounded-full px-8 py-3.5 text-base font-semibold border transition-colors"
                 style={{
                   borderColor: 'rgb(var(--border-strong))',
                   color: 'rgb(var(--foreground))',
@@ -148,11 +147,11 @@ export default function LandingPage() {
             Trust badges
             ============================================================ */}
         <section className="border-y" style={{ borderColor: 'rgb(var(--border))' }}>
-          <div className="mx-auto max-w-6xl px-6 py-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="mx-auto max-w-6xl px-6 py-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {trustBadges.map((badge) => (
                 <div key={badge.label}>
-                  <p className="text-sm font-bold" style={{ color: 'rgb(var(--foreground))' }}>
+                  <p className="text-base font-bold" style={{ color: 'rgb(var(--foreground))' }}>
                     {badge.label}
                   </p>
                   <p className="text-xs mt-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
@@ -229,7 +228,7 @@ export default function LandingPage() {
                 className="text-3xl font-bold tracking-tight"
                 style={{ color: 'rgb(var(--foreground))' }}
               >
-                Alles fuer Ihre E-Rechnungen
+                Was RechnungsWerk fuer Sie tut
               </h2>
               <p
                 className="mt-3 text-base max-w-xl mx-auto"
@@ -239,25 +238,25 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="rounded-xl border p-6"
+                  className="rounded-2xl border p-8"
                   style={{
                     backgroundColor: 'rgb(var(--background))',
                     borderColor: 'rgb(var(--border))',
                   }}
                 >
-                  <feature.icon size={28} style={{ color: 'rgb(var(--primary))' }} />
+                  <feature.icon size={32} style={{ color: 'rgb(var(--primary))' }} />
                   <h3
-                    className="mt-3 text-lg font-semibold"
+                    className="mt-4 text-lg font-semibold"
                     style={{ color: 'rgb(var(--foreground))' }}
                   >
                     {feature.title}
                   </h3>
                   <p
-                    className="mt-2 text-sm leading-relaxed"
+                    className="mt-3 text-sm leading-relaxed"
                     style={{ color: 'rgb(var(--foreground-muted))' }}
                   >
                     {feature.description}
@@ -288,11 +287,11 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {pricingPreview.map((tier) => (
                 <div
                   key={tier.name}
-                  className="rounded-xl border p-6 flex flex-col"
+                  className="rounded-2xl border p-8 flex flex-col"
                   style={{
                     backgroundColor: 'rgb(var(--card))',
                     borderColor: tier.highlight ? 'rgb(var(--primary))' : 'rgb(var(--border))',
@@ -330,7 +329,7 @@ export default function LandingPage() {
                       {tier.unit}
                     </span>
                   </div>
-                  <ul className="mt-6 space-y-2.5 flex-1">
+                  <ul className="mt-6 space-y-3 flex-1">
                     {tier.features.map((f) => (
                       <li
                         key={f}
@@ -349,7 +348,7 @@ export default function LandingPage() {
                   </ul>
                   <Link
                     href={tier.highlight ? '/register' : '/preise'}
-                    className="mt-6 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-shadow"
+                    className="mt-6 block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition-shadow"
                     style={
                       tier.highlight
                         ? {
@@ -406,7 +405,7 @@ export default function LandingPage() {
                 href="https://github.com/sadanakb/rechnungswerk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold border transition-colors"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold border transition-colors"
                 style={{
                   borderColor: 'rgb(var(--border-strong))',
                   color: 'rgb(var(--foreground))',
@@ -433,24 +432,24 @@ export default function LandingPage() {
         {/* ============================================================
             Final CTA
             ============================================================ */}
-        <section className="py-20">
+        <section className="py-24">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <h2
               className="text-3xl font-bold tracking-tight"
               style={{ color: 'rgb(var(--foreground))' }}
             >
-              Bereit fuer die E-Rechnungspflicht?
+              Bereit fuer stressfreie Rechnungen?
             </h2>
             <p
               className="mt-4 text-base max-w-lg mx-auto"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Erstellen Sie in unter 30 Sekunden Ihre erste XRechnung. Kostenlos, ohne Kreditkarte.
+              Starten Sie in unter einer Minute. Kostenlos, ohne Kreditkarte, ohne Risiko.
             </p>
             <div className="mt-8">
               <Link
                 href="/register"
-                className="inline-block rounded-lg px-8 py-3.5 text-base font-semibold shadow-md hover:shadow-lg transition-shadow"
+                className="inline-block rounded-full px-8 py-3.5 text-base font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
                 style={{
                   backgroundColor: 'rgb(var(--primary))',
                   color: 'rgb(var(--primary-foreground))',
