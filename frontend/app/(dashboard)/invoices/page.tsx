@@ -713,26 +713,39 @@ function InvoicesContent() {
         />
       )}
 
-      {/* ===== Page Header ===== */}
+      {/* ===== Page Header — Nexon style ===== */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap items-center justify-between gap-4 mb-6"
+        className="flex flex-wrap items-end justify-between gap-4 mb-8"
       >
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'rgb(var(--foreground))' }}>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'rgb(var(--foreground))' }}>
             Rechnungen
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'rgb(var(--foreground-muted))' }}>
-            {total} Rechnung{total !== 1 ? 'en' : ''} gesamt
-            {filtered.length !== total && ` · ${filtered.length} gefiltert`}
-          </p>
+          <span
+            className="text-sm font-semibold px-2.5 py-1 rounded-full"
+            style={{
+              backgroundColor: 'rgb(var(--primary-light))',
+              color: 'rgb(var(--primary))',
+            }}
+          >
+            {total}
+          </span>
+          {filtered.length !== total && (
+            <span
+              className="text-xs"
+              style={{ color: 'rgb(var(--foreground-muted))' }}
+            >
+              {filtered.length} gefiltert
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/ocr"
-            className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors"
+            className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2.5 rounded-xl border transition-colors"
             style={{
               borderColor: 'rgb(var(--border))',
               color: 'rgb(var(--foreground))',
@@ -743,30 +756,30 @@ function InvoicesContent() {
           </Link>
           <Link
             href="/manual"
-            className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl text-white transition-colors shadow-sm"
             style={{
-              borderColor: 'rgb(var(--border))',
-              color: 'rgb(var(--foreground))',
-              backgroundColor: 'rgb(var(--card))',
+              backgroundColor: 'rgb(var(--primary))',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(var(--primary-hover))' }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(var(--primary))' }}
           >
-            <Plus size={14} /> Manuell
+            <Plus size={15} /> Neue Rechnung
           </Link>
           <button
             onClick={() => setShowDATEVExport(true)}
-            className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors"
+            className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2.5 rounded-xl border transition-colors"
             style={{
               borderColor: 'rgb(var(--border))',
               color: 'rgb(var(--foreground))',
               backgroundColor: 'rgb(var(--card))',
             }}
           >
-            <FileSpreadsheet size={14} /> DATEV Export
+            <FileSpreadsheet size={14} /> DATEV
           </button>
           <button
             onClick={fetchInvoices}
             disabled={loading}
-            className="p-2 rounded-lg border transition-colors disabled:opacity-40"
+            className="p-2.5 rounded-xl border transition-colors disabled:opacity-40"
             style={{
               borderColor: 'rgb(var(--border))',
               color: 'rgb(var(--foreground-muted))',
@@ -785,21 +798,21 @@ function InvoicesContent() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="rounded-xl border p-4 mb-4"
+        className="rounded-2xl border p-4 mb-5"
         style={{
           backgroundColor: 'rgb(var(--card))',
           borderColor: 'rgb(var(--border))',
         }}
       >
         <div className="flex flex-wrap items-center gap-3">
-          {/* Search input */}
+          {/* Search input — bigger, more prominent */}
           <div
-            className="relative flex-1 min-w-[200px]"
+            className="relative flex-1 min-w-[240px]"
             style={{ position: 'relative' }}
           >
             <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             />
             <input
@@ -810,14 +823,14 @@ function InvoicesContent() {
               onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true) }}
               onBlur={() => { setTimeout(() => setShowSuggestions(false), 200) }}
               onKeyDown={(e) => { if (e.key === 'Escape') { setShowSuggestions(false); setSuggestions([]) } }}
-              className="w-full pl-9 pr-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2"
               style={selectStyle}
             />
             {showSuggestions && suggestions.length > 0 && (
               <div style={{
                 position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
                 backgroundColor: 'rgb(var(--card))', border: '1px solid rgb(var(--border))',
-                borderRadius: 8, boxShadow: '0 4px 16px rgb(0 0 0 / 0.1)', maxHeight: 240, overflowY: 'auto'
+                borderRadius: 12, boxShadow: '0 4px 16px rgb(0 0 0 / 0.1)', maxHeight: 240, overflowY: 'auto'
               }}>
                 {suggestions.map(s => (
                   <div key={s}
@@ -834,7 +847,7 @@ function InvoicesContent() {
           {/* Filter toggle */}
           <button
             onClick={() => setShowFilters((v) => !v)}
-            className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors"
+            className="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2.5 rounded-xl border transition-colors"
             style={{
               borderColor: hasActiveFilters
                 ? 'rgb(var(--primary))'

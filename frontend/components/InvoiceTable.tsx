@@ -18,7 +18,6 @@ import {
   ChevronsUpDown,
   ChevronLeft,
   ChevronRight,
-  Search,
   FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -53,41 +52,48 @@ export interface InvoiceTableProps {
 // ---------------------------------------------------------------------------
 // Status badge config
 // ---------------------------------------------------------------------------
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+const STATUS_CONFIG: Record<string, { label: string; dot: string; className: string }> = {
   valid: {
     label: 'Validiert',
+    dot: 'bg-emerald-500',
     className:
-      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+      'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800',
   },
   invalid: {
     label: 'Ungueltig',
+    dot: 'bg-red-500',
     className:
-      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+      'bg-red-50 text-red-700 ring-red-200 dark:bg-red-900/20 dark:text-red-400 dark:ring-red-800',
   },
   pending: {
     label: 'Ausstehend',
+    dot: 'bg-amber-500',
     className:
-      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+      'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800',
   },
   draft: {
     label: 'Entwurf',
+    dot: 'bg-gray-400',
     className:
-      'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400',
+      'bg-gray-50 text-gray-600 ring-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:ring-gray-700',
   },
   xrechnung_generated: {
     label: 'XML erstellt',
+    dot: 'bg-emerald-500',
     className:
-      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+      'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800',
   },
   ocr_processed: {
     label: 'OCR',
+    dot: 'bg-blue-500',
     className:
-      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-800',
   },
   error: {
     label: 'Fehler',
+    dot: 'bg-red-500',
     className:
-      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+      'bg-red-50 text-red-700 ring-red-200 dark:bg-red-900/20 dark:text-red-400 dark:ring-red-800',
   },
 }
 
@@ -95,15 +101,17 @@ function StatusBadge({ status }: { status: string | undefined }) {
   const s = status ?? 'draft'
   const cfg = STATUS_CONFIG[s] ?? {
     label: s,
-    className: 'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400',
+    dot: 'bg-gray-400',
+    className: 'bg-gray-50 text-gray-600 ring-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:ring-gray-700',
   }
   return (
     <span
       className={cn(
-        'inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap',
+        'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ring-1',
         cfg.className,
       )}
     >
+      <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dot)} />
       {cfg.label}
     </span>
   )
@@ -112,26 +120,31 @@ function StatusBadge({ status }: { status: string | undefined }) {
 // ---------------------------------------------------------------------------
 // Payment status badge
 // ---------------------------------------------------------------------------
-const PAYMENT_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+const PAYMENT_STATUS_CONFIG: Record<string, { label: string; dot: string; className: string }> = {
   unpaid: {
     label: 'Offen',
-    className: 'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400',
+    dot: 'bg-gray-400',
+    className: 'bg-gray-50 text-gray-600 ring-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:ring-gray-700',
   },
   paid: {
     label: 'Bezahlt',
-    className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    dot: 'bg-emerald-500',
+    className: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800',
   },
   partial: {
     label: 'Teilw.',
-    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    dot: 'bg-amber-500',
+    className: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800',
   },
   overdue: {
     label: 'Ueberfaellig',
-    className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    dot: 'bg-red-500',
+    className: 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-900/20 dark:text-red-400 dark:ring-red-800',
   },
   cancelled: {
     label: 'Storniert',
-    className: 'bg-slate-100 text-slate-500 dark:bg-slate-800/50 dark:text-slate-400',
+    dot: 'bg-slate-400',
+    className: 'bg-slate-50 text-slate-500 ring-slate-200 dark:bg-slate-800/40 dark:text-slate-400 dark:ring-slate-700',
   },
 }
 
@@ -139,15 +152,17 @@ function PaymentBadge({ status }: { status: string | undefined }) {
   const s = status ?? 'unpaid'
   const cfg = PAYMENT_STATUS_CONFIG[s] ?? {
     label: s,
-    className: 'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400',
+    dot: 'bg-gray-400',
+    className: 'bg-gray-50 text-gray-600 ring-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:ring-gray-700',
   }
   return (
     <span
       className={cn(
-        'inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap',
+        'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ring-1',
         cfg.className,
       )}
     >
+      <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dot)} />
       {cfg.label}
     </span>
   )
@@ -178,27 +193,30 @@ function formatDate(dateStr: string | null | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
-// Skeleton Row
+// Skeleton Row — spacious to match redesign
 // ---------------------------------------------------------------------------
 function SkeletonRow() {
   return (
-    <tr data-testid="skeleton-row" className="border-b" style={{ borderColor: 'rgb(var(--border))' }}>
-      <td className="px-4 py-3 w-10">
+    <tr className="border-b" style={{ borderColor: 'rgb(var(--border) / 0.5)' }}>
+      <td className="px-5 py-4 w-10">
         <div className="h-4 w-4 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
       </td>
-      <td className="px-3 py-3">
-        <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      <td className="px-4 py-4">
+        <div className="h-4 w-24 rounded-md bg-gray-200 dark:bg-gray-700 animate-pulse" />
       </td>
-      <td className="px-3 py-3">
-        <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      <td className="px-4 py-4">
+        <div className="h-4 w-20 rounded-md bg-gray-200 dark:bg-gray-700 animate-pulse" />
       </td>
-      <td className="px-3 py-3">
-        <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      <td className="px-4 py-4">
+        <div className="h-4 w-32 rounded-md bg-gray-200 dark:bg-gray-700 animate-pulse" />
       </td>
-      <td className="px-3 py-3 text-right">
-        <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700 animate-pulse ml-auto" />
+      <td className="px-4 py-4 text-right">
+        <div className="h-4 w-20 rounded-md bg-gray-200 dark:bg-gray-700 animate-pulse ml-auto" />
       </td>
-      <td className="px-3 py-3">
+      <td className="px-4 py-4">
+        <div className="h-5 w-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      </td>
+      <td className="px-4 py-4">
         <div className="h-5 w-16 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
       </td>
     </tr>
@@ -206,7 +224,7 @@ function SkeletonRow() {
 }
 
 // ---------------------------------------------------------------------------
-// Column Definitions
+// Column Definitions — Nexon-style spacious
 // ---------------------------------------------------------------------------
 function createColumns(): ColumnDef<InvoiceRow>[] {
   return [
@@ -227,12 +245,13 @@ function createColumns(): ColumnDef<InvoiceRow>[] {
           type="checkbox"
           checked={row.getIsSelected()}
           onChange={row.getToggleSelectedHandler()}
+          onClick={(e) => e.stopPropagation()}
           className="h-4 w-4 rounded border-gray-300 cursor-pointer accent-[rgb(var(--primary))]"
           aria-label={`Zeile ${row.original.invoice_number} auswaehlen`}
         />
       ),
       enableSorting: false,
-      size: 40,
+      size: 48,
     },
     // Rechnungsnr.
     {
@@ -261,7 +280,7 @@ function createColumns(): ColumnDef<InvoiceRow>[] {
       header: 'Empfaenger',
       cell: ({ getValue }) => (
         <span
-          className="text-sm truncate block max-w-[200px]"
+          className="text-sm truncate block max-w-[240px]"
           style={{ color: 'rgb(var(--foreground))' }}
           title={getValue() as string}
         >
@@ -301,7 +320,7 @@ function createColumns(): ColumnDef<InvoiceRow>[] {
 }
 
 // ---------------------------------------------------------------------------
-// InvoiceTable Component
+// InvoiceTable Component — Nexon clean table style
 // ---------------------------------------------------------------------------
 export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick, selectionResetKey }: InvoiceTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -354,7 +373,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
   if (loading) {
     return (
       <div
-        className="rounded-xl border overflow-hidden"
+        className="rounded-2xl border overflow-hidden"
         style={{
           backgroundColor: 'rgb(var(--card))',
           borderColor: 'rgb(var(--border))',
@@ -366,26 +385,26 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
               className="border-b"
               style={{
                 backgroundColor: 'rgb(var(--muted))',
-                borderColor: 'rgb(var(--border))',
+                borderColor: 'rgb(var(--border) / 0.5)',
               }}
             >
-              <th className="px-4 py-3 w-10" />
-              <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <th className="px-5 py-3.5 w-10" />
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Rechnungsnr.
               </th>
-              <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Datum
               </th>
-              <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Empfaenger
               </th>
-              <th className="px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <th className="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Betrag
               </th>
-              <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Status
               </th>
-              <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                 Zahlung
               </th>
             </tr>
@@ -401,47 +420,10 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
   }
 
   return (
-    <div className="space-y-4">
-      {/* --- Search + Bulk info --- */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Global search */}
-        <div className="relative flex-1 min-w-[200px]">
-          <Search
-            size={15}
-            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ color: 'rgb(var(--foreground-muted))' }}
-          />
-          <input
-            type="text"
-            placeholder="Suchen nach Nummer, Empfaenger..."
-            value={globalFilter ?? ''}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
-            style={{
-              backgroundColor: 'rgb(var(--input))',
-              borderColor: 'rgb(var(--input-border))',
-              color: 'rgb(var(--foreground))',
-            }}
-          />
-        </div>
-
-        {/* Selected count */}
-        {selectedCount > 0 && (
-          <span
-            className="text-sm font-medium px-3 py-1.5 rounded-lg"
-            style={{
-              backgroundColor: 'rgb(var(--primary-light))',
-              color: 'rgb(var(--primary))',
-            }}
-          >
-            {selectedCount} ausgewaehlt
-          </span>
-        )}
-      </div>
-
-      {/* --- Table --- */}
+    <div className="space-y-0">
+      {/* --- Table card --- */}
       <div
-        className="rounded-xl border overflow-hidden"
+        className="rounded-2xl border overflow-hidden"
         style={{
           backgroundColor: 'rgb(var(--card))',
           borderColor: 'rgb(var(--border))',
@@ -456,7 +438,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                   className="border-b"
                   style={{
                     backgroundColor: 'rgb(var(--muted))',
-                    borderColor: 'rgb(var(--border))',
+                    borderColor: 'rgb(var(--border) / 0.5)',
                   }}
                 >
                   {headerGroup.headers.map((header) => {
@@ -468,9 +450,9 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                       <th
                         key={header.id}
                         className={cn(
-                          'px-3 py-3',
+                          'px-4 py-3.5',
                           isAmount ? 'text-right' : 'text-left',
-                          header.column.id === 'select' && 'w-10 px-4',
+                          header.column.id === 'select' && 'w-12 px-5',
                         )}
                         style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
                       >
@@ -478,7 +460,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                           <button
                             onClick={header.column.getToggleSortingHandler()}
                             className={cn(
-                              'flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:opacity-80',
+                              'flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider transition-colors hover:opacity-80',
                               isAmount && 'ml-auto',
                             )}
                             style={{
@@ -500,7 +482,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                             )}
                           </button>
                         ) : (
-                          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgb(var(--foreground-muted))' }}>
+                          <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--foreground-muted))' }}>
                             {flexRender(
                               header.column.columnDef.header,
                               header.getContext(),
@@ -518,15 +500,15 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="text-center py-12"
+                    className="text-center py-16"
                   >
                     <FileText
-                      size={40}
-                      className="mx-auto mb-3"
+                      size={44}
+                      className="mx-auto mb-4"
                       style={{ color: 'rgb(var(--border))' }}
                     />
                     <p
-                      className="font-medium text-sm mb-1"
+                      className="font-medium text-sm mb-1.5"
                       style={{ color: 'rgb(var(--foreground))' }}
                     >
                       Keine Rechnungen vorhanden
@@ -544,11 +526,11 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                   <tr
                     key={row.id}
                     className={cn(
-                      'border-b last:border-b-0 transition-colors duration-100',
+                      'border-b last:border-b-0 transition-colors duration-150',
                       onRowClick && 'cursor-pointer',
                     )}
                     style={{
-                      borderColor: 'rgb(var(--border))',
+                      borderColor: 'rgb(var(--border) / 0.5)',
                       backgroundColor: row.getIsSelected()
                         ? 'rgb(var(--primary-light))'
                         : undefined,
@@ -556,7 +538,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                     onClick={() => onRowClick?.(row.original.invoice_id)}
                     onMouseEnter={(e) => {
                       if (!row.getIsSelected()) {
-                        e.currentTarget.style.backgroundColor = 'rgb(var(--muted))'
+                        e.currentTarget.style.backgroundColor = 'rgb(var(--primary-light))'
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -569,9 +551,9 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                       <td
                         key={cell.id}
                         className={cn(
-                          'px-3 py-3',
+                          'px-4 py-4',
                           cell.column.id === 'gross_amount' && 'text-right',
-                          cell.column.id === 'select' && 'w-10 px-4',
+                          cell.column.id === 'select' && 'w-12 px-5',
                         )}
                       >
                         {flexRender(
@@ -587,45 +569,26 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
           </table>
         </div>
 
-        {/* --- Pagination --- */}
+        {/* --- Pagination — clean, minimal --- */}
         {table.getPageCount() > 1 && (
           <div
-            className="flex items-center justify-between px-4 py-3 border-t"
-            style={{ borderColor: 'rgb(var(--border))' }}
+            className="flex items-center justify-between px-5 py-3.5 border-t"
+            style={{ borderColor: 'rgb(var(--border) / 0.5)' }}
           >
-            <div className="flex items-center gap-3">
-              <p
-                className="text-xs"
-                style={{ color: 'rgb(var(--foreground-muted))' }}
-              >
-                Seite {table.getState().pagination.pageIndex + 1} von{' '}
-                {table.getPageCount()} &middot;{' '}
-                {table.getFilteredRowModel().rows.length} Rechnungen
-              </p>
-              {/* Page size selector */}
-              <select
-                value={table.getState().pagination.pageSize}
-                onChange={(e) => table.setPageSize(Number(e.target.value))}
-                className="text-xs rounded border px-2 py-1"
-                style={{
-                  backgroundColor: 'rgb(var(--input))',
-                  borderColor: 'rgb(var(--input-border))',
-                  color: 'rgb(var(--foreground))',
-                }}
-              >
-                {[10, 20, 50, 100].map((size) => (
-                  <option key={size} value={size}>
-                    {size} pro Seite
-                  </option>
-                ))}
-              </select>
-            </div>
+            <p
+              className="text-xs"
+              style={{ color: 'rgb(var(--foreground-muted))' }}
+            >
+              Seite {table.getState().pagination.pageIndex + 1} von{' '}
+              {table.getPageCount()} &middot;{' '}
+              {table.getFilteredRowModel().rows.length} Rechnungen
+            </p>
 
             <div className="flex items-center gap-1">
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="w-8 h-8 rounded-md flex items-center justify-center transition-colors disabled:opacity-30"
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-30"
                 style={{ color: 'rgb(var(--foreground-muted))' }}
                 title="Vorherige Seite"
               >
@@ -653,7 +616,7 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
                     <button
                       key={pageIdx}
                       onClick={() => table.setPageIndex(pageIdx)}
-                      className="w-8 h-8 rounded-md text-xs font-medium flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-lg text-xs font-medium flex items-center justify-center transition-colors"
                       style={{
                         backgroundColor:
                           currentPage === pageIdx
@@ -674,12 +637,30 @@ export function InvoiceTable({ invoices, loading, onSelectionChange, onRowClick,
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="w-8 h-8 rounded-md flex items-center justify-center transition-colors disabled:opacity-30"
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-30"
                 style={{ color: 'rgb(var(--foreground-muted))' }}
                 title="Naechste Seite"
               >
                 <ChevronRight size={14} />
               </button>
+
+              {/* Page size selector */}
+              <select
+                value={table.getState().pagination.pageSize}
+                onChange={(e) => table.setPageSize(Number(e.target.value))}
+                className="ml-2 text-xs rounded-lg border px-2 py-1.5"
+                style={{
+                  backgroundColor: 'rgb(var(--input))',
+                  borderColor: 'rgb(var(--input-border))',
+                  color: 'rgb(var(--foreground-muted))',
+                }}
+              >
+                {[10, 20, 50, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size} / Seite
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         )}
