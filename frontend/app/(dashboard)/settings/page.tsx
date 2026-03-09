@@ -43,6 +43,8 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import DATEVExportDialog from '@/components/DATEVExportDialog'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 import { useAuth } from '@/lib/auth'
 import {
   getUserProfile,
@@ -451,13 +453,17 @@ function OrganisationTab() {
           placeholder="Muster GmbH"
         />
 
-        <Input
-          label="USt-IdNr"
-          value={ustIdNr}
-          onChange={(e) => setUstIdNr(e.target.value)}
-          placeholder="DE123456789"
-          hint="Umsatzsteuer-Identifikationsnummer gemaess §27a UStG"
-        />
+        <div className="flex flex-col gap-1.5 w-full">
+          <label className="text-sm font-medium leading-none text-stone-700 dark:text-stone-200">
+            USt-IdNr <FieldHelp {...FIELD_HELP.seller_vat_id} />
+          </label>
+          <Input
+            value={ustIdNr}
+            onChange={(e) => setUstIdNr(e.target.value)}
+            placeholder="DE123456789"
+            hint="Umsatzsteuer-Identifikationsnummer gemaess §27a UStG"
+          />
+        </div>
 
         {/* Address textarea */}
         <div className="flex flex-col gap-1.5 w-full">
@@ -1586,7 +1592,7 @@ function DatevKonfigurationTab() {
               className="block text-xs font-medium mb-1"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Beraternummer (5-stellig)
+              Beraternummer (5-stellig) <FieldHelp {...FIELD_HELP.datev_berater_nr} />
             </label>
             <input
               type="text"
@@ -1610,7 +1616,7 @@ function DatevKonfigurationTab() {
               className="block text-xs font-medium mb-1"
               style={{ color: 'rgb(var(--foreground-muted))' }}
             >
-              Mandantennummer (5-stellig)
+              Mandantennummer (5-stellig) <FieldHelp {...FIELD_HELP.datev_mandant_nr} />
             </label>
             <input
               type="text"

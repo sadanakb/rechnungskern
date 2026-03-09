@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Trash2, Edit2, X, Check, Star, LayoutTemplate } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 import { toast } from '@/components/ui/toast'
 import {
   listTemplates,
@@ -259,7 +261,7 @@ function FormModal({ initial, onSave, onClose, title }: FormModalProps) {
 
               {/* Payment terms */}
               <div>
-                <label className={labelCls} style={labelStyle}>Zahlungsziel (Tage)</label>
+                <label className={labelCls} style={labelStyle}>Zahlungsziel (Tage) <FieldHelp {...FIELD_HELP.payment_terms} /></label>
                 <input
                   type="number"
                   value={form.payment_terms_days ?? 14}
@@ -273,7 +275,7 @@ function FormModal({ initial, onSave, onClose, title }: FormModalProps) {
 
               {/* Default VAT */}
               <div>
-                <label className={labelCls} style={labelStyle}>Standard-MwSt. (%)</label>
+                <label className={labelCls} style={labelStyle}>Standard-MwSt. (%) <FieldHelp {...FIELD_HELP.tax_rate} /></label>
                 <input
                   type="text"
                   value={form.default_vat_rate || '19'}
@@ -301,7 +303,7 @@ function FormModal({ initial, onSave, onClose, title }: FormModalProps) {
                   />
                 </div>
                 <div>
-                  <label className={labelCls} style={labelStyle}>IBAN</label>
+                  <label className={labelCls} style={labelStyle}>IBAN <FieldHelp {...FIELD_HELP.iban} /></label>
                   <input
                     type="text"
                     value={form.bank_iban || ''}
@@ -313,7 +315,7 @@ function FormModal({ initial, onSave, onClose, title }: FormModalProps) {
                   />
                 </div>
                 <div>
-                  <label className={labelCls} style={labelStyle}>BIC</label>
+                  <label className={labelCls} style={labelStyle}>BIC <FieldHelp {...FIELD_HELP.bic} /></label>
                   <input
                     type="text"
                     value={form.bank_bic || ''}

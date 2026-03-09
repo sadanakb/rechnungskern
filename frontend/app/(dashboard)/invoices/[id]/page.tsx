@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { getInvoice, deleteInvoice, cancelInvoice, getXRechnungDownloadUrl, updatePaymentStatus, createShareLink, sendInvoiceEmail, createCreditNote, type InvoiceDetail } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1114,7 +1116,7 @@ export default function InvoiceDetailPage() {
             </div>
             <div className="mb-4">
               <label className="block text-xs font-medium mb-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
-                Grund der Gutschrift *
+                Grund der Gutschrift * <FieldHelp {...FIELD_HELP.credit_note_reason} />
               </label>
               <input
                 type="text"

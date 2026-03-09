@@ -30,6 +30,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -332,7 +334,7 @@ function CreateWebhookModal({ onClose, onCreated }: CreateModalProps) {
                   className="block text-sm font-medium mb-1.5"
                   style={{ color: 'rgb(var(--foreground))' }}
                 >
-                  Endpunkt-URL
+                  Endpunkt-URL <FieldHelp {...FIELD_HELP.webhook_url} />
                 </label>
                 <input
                   type="url"

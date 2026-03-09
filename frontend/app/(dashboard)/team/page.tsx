@@ -40,6 +40,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -172,7 +174,7 @@ function InviteDialog({
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-stone-700 dark:text-stone-200">
-              Rolle
+              Rolle <FieldHelp {...FIELD_HELP.team_role} />
             </label>
             <select
               value={role}

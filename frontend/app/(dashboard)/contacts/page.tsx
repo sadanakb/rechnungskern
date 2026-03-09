@@ -20,6 +20,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -315,7 +317,7 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
             <div>
               <label htmlFor="contact-vat" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
-                USt-IdNr.
+                USt-IdNr. <FieldHelp {...FIELD_HELP.buyer_vat_id} />
               </label>
               <input
                 id="contact-vat"
@@ -334,7 +336,7 @@ function ContactModal({ initialData, onClose, onSave, saving }: ContactModalProp
             <div>
               <label htmlFor="contact-payment-terms" className="block text-xs font-medium mb-1"
                 style={{ color: 'rgb(var(--foreground-muted))' }}>
-                Zahlungsziel (Tage)
+                Zahlungsziel (Tage) <FieldHelp {...FIELD_HELP.payment_terms} />
               </label>
               <input
                 id="contact-payment-terms"

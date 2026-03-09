@@ -19,6 +19,8 @@ import {
   X,
 } from 'lucide-react'
 import { createInvoice, generateXRechnung, getErrorMessage, API_BASE, type InvoiceCreate } from '@/lib/api'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 
 type FormData = InvoiceCreate
 
@@ -516,7 +518,7 @@ export default function ManualPage() {
             <div className="grid grid-cols-2 gap-4">
               <div data-has-error={hasFieldError('invoice_number')}>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Rechnungsnummer <BT>BT-1</BT> <span style={{ color: 'rgb(var(--destructive))' }}>*</span>
+                  Rechnungsnummer <BT>BT-1</BT><FieldHelp {...FIELD_HELP.invoice_number} /> <span style={{ color: 'rgb(var(--destructive))' }}>*</span>
                 </label>
                 <input
                   {...register('invoice_number', { required: 'Rechnungsnummer ist ein Pflichtfeld' })}
@@ -528,7 +530,7 @@ export default function ManualPage() {
               </div>
               <div data-has-error={hasFieldError('invoice_date')}>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Rechnungsdatum <BT>BT-2</BT> <span style={{ color: 'rgb(var(--destructive))' }}>*</span>
+                  Rechnungsdatum <BT>BT-2</BT><FieldHelp {...FIELD_HELP.invoice_date} /> <span style={{ color: 'rgb(var(--destructive))' }}>*</span>
                 </label>
                 <input
                   type="date"
@@ -540,13 +542,13 @@ export default function ManualPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Fälligkeitsdatum <BT>BT-9</BT>
+                  Fälligkeitsdatum <BT>BT-9</BT><FieldHelp {...FIELD_HELP.due_date} />
                 </label>
                 <input type="date" {...register('due_date')} className={inputClass} style={inputStyle} />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  MwSt-Satz % <BT>BT-119</BT>
+                  MwSt-Satz % <BT>BT-119</BT><FieldHelp {...FIELD_HELP.tax_rate} />
                 </label>
                 <input
                   type="number"
@@ -579,7 +581,7 @@ export default function ManualPage() {
               </div>
               <div data-has-error={hasFieldError('seller_vat_id')}>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  USt-IdNr. <BT>BT-31</BT> <span style={{ color: 'rgb(var(--destructive))' }}>*</span>
+                  USt-IdNr. <BT>BT-31</BT><FieldHelp {...FIELD_HELP.seller_vat_id} /> <span style={{ color: 'rgb(var(--destructive))' }}>*</span>
                   <span className="ml-1 text-xs font-normal text-amber-500">(Pflicht ab XRechnung 3.0.2)</span>
                 </label>
                 <input
@@ -634,7 +636,7 @@ export default function ManualPage() {
               </div>
               <div data-has-error={hasFieldError('buyer_vat_id')}>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  USt-IdNr. <BT>BT-48</BT>
+                  USt-IdNr. <BT>BT-48</BT><FieldHelp {...FIELD_HELP.buyer_vat_id} />
                   <span className="ml-1 text-xs font-normal" style={labelMutedStyle}>(optional)</span>
                 </label>
                 <input
@@ -800,9 +802,9 @@ export default function ManualPage() {
               className="mt-4 border-t pt-4 space-y-1.5"
               style={{ borderColor: 'rgb(var(--border))' }}
             >
-              <TotalRow label="Netto (BT-109)" value={net} />
+              <TotalRow label="Netto (BT-109)" value={net} help={<FieldHelp {...FIELD_HELP.net_amount} />} />
               <TotalRow label={`MwSt ${watchedTaxRate}% (BT-110)`} value={tax} />
-              <TotalRow label="Brutto / Zahlbetrag (BT-112)" value={gross} bold />
+              <TotalRow label="Brutto / Zahlbetrag (BT-112)" value={gross} bold help={<FieldHelp {...FIELD_HELP.gross_amount} />} />
             </div>
 
             {/* Betrag warning */}
@@ -831,7 +833,7 @@ export default function ManualPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  IBAN <BT>BT-84</BT>
+                  IBAN <BT>BT-84</BT><FieldHelp {...FIELD_HELP.iban} />
                   <span className="ml-1 text-xs font-normal" style={labelMutedStyle}>(empfohlen)</span>
                 </label>
                 <input
@@ -843,7 +845,7 @@ export default function ManualPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  BIC/SWIFT <BT>BT-86</BT>
+                  BIC/SWIFT <BT>BT-86</BT><FieldHelp {...FIELD_HELP.bic} />
                 </label>
                 <input
                   {...register('bic')}
@@ -854,7 +856,7 @@ export default function ManualPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Kontoinhaber <BT>BT-85</BT>
+                  Kontoinhaber <BT>BT-85</BT><FieldHelp {...FIELD_HELP.payment_account_name} />
                 </label>
                 <input
                   {...register('payment_account_name')}
@@ -872,7 +874,7 @@ export default function ManualPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Leitweg-ID / Bestellreferenz <BT>BT-10</BT>
+                  Leitweg-ID / Bestellreferenz <BT>BT-10</BT><FieldHelp {...FIELD_HELP.buyer_reference} />
                   <span className="ml-1 text-xs font-normal text-amber-500">(Pflicht bei Behörden)</span>
                 </label>
                 <input
@@ -887,7 +889,7 @@ export default function ManualPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Elektron. Adresse Verkäufer <BT>BT-34</BT>
+                  Elektron. Adresse Verkäufer <BT>BT-34</BT><FieldHelp {...FIELD_HELP.seller_endpoint_id} />
                 </label>
                 <input
                   {...register('seller_endpoint_id')}
@@ -898,7 +900,7 @@ export default function ManualPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5" style={labelStyle}>
-                  Elektron. Adresse Käufer <BT>BT-49</BT>
+                  Elektron. Adresse Käufer <BT>BT-49</BT><FieldHelp {...FIELD_HELP.buyer_endpoint_id} />
                 </label>
                 <input
                   {...register('buyer_endpoint_id')}
@@ -1099,10 +1101,12 @@ function TotalRow({
   label,
   value,
   bold = false,
+  help,
 }: {
   label: string
   value: number
   bold?: boolean
+  help?: React.ReactNode
 }) {
   return (
     <div
@@ -1111,7 +1115,7 @@ function TotalRow({
         color: bold ? 'rgb(var(--foreground))' : 'rgb(var(--foreground-muted))',
       }}
     >
-      <span>{label}</span>
+      <span>{label}{help}</span>
       <span className="tabular-nums">{value.toFixed(2)} &euro;</span>
     </div>
   )

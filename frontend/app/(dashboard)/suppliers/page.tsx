@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Trash2, Edit2, X, Package } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 import { toast } from '@/components/ui/toast'
 import {
   listSuppliers,
@@ -182,17 +184,18 @@ export default function SuppliersPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
               { key: 'name', label: 'Firmenname *', placeholder: 'Musterfirma GmbH' },
-              { key: 'vat_id', label: 'USt-IdNr. *', placeholder: 'DE123456789' },
+              { key: 'vat_id', label: 'USt-IdNr. *', placeholder: 'DE123456789', help: FIELD_HELP.seller_vat_id },
               { key: 'address', label: 'Adresse', placeholder: 'Musterstraße 1, 60311 Frankfurt' },
-              { key: 'iban', label: 'IBAN', placeholder: 'DE89370400440532013000' },
-              { key: 'bic', label: 'BIC', placeholder: 'COBADEFFXXX' },
+              { key: 'iban', label: 'IBAN', placeholder: 'DE89370400440532013000', help: FIELD_HELP.iban },
+              { key: 'bic', label: 'BIC', placeholder: 'COBADEFFXXX', help: FIELD_HELP.bic },
               { key: 'email', label: 'E-Mail', placeholder: 'buchhaltung@firma.de' },
               { key: 'default_account', label: 'Standardkonto (SKR03)', placeholder: '3400' },
               { key: 'notes', label: 'Notizen', placeholder: 'Hauptlieferant Büromaterial' },
-            ].map(({ key, label, placeholder }) => (
+            ].map(({ key, label, placeholder, help }) => (
               <div key={key}>
                 <label htmlFor={`supplier-${key}`} className="block text-xs font-medium mb-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
                   {label}
+                  {help && <FieldHelp title={help.title} description={help.description} example={help.example} />}
                 </label>
                 <input
                   id={`supplier-${key}`}

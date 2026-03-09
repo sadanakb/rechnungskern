@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Calendar, Clock, Pause, Play, Trash2, Zap, RefreshCw, Repeat } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 import { toast } from '@/components/ui/toast'
 import {
   listRecurring,
@@ -459,7 +461,7 @@ export default function RecurringPage() {
             </div>
 
             <div>
-              <label className={labelCls} style={labelStyle}>Verkäufer USt-IdNr. *</label>
+              <label className={labelCls} style={labelStyle}>Verkäufer USt-IdNr. * <FieldHelp {...FIELD_HELP.seller_vat_id} /></label>
               <input
                 type="text"
                 value={form.seller_vat_id}
@@ -485,7 +487,7 @@ export default function RecurringPage() {
             </div>
 
             <div>
-              <label className={labelCls} style={labelStyle}>Käufer USt-IdNr.</label>
+              <label className={labelCls} style={labelStyle}>Käufer USt-IdNr. <FieldHelp {...FIELD_HELP.buyer_vat_id} /></label>
               <input
                 type="text"
                 value={form.buyer_vat_id}
@@ -509,7 +511,7 @@ export default function RecurringPage() {
             </div>
 
             <div>
-              <label className={labelCls} style={labelStyle}>Nettobetrag (€) *</label>
+              <label className={labelCls} style={labelStyle}>Nettobetrag (€) * <FieldHelp {...FIELD_HELP.net_amount} /></label>
               <input
                 type="number"
                 step="0.01"
@@ -524,7 +526,7 @@ export default function RecurringPage() {
             </div>
 
             <div>
-              <label className={labelCls} style={labelStyle}>Steuersatz (%)</label>
+              <label className={labelCls} style={labelStyle}>Steuersatz (%) <FieldHelp {...FIELD_HELP.tax_rate} /></label>
               <input
                 type="number"
                 step="1"
@@ -550,7 +552,7 @@ export default function RecurringPage() {
             </div>
 
             <div>
-              <label className={labelCls} style={labelStyle}>IBAN</label>
+              <label className={labelCls} style={labelStyle}>IBAN <FieldHelp {...FIELD_HELP.iban} /></label>
               <input
                 type="text"
                 value={form.iban}

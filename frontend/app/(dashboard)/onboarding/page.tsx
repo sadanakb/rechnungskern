@@ -16,6 +16,8 @@ import {
   Check,
 } from 'lucide-react'
 import { updateCompanyInfo, uploadLogo } from '@/lib/api'
+import { FieldHelp } from '@/components/ui/FieldHelp'
+import { FIELD_HELP } from '@/lib/field-help'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,10 +103,12 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
 function Field({
   label,
   required,
+  help,
   children,
 }: {
   label: string
   required?: boolean
+  help?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
@@ -115,6 +119,7 @@ function Field({
       >
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
+        {help}
       </label>
       {children}
     </div>
@@ -184,7 +189,7 @@ function StepCompany({
             placeholder="Musterfirma GmbH"
           />
         </Field>
-        <Field label="USt-IdNr.">
+        <Field label="USt-IdNr." help={<FieldHelp {...FIELD_HELP.seller_vat_id} />}>
           <TextInput
             value={data.vatId}
             onChange={(v) => onChange({ vatId: v })}
