@@ -418,6 +418,14 @@ export const deleteInvoice = async (invoiceId: string): Promise<void> => {
   await api.delete(`/api/invoices/${invoiceId}`)
 }
 
+/**
+ * Cancel (stornieren) an invoice — GoBD compliant, cannot be undone.
+ */
+export const cancelInvoice = async (invoiceId: string, reason?: string): Promise<{ ok: boolean; payment_status: string }> => {
+  const response = await api.post(`/api/invoices/${invoiceId}/cancel`, { reason })
+  return response.data
+}
+
 // ---------------------------------------------------------------------------
 // Bulk Operations
 // ---------------------------------------------------------------------------

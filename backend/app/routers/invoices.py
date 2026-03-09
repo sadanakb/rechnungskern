@@ -429,6 +429,11 @@ async def bulk_delete_invoices(
             skipped += 1
             continue
 
+        # GoBD: skip cancelled invoices
+        if invoice.payment_status == "cancelled":
+            skipped += 1
+            continue
+
         # Clean up files via storage abstraction
         storage = get_storage()
         if invoice.xrechnung_xml_path:
@@ -779,6 +784,10 @@ async def update_payment_status(
     # Tenant isolation
     ensure_invoice_belongs_to_org(invoice, current_user.get("org_id"))
 
+    # GoBD: cancelled invoices are immutable
+    if invoice.payment_status == "cancelled":
+        raise HTTPException(status_code=403, detail="Stornierte Rechnungen koennen nicht bearbeitet werden")
+
     invoice.payment_status = body.status
     if body.paid_date:
         from datetime import date as date_type
@@ -805,6 +814,55 @@ async def update_payment_status(
             pass  # Push failure must never break the payment update
 
     return {"ok": True, "payment_status": invoice.payment_status}
+
+
+class CancelInvoiceRequest(BaseModel):
+    reason: Optional[str] = None
+
+
+@router.post("/invoices/{invoice_id}/cancel")
+async def cancel_invoice(
+    request: Request,
+    body: CancelInvoiceRequest,
+    invoice_id: str = Path(..., pattern=r"^INV-\d{8}-[a-f0-9]{8}$"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Cancel (stornieren) an invoice. GoBD: cancelled invoices cannot be edited or deleted."""
+    invoice = db.query(Invoice).filter(Invoice.invoice_id == invoice_id).first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
+
+    ensure_invoice_belongs_to_org(invoice, current_user.get("org_id"))
+
+    if invoice.payment_status == "cancelled":
+        raise HTTPException(status_code=400, detail="Rechnung ist bereits storniert")
+
+    invoice.payment_status = "cancelled"
+    db.commit()
+    db.refresh(invoice)
+
+    # Audit log
+    org_id = current_user.get("org_id")
+    if org_id:
+        user_id = int(current_user["user_id"]) if current_user.get("user_id") else None
+        ip = request.client.host if request.client else None
+        log_action(
+            db,
+            org_id=int(org_id),
+            user_id=user_id,
+            action="invoice_cancelled",
+            resource_type="invoice",
+            resource_id=invoice_id,
+            details={
+                "invoice_number": invoice.invoice_number,
+                "gross_amount": float(invoice.gross_amount or 0),
+                "reason": body.reason,
+            },
+            ip_address=ip,
+        )
+
+    return {"ok": True, "payment_status": "cancelled", "invoice_id": invoice_id}
 
 
 @router.get("/invoices/autocomplete")
@@ -1134,6 +1192,10 @@ async def delete_invoice(
 
     # Tenant isolation
     ensure_invoice_belongs_to_org(invoice, current_user.get("org_id"))
+
+    # GoBD: cancelled invoices must not be deleted
+    if invoice.payment_status == "cancelled":
+        raise HTTPException(status_code=403, detail="Stornierte Rechnungen koennen nicht geloescht werden")
 
     # Capture audit context before deletion
     audit_org_id = invoice.organization_id

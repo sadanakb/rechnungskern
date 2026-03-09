@@ -15,7 +15,7 @@ import {
   Printer,
   FileText,
 } from 'lucide-react'
-import { getInvoice, deleteInvoice, getXRechnungDownloadUrl, updatePaymentStatus, createShareLink, sendInvoiceEmail, createCreditNote, type InvoiceDetail } from '@/lib/api'
+import { getInvoice, deleteInvoice, cancelInvoice, getXRechnungDownloadUrl, updatePaymentStatus, createShareLink, sendInvoiceEmail, createCreditNote, type InvoiceDetail } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
@@ -461,6 +461,78 @@ function DeleteDialog({
   )
 }
 
+function CancelDialog({
+  invoiceNumber,
+  reason,
+  onReasonChange,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  invoiceNumber: string
+  reason: string
+  onReasonChange: (v: string) => void
+  onConfirm: () => void
+  onCancel: () => void
+  loading: boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      <div
+        className="relative z-10 w-full max-w-sm rounded-xl border shadow-2xl p-6"
+        style={{
+          backgroundColor: 'rgb(var(--card))',
+          borderColor: 'rgb(var(--border))',
+        }}
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgb(239 68 68 / 0.1)' }}>
+            <XCircle size={18} className="text-red-500" />
+          </div>
+          <h3 className="font-semibold" style={{ color: 'rgb(var(--foreground))' }}>
+            Rechnung stornieren
+          </h3>
+        </div>
+        <p className="text-sm mb-4" style={{ color: 'rgb(var(--foreground-muted))' }}>
+          Möchten Sie Rechnung <strong>{invoiceNumber}</strong> wirklich stornieren? Dies kann nicht rückgängig gemacht werden.
+        </p>
+        <div className="mb-4">
+          <label className="block text-xs font-medium mb-1" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            Grund (optional)
+          </label>
+          <input
+            type="text"
+            placeholder="z. B. Fehlerhafte Rechnung"
+            value={reason}
+            onChange={(e) => onReasonChange(e.target.value)}
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
+            style={{ backgroundColor: 'rgb(var(--input))', borderColor: 'rgb(var(--input-border))', color: 'rgb(var(--foreground))' }}
+          />
+        </div>
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="px-4 py-2 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50"
+            style={{ borderColor: 'rgb(var(--border))', color: 'rgb(var(--foreground))' }}
+          >
+            Abbrechen
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="px-4 py-2 text-sm font-medium rounded-lg text-white transition-colors disabled:opacity-50"
+            style={{ backgroundColor: loading ? 'rgb(239 68 68 / 0.7)' : 'rgb(239 68 68)' }}
+          >
+            {loading ? 'Wird storniert…' : 'Stornieren'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
@@ -486,6 +558,9 @@ export default function InvoiceDetailPage() {
   const [showCreditNoteModal, setShowCreditNoteModal] = useState(false)
   const [creditNoteReason, setCreditNoteReason] = useState('')
   const [creditNoteCreating, setCreditNoteCreating] = useState(false)
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelling, setCancelling] = useState(false)
 
   const handlePaymentUpdated = (newStatus: string) => {
     setInvoice((prev) => prev ? { ...prev, payment_status: newStatus } : prev)
@@ -538,6 +613,21 @@ export default function InvoiceDetailPage() {
       if (process.env.NODE_ENV === 'development') console.error('Send email error:', err)
     } finally {
       setEmailSending(false)
+    }
+  }
+
+  const handleCancel = async () => {
+    if (!invoice) return
+    setCancelling(true)
+    try {
+      await cancelInvoice(invoice.invoice_id, cancelReason || undefined)
+      setInvoice((prev) => prev ? { ...prev, payment_status: 'cancelled' } : prev)
+      setShowCancelDialog(false)
+      setCancelReason('')
+    } catch {
+      // Error silently handled — user can retry
+    } finally {
+      setCancelling(false)
     }
   }
 
@@ -596,6 +686,18 @@ export default function InvoiceDetailPage() {
           onConfirm={handleDelete}
           onCancel={() => setShowDeleteDialog(false)}
           loading={deleting}
+        />
+      )}
+
+      {/* Cancel confirmation dialog */}
+      {showCancelDialog && (
+        <CancelDialog
+          invoiceNumber={invoice.invoice_number}
+          reason={cancelReason}
+          onReasonChange={setCancelReason}
+          onConfirm={handleCancel}
+          onCancel={() => { setShowCancelDialog(false); setCancelReason('') }}
+          loading={cancelling}
         />
       )}
 
@@ -706,13 +808,24 @@ export default function InvoiceDetailPage() {
             Gutschrift erstellen
           </button>
 
-          <button
-            onClick={() => setShowDeleteDialog(true)}
-            className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
-          >
-            <Trash2 size={14} />
-            Löschen
-          </button>
+          {invoice.payment_status !== 'cancelled' && (
+            <button
+              onClick={() => setShowCancelDialog(true)}
+              className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
+            >
+              <XCircle size={14} />
+              Stornieren
+            </button>
+          )}
+          {invoice.payment_status !== 'cancelled' && (
+            <button
+              onClick={() => setShowDeleteDialog(true)}
+              className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
+            >
+              <Trash2 size={14} />
+              Löschen
+            </button>
+          )}
         </div>
       </div>
 

@@ -158,8 +158,11 @@ class DATEVExporter:
         is_credit_note = invoice.get("is_credit_note", False)
         original_inv_nr = invoice.get("original_invoice_number", "")
 
+        payment_status = invoice.get("payment_status", "unpaid")
         if is_credit_note:
             booking_text = f"Gutschrift zu {original_inv_nr} {buyer_name}"[:60]
+        elif payment_status == "cancelled":
+            booking_text = f"STORNIERT RE {invoice_number} {buyer_name}"[:60]
         else:
             booking_text = f"RE {invoice_number} {buyer_name}"[:60]
 

@@ -180,3 +180,55 @@ class TestExportDATEV:
         client.post("/api/invoices", json=sample_invoice_data)
         resp = client.get("/api/export/datev?format=buchungsstapel")
         assert resp.status_code == 200
+
+
+class TestCancelInvoice:
+    """POST /api/invoices/{invoice_id}/cancel"""
+
+    def test_cancel_invoice(self, client, sample_invoice_data):
+        """Cancelling an invoice sets payment_status to cancelled."""
+        create_resp = client.post("/api/invoices", json=sample_invoice_data)
+        invoice_id = create_resp.json()["invoice_id"]
+
+        resp = client.post(f"/api/invoices/{invoice_id}/cancel", json={"reason": "Fehlerhafte Rechnung"})
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["payment_status"] == "cancelled"
+        assert data["ok"] is True
+
+        # Verify status persisted
+        get_resp = client.get(f"/api/invoices/{invoice_id}")
+        assert get_resp.json()["payment_status"] == "cancelled"
+
+    def test_cancel_already_cancelled(self, client, sample_invoice_data):
+        """Cancelling an already cancelled invoice returns 400."""
+        create_resp = client.post("/api/invoices", json=sample_invoice_data)
+        invoice_id = create_resp.json()["invoice_id"]
+
+        client.post(f"/api/invoices/{invoice_id}/cancel", json={})
+        resp = client.post(f"/api/invoices/{invoice_id}/cancel", json={})
+        assert resp.status_code == 400
+        assert "bereits storniert" in resp.json()["detail"]
+
+    def test_cancelled_invoice_cannot_be_edited(self, client, sample_invoice_data):
+        """PATCH payment-status on cancelled invoice returns 403."""
+        create_resp = client.post("/api/invoices", json=sample_invoice_data)
+        invoice_id = create_resp.json()["invoice_id"]
+
+        client.post(f"/api/invoices/{invoice_id}/cancel", json={})
+        resp = client.patch(
+            f"/api/invoices/{invoice_id}/payment-status",
+            json={"status": "paid"},
+        )
+        assert resp.status_code == 403
+        assert "Stornierte" in resp.json()["detail"]
+
+    def test_cancelled_invoice_cannot_be_deleted(self, client, sample_invoice_data):
+        """DELETE on cancelled invoice returns 403 (GoBD)."""
+        create_resp = client.post("/api/invoices", json=sample_invoice_data)
+        invoice_id = create_resp.json()["invoice_id"]
+
+        client.post(f"/api/invoices/{invoice_id}/cancel", json={})
+        resp = client.delete(f"/api/invoices/{invoice_id}")
+        assert resp.status_code == 403
+        assert "Stornierte" in resp.json()["detail"]
