@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { Input } from '@/components/ui/input'
 import { API_BASE } from '@/lib/api'
+import { Logo } from '@/components/ui/Logo'
 
 const getMainDomainUrl = (path: string) => {
   if (typeof window !== 'undefined' && window.location.hostname.startsWith('app.')) {
@@ -58,7 +59,7 @@ export default function LoginPage() {
       <div className="auth-card">
         <div className="text-center mb-8">
           <a href={getMainDomainUrl('/')} className="inline-block mb-6">
-            <img src="/logo-stacked.png" alt="RechnungsWerk" className="h-20 mx-auto" />
+            <Logo variant="stacked" className="h-20 mx-auto" />
           </a>
           <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
             Willkommen zurück

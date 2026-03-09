@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { api } from '@/lib/api'
 import { Input } from '@/components/ui/input'
+import { Logo } from '@/components/ui/Logo'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -30,7 +31,7 @@ export default function ForgotPasswordPage() {
       <div className="auth-card">
         <div className="text-center mb-8">
           <Link href="/login" className="inline-block mb-6">
-            <img src="/logo-stacked.png" alt="RechnungsWerk" className="h-20 mx-auto" />
+            <Logo variant="stacked" className="h-20 mx-auto" />
           </Link>
           <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
             Passwort vergessen

@@ -349,7 +349,7 @@ def send_invoice_portal_email(
         "<p>Sie können Ihre Rechnung über den folgenden Link einsehen, "
         "herunterladen und Ihre Zahlung bestätigen:</p>"
         f'<p><a href="{html.escape(settings.frontend_url)}{html.escape(portal_url)}" '
-        'style="background:#14b8a6;color:white;padding:12px 24px;border-radius:6px;'
+        'style="background:#84CC16;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Rechnung ansehen</a></p>'
         "<p>Der Link ist 30 Tage gültig.</p>"
         "<br><p>Mit freundlichen Grüßen,<br>Ihr RechnungsWerk Team</p>"
@@ -402,7 +402,7 @@ def send_datev_export_email(
         f"<p><strong>Anzahl Buchungssätze:</strong> {invoice_count}</p>"
         "<p>Bitte loggen Sie sich in RechnungsWerk ein, um den Export herunterzuladen:</p>"
         f'<p><a href="{html.escape(settings.frontend_url)}/berichte" '
-        'style="background:#14b8a6;color:white;padding:12px 24px;border-radius:6px;'
+        'style="background:#84CC16;color:white;padding:12px 24px;border-radius:6px;'
         'text-decoration:none;font-weight:bold;">Export herunterladen</a></p>'
         "<br><p>Mit freundlichen Grüßen,<br>RechnungsWerk</p>"
         "</body></html>"

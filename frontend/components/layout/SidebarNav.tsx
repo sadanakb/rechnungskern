@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '@/components/design-system/theme-provider'
 import { cn } from '@/lib/utils'
+import { Logo } from '@/components/ui/Logo'
 
 interface NavItem {
   href: string
@@ -171,7 +172,7 @@ export function SidebarNav() {
           className="flex items-center gap-2.5 px-4 h-14 border-b shrink-0"
           style={{ borderColor: 'rgb(var(--sidebar-border))' }}
         >
-          <img src="/logo-icon.png" alt="RechnungsWerk" className="w-7 h-7 rounded-lg shrink-0" />
+          <Logo variant="icon" className="w-7 h-7 rounded-lg shrink-0" />
 
           {!collapsed && (
             <span
@@ -320,7 +321,7 @@ export function SidebarNav() {
               </div>
               <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'rgb(var(--border))' }}>
                 <div className="flex items-center gap-2">
-                  <img src="/logo-icon.png" alt="RechnungsWerk" className="w-6 h-6 rounded-md shrink-0" />
+                  <Logo variant="icon" className="w-6 h-6 rounded-md shrink-0" />
                   <span className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>Navigation</span>
                 </div>
                 <button

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { Logo } from '@/components/ui/Logo'
 
 export default function GlobalError({
   error,
@@ -19,7 +20,7 @@ export default function GlobalError({
       style={{ backgroundColor: 'rgb(var(--background))' }}
     >
       <div className="text-center max-w-md">
-        <img src="/logo-icon.png" alt="RechnungsWerk" className="h-12 w-12 mx-auto mb-4" />
+        <Logo variant="icon" className="h-12 w-12 mx-auto mb-4" />
         {/* Faded label */}
         <p
           className="text-sm font-semibold uppercase tracking-widest"

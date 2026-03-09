@@ -1,5 +1,8 @@
+'use client'
+
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import { Logo } from '@/components/ui/Logo'
 import { NewsletterForm } from '@/components/NewsletterForm'
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
@@ -15,7 +18,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       >
         <nav className="mx-auto max-w-6xl flex items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-icon.png" alt="RechnungsWerk" className="h-8 w-8" />
+            <Logo variant="icon" className="h-8 w-8" />
             <span className="text-xl font-bold tracking-tight" style={{ color: 'rgb(var(--foreground))' }}>
               Rechnungs<span style={{ color: '#84CC16' }}>Werk</span>
             </span>

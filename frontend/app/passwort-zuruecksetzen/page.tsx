@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
 import { Input } from '@/components/ui/input'
+import { Logo } from '@/components/ui/Logo'
 
 export default function ResetPasswordPage() {
   return (
@@ -89,7 +90,7 @@ function ResetPasswordContent() {
       <div className="auth-page">
         <div className="auth-card text-center">
           <Link href="/login" className="inline-block mb-6">
-            <img src="/logo-stacked.png" alt="RechnungsWerk" className="h-20 mx-auto" />
+            <Logo variant="stacked" className="h-20 mx-auto" />
           </Link>
           <h1 className="text-2xl font-bold mb-3" style={{ color: 'rgb(var(--foreground))' }}>
             Ungültiger Link
@@ -114,7 +115,7 @@ function ResetPasswordContent() {
       <div className="auth-card">
         <div className="text-center mb-8">
           <Link href="/login" className="inline-block mb-6">
-            <img src="/logo-stacked.png" alt="RechnungsWerk" className="h-20 mx-auto" />
+            <Logo variant="stacked" className="h-20 mx-auto" />
           </Link>
           <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>
             Neues Passwort setzen
