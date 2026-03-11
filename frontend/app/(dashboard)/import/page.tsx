@@ -105,7 +105,7 @@ export default function ImportPage() {
 
   return (
     <div
-      className="min-h-screen p-6"
+      className="min-h-screen py-6"
       style={{ backgroundColor: 'rgb(var(--background))' }}
     >
       <div className="max-w-3xl mx-auto">

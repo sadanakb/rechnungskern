@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6">
+      <div className="py-6 lg:py-8 space-y-6">
         <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>Analytics</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => (
@@ -147,7 +147,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="py-6 lg:py-8 space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

@@ -460,7 +460,7 @@ export default function ValidatorPage() {
   })
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-3xl">
+    <div className="py-6 lg:py-8 space-y-6 max-w-3xl">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'rgb(var(--foreground))' }}>

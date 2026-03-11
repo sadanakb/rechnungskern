@@ -103,10 +103,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <main className="flex-1 overflow-y-auto">
-            <div className="px-4 sm:px-6 lg:px-8 pt-4">
-              <Breadcrumbs />
+            <div className="px-6 lg:px-8">
+              <div className="pt-4 pb-1">
+                <Breadcrumbs />
+              </div>
+              {children}
             </div>
-            {children}
           </main>
         </div>
 
