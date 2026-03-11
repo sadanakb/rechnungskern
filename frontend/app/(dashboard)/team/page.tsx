@@ -223,7 +223,7 @@ function InviteDialog({
 
 function UpgradePrompt() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-6 pb-24 lg:pb-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
           Team
@@ -352,7 +352,7 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-6 pb-24 lg:pb-6">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>

@@ -700,7 +700,7 @@ function AbonnementTab({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-6 pb-24 lg:pb-6 max-w-5xl mx-auto">
       {/* Feedback */}
       {feedback && (
         <FeedbackBanner type={feedback.type} message={feedback.message} />
@@ -2353,18 +2353,6 @@ export default function SettingsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <FeatureLinkCard
-                href="/recurring"
-                icon={RotateCcw}
-                title="Wiederkehrende Rechnungen"
-                description="Automatisch wiederkehrende Rechnungen erstellen und verwalten."
-              />
-              <FeatureLinkCard
-                href="/mahnwesen"
-                icon={AlertTriangle}
-                title="Mahnwesen"
-                description="Zahlungserinnerungen fuer überfällige Rechnungen versenden."
-              />
-              <FeatureLinkCard
                 href="/webhooks"
                 icon={Globe}
                 title="Webhooks"
@@ -2373,32 +2361,8 @@ export default function SettingsPage() {
               <FeatureLinkCard
                 href="/audit"
                 icon={ClipboardList}
-                title="Aktivitaetsprotokoll"
+                title="Aktivitätsprotokoll"
                 description="Alle Änderungen und Aktionen nachvollziehen."
-              />
-              <FeatureLinkCard
-                href="/analytics"
-                icon={BarChart3}
-                title="Analytics"
-                description="Detaillierte Statistiken und Auswertungen Ihrer Rechnungen."
-              />
-              <FeatureLinkCard
-                href="/berichte"
-                icon={FileText}
-                title="Berichte"
-                description="Steuer- und Cashflow-Berichte generieren und exportieren."
-              />
-              <FeatureLinkCard
-                href="/suppliers"
-                icon={Truck}
-                title="Lieferanten"
-                description="Lieferantenstammdaten verwalten und SKR-Konten zuordnen."
-              />
-              <FeatureLinkCard
-                href="/validator"
-                icon={CheckCircle2}
-                title="XRechnung-Validator"
-                description="XRechnungs- und ZUGFeRD-Dateien auf Konformitaet pruefen."
               />
             </div>
 

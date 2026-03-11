@@ -16,6 +16,9 @@ import {
   CheckCircle2,
   Clock,
   Plus,
+  RotateCcw,
+  BarChart3,
+  Truck,
 } from 'lucide-react'
 import { listInvoices, getDashboardStats, getOnboardingChecklist, type Invoice, type DashboardStats, type OnboardingChecklist as OnboardingChecklistData } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
@@ -201,7 +204,7 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-6 max-w-7xl mx-auto">
+    <div className="py-6 pb-24 lg:pb-6 max-w-7xl mx-auto">
 
       {/* ===== Greeting ===== */}
       <motion.div
@@ -337,6 +340,52 @@ export default function Dashboard() {
           </button>
         </motion.div>
       </motion.div>
+
+      {/* ===== Werkzeuge & Auswertungen ===== */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'rgb(var(--foreground-muted))' }}>
+          Werkzeuge &amp; Auswertungen
+        </h2>
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {([
+            { href: '/recurring', icon: RotateCcw, label: 'Wiederkehrende Rechnungen', sub: 'Automatische Rechnungszyklen' },
+            { href: '/mahnwesen', icon: AlertTriangle, label: 'Mahnwesen', sub: 'Zahlungserinnerungen versenden' },
+            { href: '/analytics', icon: BarChart3, label: 'Analytics', sub: 'Statistiken & Auswertungen' },
+            { href: '/berichte', icon: FileText, label: 'Berichte', sub: 'Steuer- und Cashflow-Berichte' },
+            { href: '/validator', icon: CheckCircle2, label: 'XRechnung-Validator', sub: 'E-Rechnungen prüfen' },
+            { href: '/suppliers', icon: Truck, label: 'Lieferanten', sub: 'Lieferantenstammdaten' },
+          ] as const).map(({ href, icon: Icon, label, sub }) => (
+            <motion.div key={href} variants={itemVariants}>
+              <Link
+                href={href}
+                className="group flex items-center gap-4 rounded-xl border p-4 transition-all duration-150 hover:shadow-md"
+                style={{ backgroundColor: 'rgb(var(--card))', borderColor: 'rgb(var(--border))' }}
+              >
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors"
+                  style={{ backgroundColor: 'rgb(var(--primary-light))' }}
+                >
+                  <Icon size={18} style={{ color: 'rgb(var(--primary))' }} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'rgb(var(--foreground))' }}>{label}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--foreground-muted))' }}>{sub}</p>
+                </div>
+                <ArrowUpRight
+                  size={15}
+                  className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: 'rgb(var(--foreground-muted))' }}
+                />
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
 
       {/* ===== KPI Cards ===== */}
       <motion.div
