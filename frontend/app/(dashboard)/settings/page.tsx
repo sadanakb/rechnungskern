@@ -43,6 +43,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import DATEVExportDialog from '@/components/DATEVExportDialog'
+import InvoicePreview from '@/components/InvoicePreview'
 import { FieldHelp } from '@/components/ui/FieldHelp'
 import { FIELD_HELP } from '@/lib/field-help'
 import { useAuth } from '@/lib/auth'
@@ -590,6 +591,30 @@ function OrganisationTab() {
               e.target.value = ''
             }}
           />
+          {/* Mini invoice preview showing the logo in context */}
+          <div className="mt-4">
+            <p className="text-sm font-medium mb-2" style={{ color: 'rgb(var(--foreground-muted))' }}>
+              So sieht Ihr Logo auf einer Rechnung aus:
+            </p>
+            <InvoicePreview
+              sellerName={companyName || 'Musterfirma GmbH'}
+              sellerAddress={'Musterstraße 1\n12345 Musterstadt'}
+              invoiceNumber="RK-2024-001"
+              invoiceDate={new Date().toISOString().split('T')[0]}
+              lineItems={[{
+                description: 'Beratungsleistungen',
+                quantity: 1,
+                unitPrice: 1200,
+                netAmount: 1200,
+              }]}
+              netAmount={1200}
+              taxRate={19}
+              taxAmount={228}
+              grossAmount={1428}
+              logoUrl={orgStatus?.logo_url ?? null}
+              scale={0.35}
+            />
+          </div>
         </div>
 
         {/* Save */}

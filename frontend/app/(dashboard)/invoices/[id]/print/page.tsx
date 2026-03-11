@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { getInvoice, type InvoiceDetail } from '@/lib/api'
+import { getInvoice, getOnboardingStatus, type InvoiceDetail } from '@/lib/api'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -50,6 +50,7 @@ export default function InvoicePrintPage() {
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (!invoiceId) return
@@ -64,6 +65,12 @@ export default function InvoicePrintPage() {
         setLoading(false)
       })
   }, [invoiceId])
+
+  useEffect(() => {
+    getOnboardingStatus()
+      .then((data) => setLogoUrl(data.logo_url ?? null))
+      .catch(() => { /* ignore — logo is optional */ })
+  }, [])
 
   if (loading) {
     return (
@@ -195,6 +202,14 @@ export default function InvoicePrintPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
             {/* Seller / company block */}
             <div>
+              {logoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoUrl}
+                  alt="Logo"
+                  style={{ maxHeight: 48, maxWidth: 160, display: 'block', marginBottom: 8 }}
+                />
+              )}
               <div style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>
                 {invoice.seller_name || 'Unbekannter Absender'}
               </div>

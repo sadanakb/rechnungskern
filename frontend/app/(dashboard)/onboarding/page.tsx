@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -29,6 +29,24 @@ interface FormData {
   street: string
   zip: string
   city: string
+}
+
+// ---------------------------------------------------------------------------
+// localStorage persistence
+// ---------------------------------------------------------------------------
+
+const STORAGE_KEY = 'rk-onboarding-state'
+
+interface OnboardingStoredState {
+  currentStep: number
+  formData: {
+    companyName: string
+    vatId: string
+    street: string
+    zip: string
+    city: string
+  }
+  logoUrl: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -504,9 +522,11 @@ function Confetti() {
 function StepDone({
   companyName,
   logoUploaded,
+  onGoToDashboard,
 }: {
   companyName: string
   logoUploaded: boolean
+  onGoToDashboard: () => void
 }) {
   return (
     <div className="relative text-center py-4 overflow-hidden">
@@ -558,14 +578,15 @@ function StepDone({
         </div>
       </div>
 
-      <Link
-        href="/dashboard"
+      <button
+        type="button"
+        onClick={onGoToDashboard}
         className="relative z-10 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white shadow-md hover:opacity-90 transition-opacity"
         style={{ backgroundColor: 'rgb(var(--primary))' }}
       >
         Zum Dashboard
         <ArrowRight size={16} />
-      </Link>
+      </button>
     </div>
   )
 }
@@ -580,6 +601,8 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [completeError, setCompleteError] = useState<string | null>(null)
+  const [isCompleting, setIsCompleting] = useState(false)
 
   const [formData, setFormData] = useState<FormData>({
     companyName: '',
@@ -588,6 +611,31 @@ export default function OnboardingPage() {
     zip: '',
     city: '',
   })
+
+  // Restore from localStorage on mount (before any other logic to avoid flicker)
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const parsed: OnboardingStoredState = JSON.parse(stored)
+        if (parsed.currentStep) setCurrentStep(parsed.currentStep)
+        if (parsed.formData) setFormData(parsed.formData)
+        if (parsed.logoUrl !== undefined) setLogoUrl(parsed.logoUrl)
+      }
+    } catch {
+      // Ignore malformed storage
+    }
+  }, [])
+
+  // Persist to localStorage whenever step, formData, or logoUrl changes
+  useEffect(() => {
+    try {
+      const state: OnboardingStoredState = { currentStep, formData, logoUrl }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    } catch {
+      // Ignore storage errors (e.g. private browsing quota)
+    }
+  }, [currentStep, formData, logoUrl])
 
   const patchForm = (patch: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...patch }))
@@ -628,11 +676,17 @@ export default function OnboardingPage() {
   }
 
   const handleNextFromStep3 = async () => {
+    setIsCompleting(true)
+    setCompleteError(null)
     try {
       await completeOnboarding()
+      localStorage.removeItem(STORAGE_KEY)
     } catch {
-      // Non-blocking — proceed to done screen regardless
+      setCompleteError('Onboarding konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.')
+      setIsCompleting(false)
+      return // Don't advance on failure
     }
+    setIsCompleting(false)
     setCurrentStep(4)
   }
 
@@ -716,11 +770,15 @@ export default function OnboardingPage() {
         {currentStep === 3 && (
           <>
             <StepFirstInvoice />
-            <div className="flex justify-between items-center mt-8">
+            {completeError && (
+              <p className="mt-4 text-sm text-red-500">{completeError}</p>
+            )}
+            <div className="flex justify-between items-center mt-4">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-opacity"
+                disabled={isCompleting}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-opacity disabled:opacity-50"
                 style={{
                   backgroundColor: 'rgb(var(--muted))',
                   color: 'rgb(var(--foreground))',
@@ -732,10 +790,16 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 onClick={handleNextFromStep3}
-                className="text-sm"
-                style={{ color: 'rgb(var(--foreground-muted))' }}
+                disabled={isCompleting}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-50 transition-opacity"
+                style={{ backgroundColor: 'rgb(var(--primary))' }}
               >
-                Überspringen →
+                {isCompleting
+                  ? 'Abschließen...'
+                  : completeError
+                    ? 'Erneut versuchen'
+                    : 'Abschließen'}
+                {!isCompleting && <ArrowRight size={16} />}
               </button>
             </div>
           </>
@@ -746,6 +810,10 @@ export default function OnboardingPage() {
           <StepDone
             companyName={formData.companyName}
             logoUploaded={!!logoUrl}
+            onGoToDashboard={() => {
+              router.refresh()
+              router.push('/dashboard')
+            }}
           />
         )}
       </div>

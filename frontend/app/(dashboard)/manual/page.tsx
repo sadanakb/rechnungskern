@@ -18,9 +18,10 @@ import {
   ArrowRight,
   X,
 } from 'lucide-react'
-import { createInvoice, generateXRechnung, getErrorMessage, API_BASE, type InvoiceCreate } from '@/lib/api'
+import { createInvoice, generateXRechnung, getOnboardingStatus, getErrorMessage, API_BASE, type InvoiceCreate } from '@/lib/api'
 import { FieldHelp } from '@/components/ui/FieldHelp'
 import { FIELD_HELP } from '@/lib/field-help'
+import InvoicePreview from '@/components/InvoicePreview'
 
 type FormData = InvoiceCreate
 
@@ -144,6 +145,13 @@ export default function ManualPage() {
   const [apiError, setApiError] = useState<string | null>(null)
   const [showValidationSummary, setShowValidationSummary] = useState(false)
   const [successBanner, setSuccessBanner] = useState<{ invoiceId: string } | null>(null)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    getOnboardingStatus()
+      .then((data) => setLogoUrl(data.logo_url ?? null))
+      .catch(() => { /* ignore — logo is optional */ })
+  }, [])
 
   const validationSummaryRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
@@ -408,8 +416,31 @@ export default function ManualPage() {
 
   const errorMessages = collectErrorMessages(errors as unknown as Record<string, unknown>)
 
+  const previewNetAmount = watchedItems.reduce(
+    (sum, item) => sum + (Number(item?.quantity) || 0) * (Number(item?.unit_price) || 0),
+    0,
+  )
+  const previewTaxRate = Number(watchedTaxRate) || 19
+  const previewTaxAmount = previewNetAmount * (previewTaxRate / 100)
+  const previewGrossAmount = previewNetAmount + previewTaxAmount
+
+  // We need a watched version of all relevant fields for the preview
+  const watchedSellerName = useWatch({ control, name: 'seller_name' }) as string | undefined
+  const watchedSellerAddress = useWatch({ control, name: 'seller_address' }) as string | undefined
+  const watchedSellerVatId = useWatch({ control, name: 'seller_vat_id' }) as string | undefined
+  const watchedBuyerName = useWatch({ control, name: 'buyer_name' }) as string | undefined
+  const watchedBuyerAddress = useWatch({ control, name: 'buyer_address' }) as string | undefined
+  const watchedBuyerVatId = useWatch({ control, name: 'buyer_vat_id' }) as string | undefined
+  const watchedBuyerReference = useWatch({ control, name: 'buyer_reference' }) as string | undefined
+  const watchedInvoiceNumber = useWatch({ control, name: 'invoice_number' }) as string | undefined
+  const watchedInvoiceDate = useWatch({ control, name: 'invoice_date' }) as string | undefined
+  const watchedDueDate = useWatch({ control, name: 'due_date' }) as string | undefined
+  const watchedIban = useWatch({ control, name: 'iban' }) as string | undefined
+  const watchedBic = useWatch({ control, name: 'bic' }) as string | undefined
+  const watchedPaymentAccountName = useWatch({ control, name: 'payment_account_name' }) as string | undefined
+
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-6 max-w-3xl mx-auto">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-6 max-w-[1400px] mx-auto">
       {/* Page header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -504,6 +535,8 @@ export default function ManualPage() {
         )}
       </AnimatePresence>
 
+      <div className="lg:flex lg:gap-6 lg:items-start">
+      <div className="lg:w-3/5">
       <form ref={formRef} onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
 
         {/* ---- Section 1: Ihre Daten ---- */}
@@ -989,6 +1022,46 @@ export default function ManualPage() {
           </button>
         </div>
       </form>
+      </div>{/* end lg:w-3/5 form wrapper */}
+
+      {/* ===== Live preview pane (desktop only) ===== */}
+      <div className="hidden lg:block lg:w-2/5">
+        <div className="sticky top-6">
+          <p className="text-sm font-medium mb-3" style={{ color: 'rgb(var(--foreground-muted))' }}>
+            Vorschau
+          </p>
+          <InvoicePreview
+            sellerName={watchedSellerName}
+            sellerAddress={watchedSellerAddress}
+            sellerVatId={watchedSellerVatId}
+            buyerName={watchedBuyerName}
+            buyerAddress={watchedBuyerAddress}
+            buyerVatId={watchedBuyerVatId}
+            buyerReference={watchedBuyerReference}
+            invoiceNumber={watchedInvoiceNumber}
+            invoiceDate={watchedInvoiceDate}
+            dueDate={watchedDueDate}
+            currency="EUR"
+            lineItems={fields.map((_, i) => ({
+              description: watchedItems[i]?.description ?? '',
+              quantity: Number(watchedItems[i]?.quantity ?? 0),
+              unitPrice: Number(watchedItems[i]?.unit_price ?? 0),
+              netAmount: (Number(watchedItems[i]?.quantity ?? 0)) * (Number(watchedItems[i]?.unit_price ?? 0)),
+            }))}
+            netAmount={previewNetAmount}
+            taxRate={previewTaxRate}
+            taxAmount={previewTaxAmount}
+            grossAmount={previewGrossAmount}
+            iban={watchedIban}
+            bic={watchedBic}
+            paymentAccountName={watchedPaymentAccountName}
+            logoUrl={logoUrl}
+            scale={0.55}
+          />
+        </div>
+      </div>
+
+      </div>{/* end lg:flex wrapper */}
     </div>
   )
 }

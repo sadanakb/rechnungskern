@@ -15,10 +15,11 @@ import {
   Printer,
   FileText,
 } from 'lucide-react'
-import { getInvoice, deleteInvoice, cancelInvoice, getXRechnungDownloadUrl, updatePaymentStatus, createShareLink, sendInvoiceEmail, createCreditNote, type InvoiceDetail } from '@/lib/api'
+import { getInvoice, deleteInvoice, cancelInvoice, getXRechnungDownloadUrl, updatePaymentStatus, createShareLink, sendInvoiceEmail, createCreditNote, getOnboardingStatus, type InvoiceDetail } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { FieldHelp } from '@/components/ui/FieldHelp'
 import { FIELD_HELP } from '@/lib/field-help'
+import InvoicePreview from '@/components/InvoicePreview'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -548,6 +549,7 @@ export default function InvoiceDetailPage() {
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [shareLink, setShareLink] = useState<string | null>(null)
@@ -581,6 +583,12 @@ export default function InvoiceDetailPage() {
         setLoading(false)
       })
   }, [invoiceId])
+
+  useEffect(() => {
+    getOnboardingStatus()
+      .then((data) => setLogoUrl(data.logo_url ?? null))
+      .catch(() => { /* ignore — logo is optional */ })
+  }, [])
 
   const handleDelete = async () => {
     if (!invoice) return
@@ -1031,6 +1039,41 @@ export default function InvoiceDetailPage() {
             <span>{formatCurrency(invoice.gross_amount, invoice.currency)}</span>
           </div>
         </div>
+      </div>
+
+      {/* ===== Invoice preview ===== */}
+      <div className="mt-6 mb-6">
+        <p className="text-sm font-medium mb-3" style={{ color: 'rgb(var(--foreground-muted))' }}>
+          Rechnungsvorschau
+        </p>
+        <InvoicePreview
+          sellerName={invoice.seller_name}
+          sellerAddress={invoice.seller_address}
+          sellerVatId={invoice.seller_vat_id}
+          buyerName={invoice.buyer_name}
+          buyerAddress={invoice.buyer_address}
+          buyerVatId={invoice.buyer_vat_id}
+          buyerReference={invoice.buyer_reference}
+          invoiceNumber={invoice.invoice_number}
+          invoiceDate={invoice.invoice_date}
+          dueDate={invoice.due_date}
+          currency={invoice.currency ?? 'EUR'}
+          lineItems={invoice.line_items?.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unit_price,
+            netAmount: item.net_amount,
+          }))}
+          netAmount={invoice.net_amount}
+          taxRate={invoice.tax_rate}
+          taxAmount={invoice.tax_amount}
+          grossAmount={invoice.gross_amount}
+          iban={invoice.iban}
+          bic={invoice.bic}
+          paymentAccountName={invoice.payment_account_name}
+          logoUrl={logoUrl}
+          scale={0.8}
+        />
       </div>
 
       {/* ===== Payment & routing info ===== */}
