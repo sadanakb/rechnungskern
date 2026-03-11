@@ -118,14 +118,14 @@ const REQUIRED_FIELDS: Set<keyof EditableFields> = new Set([
 ])
 
 // ---------------------------------------------------------------------------
-// Processing steps for the animated progress indicator
+// Processing steps für die ehrliche Progress-Anzeige
 // ---------------------------------------------------------------------------
 const PROCESSING_STEPS = [
   'PDF wird hochgeladen',
-  'Bild wird vorverarbeitet (denoise, CLAHE)',
-  'Tesseract OCR läuft',
-  'Felder werden geparst',
-  'Konsistenz wird geprüft',
+  'Text wird extrahiert (kostenlos)',
+  'KI-Analyse läuft...',
+  'Felder werden zusammengeführt',
+  'Felder extrahiert — bitte prüfen',
 ]
 
 // ---------------------------------------------------------------------------
@@ -186,19 +186,20 @@ export default function OCRPage() {
     setDownloadUrl(null)
     setProcessingStep(0)
 
-    // Simulate step progression
-    const stepInterval = setInterval(() => {
-      setProcessingStep((s) => Math.min(s + 1, PROCESSING_STEPS.length - 1))
-    }, 900)
+    // Schritt 1: hochladen
+    setProcessingStep(1)
+
+    // Nach 3s auf "KI-Analyse läuft" wechseln falls noch kein Ergebnis
+    const aiStepTimer = setTimeout(() => setProcessingStep(2), 3000)
 
     try {
       const data = await uploadPDFForOCR(file)
-      clearInterval(stepInterval)
+      clearTimeout(aiStepTimer)
       setProcessingStep(PROCESSING_STEPS.length)
       setOcrResult(data)
       setEditedFields(fieldsFromOCR(data))
     } catch (err: unknown) {
-      clearInterval(stepInterval)
+      clearTimeout(aiStepTimer)
       setError(getErrorMessage(err, 'OCR-Verarbeitung fehlgeschlagen'))
     } finally {
       setUploading(false)
@@ -391,7 +392,7 @@ export default function OCRPage() {
                     PDF-Rechnung hier ablegen
                   </p>
                   <p className="text-sm" style={{ color: 'rgb(var(--foreground-muted))' }}>
-                    oder klicken zum Auswählen · nur PDF · max. 10 MB
+                    oder klicken zum Auswählen · nur PDF · max. 20 MB
                   </p>
                 </motion.div>
               )}
@@ -502,15 +503,29 @@ export default function OCRPage() {
                   >
                     {Math.round(ocrResult.confidence ?? 0)}% Konfidenz
                   </span>
-                  {ocrResult.completeness !== undefined && (
+                  {(ocrResult as OCRResult & { ocr_stage?: number }).ocr_stage != null && (
                     <span
-                      className="text-[11px] px-2 py-0.5 rounded-full"
+                      className="text-[11px] px-2 py-0.5 rounded-full font-medium"
                       style={{
                         backgroundColor: 'rgb(var(--primary-light))',
                         color: 'rgb(var(--primary))',
                       }}
                     >
-                      {Math.round(ocrResult.completeness)}% vollständig
+                      {(ocrResult as OCRResult & { ocr_stage?: number }).ocr_stage === 1
+                        ? 'Extrahiert ohne KI (kostenlos)'
+                        : 'Extrahiert mit KI-Unterstützung'}
+                    </span>
+                  )}
+                  {(ocrResult as OCRResult & { budget?: { used: number; limit: number } }).budget && (
+                    <span
+                      className="text-[11px] px-2 py-0.5 rounded-full"
+                      style={{
+                        backgroundColor: 'rgb(var(--muted))',
+                        color: 'rgb(var(--foreground-muted))',
+                      }}
+                    >
+                      {(ocrResult as OCRResult & { budget?: { used: number; limit: number } }).budget!.used}/
+                      {(ocrResult as OCRResult & { budget?: { used: number; limit: number } }).budget!.limit} Scans diesen Monat
                     </span>
                   )}
                 </div>

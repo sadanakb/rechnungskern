@@ -192,9 +192,14 @@ class OCRResult(BaseModel):
     field_confidences: dict = {}  # Per-field confidence scores
     consistency_checks: List[dict] = []  # Mathematical consistency checks
     completeness: float = 0.0  # Percentage of core fields filled
-    source: str = ""  # Engine used: ollama-text, ollama-vision, tesseract
+    source: str = ""  # Engine used
     total_pages: int = 1
-    ocr_engine: str = ""  # paddleocr or tesseract
+    ocr_engine: str = ""  # Extraction engine/stage used
+    # New fields from 3-Stufen pipeline
+    ocr_stage: int = 0  # 1=Regex, 2=GPT-4o Mini, 3=GPT-4o Vision
+    amounts_consistent: Optional[bool] = None  # net+tax == gross
+    note: Optional[str] = None  # Hinweis z.B. "API-Key fehlt"
+    budget: Optional[dict] = None  # {"used": N, "limit": M}
 
 
 class BatchFileResult(BaseModel):

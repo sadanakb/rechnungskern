@@ -17,10 +17,8 @@ from app.schemas import (
     InvoiceCreate, InvoiceResponse, InvoiceDetailResponse, InvoiceListResponse, OCRResult,
     BatchJobResponse, BatchFileResult,
 )
-from app.ocr_pipeline import OCRPipeline
-from app.ollama_extractor import extract_invoice_fields as ollama_extract
-from app.ocr.pipeline import OCRPipelineV2
-from app.ocr.batch_processor import BatchProcessor
+from app.ocr.pipeline import OCRPipeline
+from app.ocr.budget import check_ocr_budget
 from app.xrechnung_generator import XRechnungGenerator
 from app.zugferd_generator import ZUGFeRDGenerator
 from app.kosit_validator import KoSITValidator
@@ -67,8 +65,6 @@ async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme
 
 router = APIRouter()
 ocr_pipeline = OCRPipeline()
-ocr_pipeline_v2 = OCRPipelineV2()
-batch_processor = BatchProcessor()
 
 # Throttle for overdue auto-update (module-level state)
 _last_overdue_check = [0.0]
@@ -156,41 +152,60 @@ async def upload_pdf_for_ocr(
     db.add(upload_log)
     db.commit()
 
-    # Extract invoice fields – Pipeline V2: PaddleOCR + Ollama (structured JSON) + Confidence
+    # Extract invoice fields – 3-Stufen OCR Pipeline (pdfplumber → GPT-4o Mini → GPT-4o Vision)
     try:
         # OCR pipeline needs a local file path — write to a temp file
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
             tmp_pdf.write(contents)
             file_path = tmp_pdf.name
 
-        logger.info("Starting OCR Pipeline V2 for upload_id=%s", upload_id)
-        result = ocr_pipeline_v2.process(file_path)
+        # PDF-Validierung: Korrektheit + Passwortschutz prüfen
+        try:
+            import fitz  # PyMuPDF
+            doc = fitz.open(file_path)
+            if doc.is_encrypted:
+                doc.close()
+                raise HTTPException(
+                    status_code=400,
+                    detail="PDF ist passwortgeschützt. Bitte entsperrte Version hochladen."
+                )
+            doc.close()
+        except HTTPException:
+            raise
+        except Exception:
+            raise HTTPException(status_code=400, detail="Ungültige oder beschädigte PDF-Datei")
 
-        fields = result.get("fields", {})
-        confidence = result.get("confidence", 0.0)
-        raw_text = result.get("raw_text", "")
-        source = result.get("source", "unknown")
-        field_confidences = result.get("field_confidences", {})
-        consistency_checks = result.get("consistency_checks", [])
-        completeness = result.get("completeness", 0.0)
-        total_pages = result.get("total_pages", 1)
-        ocr_engine = result.get("ocr_engine", "")
+        # Budget-Check: OCR-Limit pro Monat und Plan
+        org_id_int = int(org_id) if org_id else None
+        ocr_used, ocr_limit = 0, 5
+        if org_id_int:
+            org = db.query(Organization).filter(Organization.id == org_id_int).first()
+            org_plan = org.plan if org else "free"
+            is_allowed, ocr_used, ocr_limit = check_ocr_budget(org_id_int, org_plan, db)
+            if not is_allowed:
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"OCR-Limit erreicht ({ocr_used}/{ocr_limit} Scans diesen Monat). "
+                           f"Upgraden Sie für mehr Scans."
+                )
+
+        logger.info("Starting OCR Pipeline (3-Stufen) for upload_id=%s", upload_id)
+        result = await ocr_pipeline.process(file_path)
+
+        # Extrahiere Felder (alle nicht-internen Keys)
+        fields = {k: v for k, v in result.items() if not k.startswith('_')}
+        confidence = round((result.get('_overall_confidence', 0.0)) * 100, 1)
+        ocr_stage = result.get('_ocr_stage', 0)
+        amounts_consistent = result.get('_amounts_consistent')
+        note = result.get('_note')
+        extraction_method = result.get('_extraction_method', 'unknown')
 
         logger.info(
-            "OCR Pipeline V2 finished – source=%s, confidence=%.1f%%, pages=%d",
-            source, confidence, total_pages,
+            "OCR Pipeline finished – stage=%d, method=%s, confidence=%.1f%%",
+            ocr_stage, extraction_method, confidence,
         )
 
-        if not fields and not raw_text:
-            # Fall back to legacy Ollama extractor
-            logger.info("Pipeline V2 returned no results, trying legacy extractor")
-            legacy_result = ollama_extract(file_path)
-            fields = legacy_result.get("fields", {})
-            confidence = legacy_result.get("confidence", 0.0)
-            raw_text = legacy_result.get("raw_text", "")
-            source = legacy_result.get("source", "legacy-fallback")
-
-        if not fields and not raw_text:
+        if not fields:
             upload_log.upload_status = "error"
             upload_log.error_message = "No content extracted from PDF"
             db.commit()
@@ -223,10 +238,8 @@ async def upload_pdf_for_ocr(
         upload_log.upload_status = "success"
         db.commit()
 
-        # Phase 11: Push notification on OCR complete
-        _ocr_org_id = getattr(upload_log, "organization_id", None) or (
-            current_user.get("org_id")
-        )
+        # Push notification on OCR complete
+        _ocr_org_id = org_id
         if _ocr_org_id:
             try:
                 from app import push_service
@@ -241,16 +254,20 @@ async def upload_pdf_for_ocr(
 
         return OCRResult(
             invoice_id=invoice_id,
-            extracted_text=raw_text[:500],
-            confidence=round(confidence, 2),
+            extracted_text="",
+            confidence=confidence,
             fields=fields,
             suggestions=suggestions,
-            field_confidences=field_confidences,
-            consistency_checks=consistency_checks,
-            completeness=completeness,
-            source=source,
-            total_pages=total_pages,
-            ocr_engine=ocr_engine,
+            field_confidences={},
+            consistency_checks=[],
+            completeness=0.0,
+            source=extraction_method,
+            total_pages=1,
+            ocr_engine=f"stage{ocr_stage}",
+            ocr_stage=ocr_stage,
+            amounts_consistent=amounts_consistent,
+            note=note,
+            budget={"used": ocr_used + 1, "limit": ocr_limit},
         )
 
     except HTTPException:
@@ -1324,19 +1341,17 @@ async def upload_batch_for_ocr(
             )
         filenames.append(safe_name)
 
-    # Create batch job
     org_id = current_user.get("org_id")
-    batch_job = batch_processor.create_batch(filenames, org_id=org_id)
-
+    batch_id = f"batch-{uuid.uuid4().hex[:12]}"
     MAX_BATCH_TOTAL_BYTES = 50 * 1024 * 1024
+    storage = get_storage()
+    file_paths: list[str] = []
+    invoice_ids: list[str] = []
+    batch_total_bytes = 0
 
     # Save all files
-    storage = get_storage()
-    file_paths = []
-    batch_total_bytes = 0
     for i, f in enumerate(files):
         upload_id = f"upload-{uuid.uuid4().hex[:8]}"
-
         contents = await f.read()
         batch_total_bytes += len(contents)
         if batch_total_bytes > MAX_BATCH_TOTAL_BYTES:
@@ -1349,61 +1364,79 @@ async def upload_batch_for_ocr(
                 status_code=413,
                 detail=f"Datei '{filenames[i]}' zu gross (max. {settings.max_upload_size_mb} MB)",
             )
-
         storage_key = _storage_path(org_id, "uploads", f"{upload_id}.pdf")
         storage.save(storage_key, contents)
 
-        # OCR pipeline needs a local file path — write to a temp file
         tmp_pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
         tmp_pdf.write(contents)
         tmp_pdf.close()
         file_paths.append(tmp_pdf.name)
 
-        # Log upload
         invoice_id = f"INV-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
-        upload_log = UploadLog(
+        invoice_ids.append(invoice_id)
+        db.add(UploadLog(
             upload_id=upload_id,
             filename=filenames[i],
             file_type="pdf",
             file_size=len(contents),
             upload_status="batch_processing",
             invoice_id=invoice_id,
-        )
-        db.add(upload_log)
-        batch_job.results[i].invoice_id = invoice_id
+        ))
 
     db.commit()
 
-    # Process batch
-    try:
-        batch_job = batch_processor.process_batch(batch_job.batch_id, file_paths)
-    except Exception as e:
-        logger.error("Batch processing failed: %s", e)
-        raise HTTPException(status_code=500, detail="Batch-Verarbeitung fehlgeschlagen")
+    # Process each file with the new OCR pipeline
+    results = []
+    succeeded = 0
+    failed = 0
+    created_at = datetime.utcnow()
+
+    for i, file_path in enumerate(file_paths):
+        try:
+            result = await ocr_pipeline.process(file_path)
+            fields = {k: v for k, v in result.items() if not k.startswith('_')}
+            confidence = round((result.get('_overall_confidence', 0.0)) * 100, 1)
+            results.append(BatchFileResult(
+                filename=filenames[i],
+                status="success",
+                invoice_id=invoice_ids[i],
+                fields=fields,
+                confidence=confidence,
+                field_confidences={},
+                source=result.get('_extraction_method', 'unknown'),
+            ))
+            succeeded += 1
+        except Exception as e:
+            logger.error("Batch OCR failed for file %s: %s", filenames[i], e)
+            results.append(BatchFileResult(
+                filename=filenames[i],
+                status="error",
+                invoice_id=invoice_ids[i],
+                fields={},
+                confidence=0.0,
+                error=str(e),
+                source="error",
+            ))
+            failed += 1
+        finally:
+            try:
+                os.unlink(file_path)
+            except Exception:
+                pass
+
+    completed_at = datetime.utcnow()
 
     return BatchJobResponse(
-        batch_id=batch_job.batch_id,
-        total_files=batch_job.total_files,
-        processed=batch_job.processed,
-        succeeded=batch_job.succeeded,
-        failed=batch_job.failed,
-        status=batch_job.status,
-        progress_percent=batch_job.progress_percent(),
-        results=[
-            BatchFileResult(
-                filename=r.filename,
-                status=r.status,
-                invoice_id=r.invoice_id,
-                fields=r.fields,
-                confidence=r.confidence,
-                field_confidences=r.field_confidences,
-                error=r.error,
-                source=r.source,
-            )
-            for r in batch_job.results
-        ],
-        created_at=batch_job.created_at,
-        completed_at=batch_job.completed_at,
+        batch_id=batch_id,
+        total_files=len(files),
+        processed=len(files),
+        succeeded=succeeded,
+        failed=failed,
+        status="completed",
+        progress_percent=100.0,
+        results=results,
+        created_at=created_at,
+        completed_at=completed_at,
     )
 
 
@@ -1412,40 +1445,8 @@ async def get_batch_status(
     batch_id: str = Path(...),
     current_user: dict = Depends(get_current_user),
 ):
-    """Get status of a batch processing job."""
-    job = BatchProcessor.get_batch(batch_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="Batch-Job nicht gefunden")
-
-    # Verify the batch belongs to the caller's organisation
-    user_org = current_user.get("org_id")
-    if job.org_id and user_org != job.org_id:
-        raise HTTPException(status_code=403, detail="Kein Zugriff auf diesen Batch-Job")
-
-    return BatchJobResponse(
-        batch_id=job.batch_id,
-        total_files=job.total_files,
-        processed=job.processed,
-        succeeded=job.succeeded,
-        failed=job.failed,
-        status=job.status,
-        progress_percent=job.progress_percent(),
-        results=[
-            BatchFileResult(
-                filename=r.filename,
-                status=r.status,
-                invoice_id=r.invoice_id,
-                fields=r.fields,
-                confidence=r.confidence,
-                field_confidences=r.field_confidences,
-                error=r.error,
-                source=r.source,
-            )
-            for r in job.results
-        ],
-        created_at=job.created_at,
-        completed_at=job.completed_at,
-    )
+    """Batch-Status abfragen — Batches werden jetzt synchron verarbeitet."""
+    raise HTTPException(status_code=404, detail="Batch-Job nicht gefunden (Batches werden synchron verarbeitet)")
 
 
 # ---------------------------------------------------------------------------
@@ -1761,8 +1762,7 @@ async def categorize_invoice(
     """
     KI-gestützte Kategorisierung einer Rechnung mit SKR03/SKR04-Kontozuordnung.
 
-    Nutzt primär Ollama (qwen2.5:14b) lokal, fällt bei Nicht-Verfügbarkeit
-    auf regelbasiertes Keyword-Matching zurück. Kein externer API-Key nötig.
+    Nutzt KI-gestützte Kategorisierung mit regelbasiertem Keyword-Matching als Fallback.
     """
     invoice = db.query(Invoice).filter(Invoice.invoice_id == invoice_id).first()
     if not invoice:

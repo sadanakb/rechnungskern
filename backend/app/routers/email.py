@@ -72,11 +72,13 @@ class InboxProcessResult(BaseModel):
 def _run_ocr(file_path: str) -> dict:
     """Run OCR pipeline on a PDF and return invoice_id + confidence."""
     try:
-        from app.ollama_extractor import extract_invoice_fields
-        result = extract_invoice_fields(file_path)
+        import asyncio
+        from app.ocr.pipeline import OCRPipeline
+        pipeline = OCRPipeline()
+        result = asyncio.run(pipeline.process(file_path))
         return {
-            "invoice_id": result.get("source", "unknown"),
-            "confidence": result.get("confidence", 0.0),
+            "invoice_id": result.get("_extraction_method", "unknown"),
+            "confidence": result.get("_overall_confidence", 0.0),
         }
     except Exception as e:
         return {"error": str(e)}

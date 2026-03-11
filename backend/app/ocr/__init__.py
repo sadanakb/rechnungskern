@@ -1,12 +1,11 @@
 """
 OCR package for RechnungsKern.
 
-Provides PaddleOCR-based text extraction, Ollama LLM field extraction,
-confidence scoring, and batch processing capabilities.
+Provides kostenoptimierte 3-Stufen-Pipeline:
+  Stufe 1: pdfplumber + Regex (kostenlos)
+  Stufe 2: GPT-4o Mini Text (~0.05 Cent)
+  Stufe 3: GPT-4o Vision (~1-2 Cent, nur gescannte PDFs)
 """
-from app.ocr.paddleocr_engine import PaddleOCREngine
-from app.ocr.confidence import ConfidenceScorer
-from app.ocr.pipeline import OCRPipelineV2
-from app.ocr.batch_processor import BatchProcessor
+from app.ocr.pipeline import OCRPipeline
 
-__all__ = ["PaddleOCREngine", "ConfidenceScorer", "OCRPipelineV2", "BatchProcessor"]
+__all__ = ["OCRPipeline"]
