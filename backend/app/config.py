@@ -62,8 +62,15 @@ class Settings(BaseSettings):
     mistral_api_key: str = ""
     ollama_model: str = "qwen2.5:14b"
     ai_provider: str = "auto"  # auto, anthropic, mistral, ollama
-    openai_api_key: str = ""
+    openai_api_key: str = ""  # Fallback für lokale Entwicklung
     openai_model: str = "gpt-4o-mini"
+
+    # Azure OpenAI (DSGVO-konform, Daten bleiben in EU)
+    azure_openai_api_key: str = ""
+    azure_openai_endpoint: str = ""  # https://<name>.openai.azure.com/
+    azure_openai_api_version: str = "2024-10-21"
+    azure_openai_deployment_mini: str = "gpt-4o-mini"   # Deployment-Name für Stufe 2
+    azure_openai_deployment_vision: str = "gpt-4o"      # Deployment-Name für Stufe 3
 
     # Brevo (Newsletter)
     brevo_api_key: str = ""

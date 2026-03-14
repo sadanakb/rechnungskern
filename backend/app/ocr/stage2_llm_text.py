@@ -2,6 +2,8 @@
 import json
 import logging
 
+from app.config import settings
+
 logger = logging.getLogger(__name__)
 
 # Lazy Client — crasht nicht bei fehlendem API Key beim Import
@@ -9,10 +11,21 @@ _client = None
 
 
 def _get_client():
+    """Lazy init: Azure OpenAI bevorzugt (DSGVO-konform), Fallback auf OpenAI direkt."""
     global _client
     if _client is None:
-        from openai import AsyncOpenAI
-        _client = AsyncOpenAI()  # Liest OPENAI_API_KEY aus env
+        if settings.azure_openai_api_key and settings.azure_openai_endpoint:
+            from openai import AsyncAzureOpenAI
+            _client = AsyncAzureOpenAI(
+                api_key=settings.azure_openai_api_key,
+                api_version=settings.azure_openai_api_version or "2024-10-21",
+                azure_endpoint=settings.azure_openai_endpoint,
+            )
+        elif settings.openai_api_key:
+            from openai import AsyncOpenAI
+            _client = AsyncOpenAI(api_key=settings.openai_api_key)
+        else:
+            return None
     return _client
 
 
@@ -79,8 +92,11 @@ async def stage2_extract(text: str, already_extracted: dict = None) -> dict:
 
     try:
         client = _get_client()
+        if client is None:
+            logger.warning("Stufe 2: Kein API Key konfiguriert — überspringe LLM-Extraktion")
+            return {}
         response = await client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=settings.azure_openai_deployment_mini,
             max_tokens=1500,
             temperature=0,
             messages=[{

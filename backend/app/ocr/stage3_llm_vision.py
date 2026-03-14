@@ -2,6 +2,7 @@
 import base64
 import logging
 
+from app.config import settings
 from .stage2_llm_text import _get_client, _parse_json_response, EXTRACTION_PROMPT
 
 logger = logging.getLogger(__name__)
@@ -47,8 +48,11 @@ async def stage3_extract(pdf_path: str) -> dict:
 
     try:
         client = _get_client()
+        if client is None:
+            logger.warning("Stufe 3: Kein API Key konfiguriert — überspringe Vision-Extraktion")
+            return {}
         response = await client.chat.completions.create(
-            model="gpt-4o",
+            model=settings.azure_openai_deployment_vision,
             max_tokens=2000,
             temperature=0,
             messages=[{"role": "user", "content": content}]

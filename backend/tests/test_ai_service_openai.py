@@ -21,6 +21,8 @@ class TestAiServiceOpenAI:
         from app.ai_service import _select_provider, AiProvider
         with patch("app.ai_service.settings") as mock_settings:
             mock_settings.openai_api_key = ""
+            mock_settings.azure_openai_api_key = ""
+            mock_settings.azure_openai_endpoint = ""
             mock_settings.anthropic_api_key = "sk-ant-test"
             mock_settings.mistral_api_key = ""
             result = _select_provider("standard")
@@ -40,13 +42,10 @@ class TestAiServiceOpenAI:
         from app.ai_service import categorize_invoice, AiProvider
         mock_response = MagicMock()
         mock_response.choices[0].message.content = '{"skr03_account": "4964", "category": "IT/Software"}'
-        with patch("app.ai_service.settings") as mock_settings, \
-             patch("openai.OpenAI") as MockOpenAI:
-            mock_settings.openai_api_key = "sk-test"
-            mock_settings.openai_model = "gpt-4o-mini"
-            mock_client = MagicMock()
-            MockOpenAI.return_value = mock_client
-            mock_client.chat.completions.create.return_value = mock_response
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = mock_response
+        with patch("app.ai_service._get_sync_openai_client", return_value=mock_client), \
+             patch("app.ai_service._get_openai_model", return_value="gpt-4o-mini"):
             result = categorize_invoice("AWS", "Cloud Hosting", 250.0, AiProvider.OPENAI)
         assert result["skr03_account"] == "4964"
         assert result["category"] == "IT/Software"

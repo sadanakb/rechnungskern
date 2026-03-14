@@ -30,6 +30,13 @@ services:
       ALLOWED_ORIGINS: '["https://rechnungskern.de"]'
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      # Azure OpenAI (DSGVO-konform, EU — bevorzugt)
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
+      AZURE_OPENAI_API_VERSION: ${AZURE_OPENAI_API_VERSION:-2024-10-21}
+      AZURE_OPENAI_DEPLOYMENT_MINI: ${AZURE_OPENAI_DEPLOYMENT_MINI:-gpt-4o-mini}
+      AZURE_OPENAI_DEPLOYMENT_VISION: ${AZURE_OPENAI_DEPLOYMENT_VISION:-gpt-4o}
+      # OpenAI direkt (Fallback für lokale Entwicklung)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     depends_on:
       db:

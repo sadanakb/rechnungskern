@@ -115,17 +115,24 @@ def generate_monthly_summary(
         return f"Im {month_name} wurden {invoice_count} Rechnungen über {gross_total:.2f} EUR gestellt."
 
 
+def _has_any_openai_key() -> bool:
+    """True wenn Azure OpenAI oder direkter OpenAI Key konfiguriert ist."""
+    if settings.azure_openai_api_key and settings.azure_openai_endpoint:
+        return True
+    return bool(settings.openai_api_key)
+
+
 def _select_provider(task_type: str = "standard") -> AiProvider:
     """Auto-selects cheapest viable provider for the task type."""
     if task_type == "complex":
         # Complex tasks: prefer Claude (better tool use, reasoning)
         if settings.anthropic_api_key:
             return AiProvider.ANTHROPIC
-        if settings.openai_api_key:
+        if _has_any_openai_key():
             return AiProvider.OPENAI
     else:
-        # Standard tasks: prefer OpenAI (cheapest)
-        if settings.openai_api_key:
+        # Standard tasks: prefer OpenAI/Azure (günstigster)
+        if _has_any_openai_key():
             return AiProvider.OPENAI
         if settings.anthropic_api_key:
             return AiProvider.ANTHROPIC
@@ -134,12 +141,33 @@ def _select_provider(task_type: str = "standard") -> AiProvider:
     return AiProvider.OLLAMA
 
 
+def _get_sync_openai_client():
+    """Lazy init: Azure OpenAI bevorzugt (DSGVO-konform), Fallback auf OpenAI direkt."""
+    if settings.azure_openai_api_key and settings.azure_openai_endpoint:
+        from openai import AzureOpenAI
+        return AzureOpenAI(
+            api_key=settings.azure_openai_api_key,
+            api_version=settings.azure_openai_api_version or "2024-10-21",
+            azure_endpoint=settings.azure_openai_endpoint,
+        )
+    elif settings.openai_api_key:
+        from openai import OpenAI
+        return OpenAI(api_key=settings.openai_api_key)
+    raise ValueError("Kein OpenAI/Azure-API-Key konfiguriert")
+
+
+def _get_openai_model() -> str:
+    """Gibt den Deployment-/Modellnamen zurück, je nach Provider."""
+    if settings.azure_openai_api_key and settings.azure_openai_endpoint:
+        return settings.azure_openai_deployment_mini
+    return settings.openai_model
+
+
 def _call_openai(prompt: str) -> dict:
-    """Call OpenAI GPT-4o-mini, return parsed JSON dict."""
-    from openai import OpenAI
-    client = OpenAI(api_key=settings.openai_api_key)
+    """Call OpenAI/Azure GPT-4o-mini, return parsed JSON dict."""
+    client = _get_sync_openai_client()
     response = client.chat.completions.create(
-        model=settings.openai_model,
+        model=_get_openai_model(),
         messages=[{"role": "user", "content": prompt}],
         max_tokens=200,
         response_format={"type": "json_object"},
@@ -151,11 +179,10 @@ def _call_openai(prompt: str) -> dict:
 
 
 def _call_openai_text(prompt: str) -> str:
-    """Call OpenAI GPT-4o-mini, return plain text."""
-    from openai import OpenAI
-    client = OpenAI(api_key=settings.openai_api_key)
+    """Call OpenAI/Azure GPT-4o-mini, return plain text."""
+    client = _get_sync_openai_client()
     response = client.chat.completions.create(
-        model=settings.openai_model,
+        model=_get_openai_model(),
         messages=[{"role": "user", "content": prompt}],
         max_tokens=300,
     )

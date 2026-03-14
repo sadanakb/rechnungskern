@@ -11,8 +11,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# Prüfe ob OpenAI API Key vorhanden — Stufe 2+3 nur wenn ja
+# Prüfe ob ein LLM API Key vorhanden ist — Stufe 2+3 nur wenn ja
 def _has_openai_key() -> bool:
+    azure_key = os.environ.get("AZURE_OPENAI_API_KEY", "").strip()
+    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT", "").strip()
+    if azure_key and azure_endpoint:
+        return True
     return bool(os.environ.get("OPENAI_API_KEY", "").strip())
 
 
@@ -42,7 +46,7 @@ class OCRPipeline:
 
         # Kein API Key → nur Stufe 1 Ergebnis
         if not _has_openai_key():
-            logger.warning("OCR: Kein OPENAI_API_KEY — nur Stufe 1 Ergebnis")
+            logger.warning("OCR: Kein API Key konfiguriert (AZURE_OPENAI_API_KEY oder OPENAI_API_KEY) — nur Stufe 1 Ergebnis")
             return self._finalize(stage1_fields, stage=1, note="KI-Analyse nicht verfügbar (API-Key fehlt)")
 
         # --- Stufe 2: GPT-4o Mini Text (wenn Text vorhanden) ---

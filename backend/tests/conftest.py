@@ -111,7 +111,7 @@ _install_reportlab_test_stub()
 
 
 def _install_openai_test_stub() -> None:
-    """Provide minimal openai module so tests can patch openai.OpenAI."""
+    """Provide minimal openai module so tests can patch openai.OpenAI / AzureOpenAI."""
     if "openai" in sys.modules:
         return
     try:
@@ -126,7 +126,22 @@ def _install_openai_test_stub() -> None:
         def __init__(self, *args, **kwargs):
             pass
 
+    class AzureOpenAI:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class AsyncOpenAI:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class AsyncAzureOpenAI:
+        def __init__(self, *args, **kwargs):
+            pass
+
     openai.OpenAI = OpenAI
+    openai.AzureOpenAI = AzureOpenAI
+    openai.AsyncOpenAI = AsyncOpenAI
+    openai.AsyncAzureOpenAI = AsyncAzureOpenAI
     sys.modules["openai"] = openai
 
 

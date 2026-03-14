@@ -358,8 +358,51 @@ async def chat(
                         tool_result = execute_tool(tool_call.name, tool_call.input)
                         yield f"data: {_json.dumps({'tool_result': tool_result})}\n\n"
 
+            elif app_settings.azure_openai_api_key and app_settings.azure_openai_endpoint:
+                # Use Azure OpenAI streaming (DSGVO-konform, EU — Sweden Central)
+                from openai import AzureOpenAI
+                _oa_client = AzureOpenAI(
+                    api_key=app_settings.azure_openai_api_key,
+                    api_version=app_settings.azure_openai_api_version or "2024-10-21",
+                    azure_endpoint=app_settings.azure_openai_endpoint,
+                )
+                _oa_model = app_settings.azure_openai_deployment_mini
+                stream = _oa_client.chat.completions.create(
+                    model=_oa_model,
+                    messages=messages,
+                    tools=tools,
+                    stream=True,
+                    max_tokens=1024,
+                )
+
+                tool_name_buf = ""
+                tool_args_buf = ""
+                in_tool_call = False
+
+                for chunk in stream:
+                    delta = chunk.choices[0].delta if chunk.choices else None
+                    if not delta:
+                        continue
+                    if delta.content:
+                        yield f"data: {_json.dumps({'token': delta.content})}\n\n"
+                    if delta.tool_calls:
+                        in_tool_call = True
+                        for tc in delta.tool_calls:
+                            if tc.function.name:
+                                tool_name_buf += tc.function.name
+                            if tc.function.arguments:
+                                tool_args_buf += tc.function.arguments
+
+                if in_tool_call and tool_name_buf:
+                    try:
+                        args = _json.loads(tool_args_buf) if tool_args_buf else {}
+                    except Exception:
+                        args = {}
+                    tool_result = execute_tool(tool_name_buf, args)
+                    yield f"data: {_json.dumps({'tool_result': tool_result})}\n\n"
+
             elif app_settings.openai_api_key:
-                # Use OpenAI streaming
+                # Fallback: OpenAI direkt (für lokale Entwicklung)
                 from openai import OpenAI
                 client = OpenAI(api_key=app_settings.openai_api_key)
 
@@ -397,7 +440,7 @@ async def chat(
                     tool_result = execute_tool(tool_name_buf, args)
                     yield f"data: {_json.dumps({'tool_result': tool_result})}\n\n"
             else:
-                yield f"data: {_json.dumps({'token': 'Kein KI-Provider konfiguriert. Bitte OPENAI_API_KEY oder ANTHROPIC_API_KEY setzen.'})}\n\n"
+                yield f"data: {_json.dumps({'token': 'Kein KI-Provider konfiguriert. Bitte AZURE_OPENAI_API_KEY, OPENAI_API_KEY oder ANTHROPIC_API_KEY setzen.'})}\n\n"
 
         except Exception as e:
             logger.error("Chat streaming error: %s", e)
